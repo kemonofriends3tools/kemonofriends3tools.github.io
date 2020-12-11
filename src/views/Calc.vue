@@ -43,7 +43,6 @@ export default {
     if (this.endDate < tmpDate) {
       this.endDate = new Date(dayjs().endOf('month'));
     }
-    console.log(this.endDate);
   },
 };
 </script>

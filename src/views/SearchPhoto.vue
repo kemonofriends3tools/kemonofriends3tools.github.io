@@ -1,0 +1,471 @@
+<template>
+  <b-container fluid class="mt-2">
+    <h1>フォト検索</h1>
+    <b-alert show variant="warning" class="d-block d-sm-none mb-0 small">
+      画面幅が狭いので、操作性の観点から一部絞り込み機能を省略しています(全文検索で代用は可能です)。<br />
+      スマホの場合、横画面にすればすべての機能が利用できるようになります。
+    </b-alert>
+
+    <b-container fluid>
+      <div>
+        <div class="table-attached-header">
+          <b-container fluid>
+            <b-row class="align-items-baseline">
+              <b-col class="pl-0 pr-4 font-weight-bold flex-grow-0 text-nowrap">
+                <b-icon
+                  class="table-attached-header-icon"
+                  icon="funnel"
+                  variant="dark"
+                  font-scale="1.5"
+                />
+                特殊条件
+              </b-col>
+              <b-col cols="12" sm="auto" class="pl-4">
+                <template v-if="advFilter.label">
+                  {{ advFilter.label }}
+                </template>
+                <template v-else>
+                  指定なし
+                </template>
+              </b-col>
+              <b-col class="pl-4 flex-grow-0">
+                <SearchPhotoAdvFilterModal @advFilterSelected="setAdvFilter">
+                  特殊条件選択
+                </SearchPhotoAdvFilterModal>
+              </b-col>
+            </b-row>
+          </b-container>
+        </div>
+        <div class="table-attached-header">
+          <div class="d-none d-sm-block">
+            <b-icon class="table-attached-header-icon" icon="eye" variant="dark" font-scale="1.5" />
+          </div>
+          <b-container fluid>
+            <b-row class="d-block d-sm-none">
+              <b-col cols="12" class="mt-2 p-0" sytle="margin-left: -24px">
+                <b-icon
+                  class="table-attached-header-icon"
+                  icon="eye"
+                  variant="dark"
+                  font-scale="1.5"
+                />
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col cols="12">
+                <b-alert show variant="warning" class="mt-2 mb-0 px-2 small">
+                  表示を増やすとそれだけ重くなります。<br />選択をリセットしたい場合はページをリロードして下さい。
+                </b-alert>
+              </b-col>
+            </b-row>
+            <b-row
+              v-for="[key, value] of new Map([
+                ['基本', ['属性', '☆']],
+                ['限界突破', null],
+                ['とくせい', ['とくせい(変化前)', 'とくせい(変化後)']],
+                ['その他', ['イラストレータ名', '備考']],
+              ])"
+              :key="key"
+              class="align-items-center search-option-grid m-1 px-1"
+            >
+              <b-col cols="12" sm="2" xl="1" class="p-0 font-weight-bold">{{ key }}</b-col>
+              <b-col class="d-flex flex-wrap">
+                <template v-if="key == '限界突破'">
+                  <b-select
+                    v-model.number="selectedLevel"
+                    :options="selectLevelOptions"
+                    @change="selectLevelSelected"
+                    style="width:4rem"
+                    required
+                  />
+                  <div v-for="(i, index) of levelStatusColumns" :key="key + index">
+                    <b-button
+                      v-show="!i.hidden"
+                      variant="secondary"
+                      @click="setLevelStatusColumnHidden(i.name, index)"
+                      class="table-attached-header-view-button"
+                    >
+                      {{ i.name }}
+                    </b-button>
+                    <b-button
+                      v-show="i.hidden"
+                      variant="outline-secondary"
+                      @click="setLevelStatusColumnHidden(i.name, index)"
+                      class="table-attached-header-view-button"
+                    >
+                      {{ i.name }}
+                    </b-button>
+                  </div>
+                </template>
+                <template v-else>
+                  <div v-for="i of value" :key="key + i">
+                    <b-button
+                      v-show="!columns[columnsIndex.get(i)].hidden"
+                      variant="secondary"
+                      @click="
+                        $set(
+                          columns[columnsIndex.get(i)],
+                          'hidden',
+                          !columns[columnsIndex.get(i)].hidden
+                        )
+                      "
+                      class="table-attached-header-view-button"
+                    >
+                      {{ columns[columnsIndex.get(i)].label }}
+                    </b-button>
+                    <b-button
+                      v-show="columns[columnsIndex.get(i)].hidden"
+                      variant="outline-secondary"
+                      @click="
+                        $set(
+                          columns[columnsIndex.get(i)],
+                          'hidden',
+                          !columns[columnsIndex.get(i)].hidden
+                        )
+                      "
+                      class="table-attached-header-view-button"
+                    >
+                      {{ columns[columnsIndex.get(i)].label }}
+                    </b-button>
+                  </div>
+                </template>
+              </b-col>
+            </b-row>
+          </b-container>
+        </div>
+        <div class="table-attached-header">
+          <b-icon
+            class="table-attached-header-icon"
+            icon="search"
+            variant="dark"
+            font-scale="1.5"
+          />
+          <b-form-input
+            class="vgt-input input-externalQuery my-1"
+            v-model="globalSearchTerm"
+            placeholder="表内全文検索"
+          />
+        </div>
+      </div>
+      <vue-good-table
+        compactMode
+        :rows="filterdPhoto"
+        :columns="columns"
+        :row-style-class="rowStyleClassFn"
+        :search-options="{
+          enabled: false,
+          skipDiacritics: true,
+          searchFn: globalSearch,
+          externalQuery: globalSearchTerm,
+        }"
+        styleClass="vgt-table bordered condensed"
+      >
+        <template v-slot:table-column="props">
+          {{ props.column.label }}
+          <!-- resizable table用のハンドル。それとここの親であるthにposition:relativeを入れる必要があるが、.vgt-table thにて既にそう定義されているようなので特に何もしない。 -->
+          <div class="resizableTableHandle" @mousedown="resizableTableEventHandler($event)">
+            &nbsp;
+          </div>
+        </template>
+        <template v-slot:column-filter="{ column, updateFilters }">
+          <template v-if="column.label == '属性'">
+            <TypeSelectModalPhoto
+              @typePhotoSelected="
+                value => {
+                  typeFilter = value;
+                  updateFilters(column, value);
+                }
+              "
+            >
+              <TypeNameToIcon :type="typeFilter" :imgRemSize="1.8" />
+            </TypeSelectModalPhoto>
+          </template>
+        </template>
+        <template v-slot:table-row="props">
+          <!-- カラム表示に関することなので基本的にprops.column.label (not field)と比較することとする。 -->
+          <template v-if="props.column.label == '属性'">
+            <TypeNameToIcon :type="props.row.属性" :imgRemSize="1.8" />
+          </template>
+          <template
+            v-else-if="
+              ['とくせい(変化前)', 'とくせい(変化後)', 'イラストレータ名', '備考'].some(
+                i => i == props.column.label
+              )
+            "
+          >
+            <!-- これらは複数行になりうる。複数行クラスを適用する。 -->
+            <p class="preText m-0">{{ props.row[props.column.field] }}</p>
+          </template>
+          <template v-else>
+            {{ props.formattedRow[props.column.field] }}
+          </template>
+        </template>
+        <div slot="emptystate">
+          <b-alert show variant="warning">
+            該当するフォトがありません。
+          </b-alert>
+        </div>
+      </vue-good-table>
+    </b-container>
+  </b-container>
+</template>
+
+<script>
+import photoJson from '../json/photo.json';
+import SearchPhotoAdvFilterModal from '@/components/SearchPhotoAdvFilterModal.vue';
+import TypeSelectModalPhoto from '@/components/TypeSelectModalPhoto.vue';
+import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
+
+//resizable table 1/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
+//グローバル変数
+var thElm;
+var startOffset;
+
+export default {
+  name: 'SearchPhoto',
+  components: {
+    SearchPhotoAdvFilterModal,
+    TypeSelectModalPhoto,
+    TypeNameToIcon,
+  },
+  data() {
+    return {
+      columns: [
+        {
+          field: '名前',
+          label: '名前',
+          sortable: true,
+          filterOptions: {
+            enabled: true,
+            placeholder: 'フォト名',
+          },
+        },
+        {
+          field: '属性',
+          label: '属性',
+          sortable: true,
+          hidden: false,
+          tdClass: 'text-center',
+          filterOptions: {
+            //何故かfilterOptionsが無いとcustom filterが動作しなかったので空作成
+            //customFilterは特に何も使ってない。
+            customFilter: true,
+          },
+        },
+        {
+          field: '☆',
+          label: '☆',
+          type: 'number',
+          sortable: true,
+          hidden: false,
+          filterOptions: {
+            enabled: true,
+            placeholder: '☆',
+            filterDropdownItems: [1, 2, 3, 4],
+          },
+        },
+        {
+          field: '0体力',
+          label: '体力',
+          type: 'number',
+          sortable: true,
+          hidden: true,
+        },
+        {
+          field: '0攻撃',
+          label: '攻撃',
+          type: 'number',
+          sortable: true,
+          hidden: true,
+        },
+        {
+          field: '0守り',
+          label: '守り',
+          type: 'number',
+          sortable: true,
+          hidden: true,
+        },
+        {
+          field: '4体力',
+          label: '体力',
+          type: 'number',
+          sortable: true,
+          hidden: true,
+        },
+        {
+          field: '4攻撃',
+          label: '攻撃',
+          type: 'number',
+          sortable: true,
+          hidden: true,
+        },
+        {
+          field: '4守り',
+          label: '守り',
+          type: 'number',
+          sortable: true,
+          hidden: true,
+        },
+        {
+          field: 'とくせい(変化前)',
+          label: 'とくせい(変化前)',
+          sortable: false,
+          hidden: true,
+        },
+        {
+          field: 'とくせい(変化後)',
+          label: 'とくせい(変化後)',
+          sortable: false,
+          hidden: true,
+        },
+        {
+          field: 'イラストレータ名',
+          label: 'イラストレータ名',
+          sortable: false,
+          hidden: true,
+        },
+        {
+          field: '備考',
+          label: '備考',
+          sortable: false,
+        },
+      ],
+      //columns配列についてfield名からindexを引くためのMap()。初期化はmountedにて。
+      columnsIndex: new Map(),
+      //ステータス表示関係
+      selectedLevel: 0,
+      selectLevelOptions: [
+        { value: 0, text: '0' },
+        { value: 4, text: '4' },
+      ],
+      levelStatusColumns: [
+        { name: '体力', hidden: true },
+        { name: '攻撃', hidden: true },
+        { name: '守り', hidden: true },
+      ],
+      //フォトのマスターデータ。内容はPhotoJsonと同等だがjson時の一部省略記法を復元している。詳細は初期化しているmounted参照。
+      masterPhoto: null,
+      //その他ページ内で使用している変数。不要かもしれないが初期値絡みの面倒を避けるため一応定義しておく。
+      globalSearchTerm: '',
+      advFilter: {
+        label: '',
+        columns: '',
+        regex: '',
+      },
+      typeFilter: '',
+    };
+  },
+  computed: {
+    //tableにセットする実データを作り出す(computedなのでキャッシュが効き、パラメータに変化があった場合のみ再計算される)。
+    //masterPhotoを特殊条件でフィルタリングして作る。
+    filterdPhoto() {
+      if (this.advFilter.label) {
+        //filter()はmasterPhotoを１行ずつチェックし、合格した行のみを集めたオブジェクトを新たに生成して返す。
+        //some()は配列の各要素に対してループし、コールバック関数が１つでもtrueを返せばsome()自身もtrueを返す。
+        //これを組み合わせ、指定カラムのうちどれか１つが正規表現に合格するフォトのみを抽出している。
+        return this.masterPhoto.filter(row =>
+          this.advFilter.columns.some(col => row[col].match(this.advFilter.regex))
+        );
+      } else {
+        return this.masterPhoto;
+      }
+    },
+  },
+  methods: {
+    //表内全文検索
+    globalSearch(row, col, cellValue, globalSearchTerm) {
+      //colがhiddenの場合は探索しない
+      if (col['hidden']) return false;
+
+      //セル値を単純にindexOfで判定する。
+      return cellValue.toString().indexOf(globalSearchTerm) != -1;
+    },
+
+    //advFilterボタンが押された時にこれを通してadvFilterに値をセットする。
+    //regexは前後の/は不要。^や$などは使用可。
+    setAdvFilter(label, columns, regex) {
+      this.advFilter.label = label;
+      this.advFilter.columns = columns;
+      this.advFilter.regex = regex;
+    },
+
+    //行class生成
+    rowStyleClassFn(row) {
+      if (row.属性 === 'photoType1') return 'row-photoType1';
+      if (row.属性 === 'photoType2') return 'row-photoType2';
+      return '';
+    },
+
+    //レベルselectを変更したときの動作。新しく選択したレベルはボタン表示に合わせ、残りの非選択レベルは全て非表示にする。
+    selectLevelSelected() {
+      for (const i of this.selectLevelOptions) {
+        for (const j of this.levelStatusColumns) {
+          //対象fieldが現在selectにて選択されているレベルかどうかに応じて代入する値を変える。
+          //選択レベルの場合：表示用ボタンが参照するlevelStatusColumnsの値に合わせる。
+          //選択レベルでない場合：一律true(非表示)とする。
+          const tmpValue = i.value == this.selectedLevel ? j.hidden : true;
+          //columnsにセット。columnsIndexから対象Fieldのindexを取得している。
+          this.$set(this.columns[this.columnsIndex.get(i.value + j.name)], 'hidden', tmpValue);
+        }
+      }
+    },
+    //['体力', '攻撃', '守り']ボタンを押したときの動作。ボタン自体の表示制御の他、columnsのhiddenを切り替えて回る。
+    setLevelStatusColumnHidden(columnLabel, index) {
+      //ボタン表示反転(dataが変更を検知できるよう$setで変更する。この動作は他の@clickでやってることと同じ。)
+      this.$set(this.levelStatusColumns[index], 'hidden', !this.levelStatusColumns[index].hidden);
+      //columns以下のhiddenを変更して回る
+      for (const i of this.selectLevelOptions) {
+        //対象fieldが現在selectにて選択されているレベルかどうかに応じて代入する値を変える。
+        //選択レベルの場合：上にて既に変更した最新のボタン表示を反映させる。
+        //選択レベルでない場合：一律true(非表示)とする。
+        const tmpValue =
+          i.value == this.selectedLevel ? this.levelStatusColumns[index].hidden : true;
+        //columnsにセット。columnsIndexから対象Fieldのindexを取得している。
+        this.$set(this.columns[this.columnsIndex.get(i.value + columnLabel)], 'hidden', tmpValue);
+      }
+    },
+
+    //resizable table 3/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
+    //th内ハンドルのmousedownに追加するイベントハンドラー。
+    resizableTableEventHandler(event) {
+      thElm = event.target.parentNode;
+      startOffset = event.target.parentNode.offsetWidth - event.pageX;
+    },
+  },
+  beforeMount() {
+    //columnsIndexを初期化。
+    //columnsIndexはtemplateにてcolumns[columnsIndex.get(i)].labelなどと参照されているが、columnsIndexの初期化が遅いと空であり、参照エラーになってしまう。
+    //そのためpage描画が始まる前（elementがマウントされる前）であるここbeforeMountにて初期化を行う。
+    this.columns.forEach((i, j) => this.columnsIndex.set(i.field, j));
+
+    //masterPhoto初期化
+    //こちらもmountedに置くとmasterPhotoがまだnullのときにアクセスされてコンソールにエラーが出るのでここで初期化する。
+    this.masterPhoto = photoJson;
+  },
+  mounted() {
+    //resizable table 2/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
+    //グローバルなmousemove,mouseupイベントハンドラ追加
+    document.addEventListener('mousemove', e => {
+      if (thElm) thElm.style.width = startOffset + e.pageX + 'px';
+    });
+    document.addEventListener('mouseup', () => (thElm = undefined));
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+@import '../assets/scss/paletton';
+
+.multiLine_hr {
+  margin: 0.25rem;
+  border-style: dashed;
+}
+
+.search-option-grid {
+  padding: 0.25rem 0.5rem;
+  border-bottom: dashed 2px $color-primary-0;
+  &:last-child {
+    border-bottom: none;
+  }
+}
+</style>

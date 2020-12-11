@@ -1,0 +1,755 @@
+<template>
+  <b-container>
+    <b-card class="mb-2" title="[ちからくらべ] 今期末ランク予想">
+      <b-alert show variant="info" class="small">
+        今期末までにランクいくつになれるかを計算します。
+      </b-alert>
+      <b-alert show variant="warning" class="mt-4 small">
+        注意：対戦(勝敗・ターン数等)が安定しない場合、結果の誤差も大きくなります。
+      </b-alert>
+      <b-row>
+        <b-col cols="12" lg="8" xl="7" class="mb-4">
+          <h5 class="input">[入力] ちからくらべ状況・対戦方針</h5>
+          <b-row class="align-items-center">
+            <b-col cols="12" md="4">
+              <label class="mb-0 font-weight-bold">今期終了日時</label>
+            </b-col>
+            <b-col class="d-flex justify-content-end input-right-margin-endDate">
+              <v-date-picker
+                v-model="inputEndDate"
+                color="green"
+                :min-date="inputMinDate"
+                is-required
+              >
+                <template v-slot="{ inputValue, inputEvents }">
+                  <input
+                    readonly
+                    class="datePickerInput form-control"
+                    :value="inputValue"
+                    v-on="inputEvents"
+                  />
+                </template>
+              </v-date-picker>
+              <vue-timepicker
+                v-model="inputEndTime"
+                :minute-interval="10"
+                hide-clear-button
+                manual-input
+                auto-scroll
+                class="ml-1 mr-0"
+                input-class="vueTimepickerInput"
+                :input-width="'5.6rem'"
+                skip-error-style
+                hour-label="時"
+                minute-label="分"
+              ></vue-timepicker>
+            </b-col>
+          </b-row>
+          <b-row class="align-items-center">
+            <b-col cols="12" md="4">
+              <label class="mb-0 font-weight-bold">挑戦回数</label>
+            </b-col>
+            <b-col class="text-right d-inline">
+              <b-row>
+                <b-col cols="12">
+                  <b-input
+                    required
+                    v-model.number="inputNumberOfChallenge"
+                    type="number"
+                    min="0"
+                    :max="maxNumberOfChallenge"
+                    class="d-inline ml-0 input-number-5rem"
+                  />
+                  <span class="font-weight-bold input-right-display-unit"
+                    >/ {{ maxNumberOfChallenge }}</span
+                  >
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
+          <b-row class="align-items-center">
+            <b-col cols="12" md="4">
+              <label class="mb-0 font-weight-bold">次の回復まで</label>
+            </b-col>
+            <b-col class="text-right d-inline">
+              <b-row>
+                <b-col cols="12">
+                  <b-input
+                    v-model.number="inputLeastTime"
+                    type="number"
+                    min="1"
+                    max="59"
+                    :disabled="isInputNumberOfChallengeFull"
+                    class="d-inline ml-0 input-number-5rem"
+                  />
+                  <span class="font-weight-bold input-right-display-unit">分</span>
+                  <template v-if="isInputNumberOfChallengeFull">
+                    <br />
+                    <span class="small"
+                      >『挑戦回数』が
+                      {{ maxNumberOfChallenge }}
+                      なので『次の回復まで』は無視されます。</span
+                    >
+                  </template>
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
+          <b-row class="align-items-center">
+            <b-col cols="12" md="4">
+              <label class="mb-0 font-weight-bold">くんれんポイント</label>
+            </b-col>
+            <b-col class="text-right d-inline">
+              <b-row>
+                <b-col cols="12">
+                  <b-input
+                    required
+                    v-model.number="inputCurrentPoint"
+                    type="number"
+                    min="0"
+                    class="d-inline ml-0 input-number-7rem"
+                  /><span class="font-weight-bold input-right-display-unit">pt</span><br />
+                  <span class="small mr-4">
+                    <template v-if="currentRank != ''">(ランク {{ currentRank }} )</template>
+                  </span>
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
+          <b-row class="align-items-center">
+            <b-col cols="12" md="4">
+              <label class="mb-0 font-weight-bold">対戦相手難易度</label>
+            </b-col>
+            <b-col class="text-right d-inline input-right-margin">
+              <b-row>
+                <b-col cols="12">
+                  <b-select
+                    v-model.number="inputDifficulty"
+                    :options="selectDifficulty"
+                    class="d-inline width12rem"
+                    required
+                  />
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
+          <b-row class="align-items-center">
+            <b-col cols="12" md="4">
+              <label class="mb-0 font-weight-bold">平均ターン数</label>
+            </b-col>
+            <b-col class="text-right d-inline input-right-margin">
+              <b-row>
+                <b-col cols="12">
+                  <b-select
+                    v-model.number="inputAverageTurns"
+                    :options="selectAverageTurns"
+                    class="d-inline width12rem"
+                    required
+                  />
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
+          <b-row class="align-items-center">
+            <b-col cols="12" md="4">
+              <label class="mb-0 font-weight-bold">
+                勝率<br />
+                <span class="small">(小数点以下2位まで指定可)</span>
+              </label>
+            </b-col>
+            <b-col class="text-right d-inline">
+              <b-row>
+                <b-col cols="12">
+                  <b-input
+                    required
+                    v-model.number="inputWinRate"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    lazy-formatter
+                    :formatter="winRateFormatter"
+                    class="d-inline ml-0 input-number-7rem"
+                  />
+                  <span class="font-weight-bold input-right-display-unit">%</span>
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
+          <b-row class="align-items-center">
+            <b-col cols="12" md="4">
+              <label class="mb-0 font-weight-bold">挑戦モード</label>
+            </b-col>
+            <b-col class="text-right d-inline input-right-margin">
+              <b-row>
+                <b-col cols="12">
+                  <b-select
+                    v-model.number="inputChallengeMode"
+                    :options="selectChallengeMode"
+                    class="d-inline width12rem"
+                    required
+                  />
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
+          <template v-if="inputChallengeMode == 3">
+            <b-row class="align-items-center">
+              <b-col cols="12" md="4">
+                <label class="mb-0 font-weight-bold">負けた場合</label>
+              </b-col>
+              <b-col class="text-right d-inline input-right-margin">
+                <b-row>
+                  <b-col cols="12">
+                    <b-select
+                      v-model.number="inputRecoverLogic"
+                      :options="selectRecoverLogic"
+                      class="d-inline width20rem"
+                      required
+                    />
+                  </b-col>
+                </b-row>
+              </b-col>
+            </b-row>
+          </template>
+          <b-row class="align-items-center">
+            <b-col cols="12" md="4">
+              <label class="mb-0 font-weight-bold">現在の連勝ボーナス</label>
+            </b-col>
+            <b-col class="text-right d-inline">
+              <b-row>
+                <b-col cols="12">
+                  <b-input
+                    required
+                    v-model.number="inputCurrentConsecutiveWinBonus"
+                    type="number"
+                    min="0"
+                    max="5"
+                    class="d-inline ml-0 input-number-5rem"
+                  /><span class="font-weight-bold input-right-display-unit">pt</span>
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
+        </b-col>
+        <b-col>
+          <h5 class="output mb-2">[出力] ランク予想</h5>
+          <template v-if="result[1].length">
+            <b-alert show variant="danger">
+              <ul class="mb-0">
+                <li v-for="(errorMessage, index) of result[1]" :key="index">{{ errorMessage }}</li>
+              </ul>
+            </b-alert>
+          </template>
+          <template v-else>
+            <b-row
+              v-for="(resultMessage, index) of result[0]"
+              class="mt-3 align-items-end outputUnderBorder"
+              :key="index"
+            >
+              <b-col cols="12" md="7" class="font-weight-bold" v-html="resultMessage[0]"></b-col>
+              <b-col
+                cols="12"
+                md="5"
+                class="font-weight-bold text-right"
+                v-html="resultMessage[1]"
+              ></b-col>
+            </b-row>
+          </template>
+          <b-alert show variant="info" class="mt-4 small">
+            <ul class="pl-0 mb-0">
+              <li>
+                『最終ランクアップ日時』はあくまで目安です。プレイタイミングにより数時間ズレることがあります。
+              </li>
+              <li>
+                くんれんメダルは『総獲得くんれんメダル』以外に防衛ボーナスとして入手できる可能性があります。
+              </li>
+              <li>
+                このツールは結果を総計ではなく、真面目に毎戦シミュレーションして求めています。そのため勝率が100%未満の場合、計算毎に結果が変動します。
+              </li>
+              <li>
+                具体的にどのようなシミュレーション結果になったのか知りたい人は下の「デバッグ&計算の根拠を見たい人用」ボタンを押して下さい。
+              </li>
+            </ul>
+          </b-alert>
+        </b-col>
+      </b-row>
+      <b-container fluid class="mt-4 text-right">
+        <b-button v-b-toggle.CalcContestOfStrengthDebug variant="info" class="debugButton">
+          デバッグ&計算の根拠を見たい人用
+        </b-button>
+        <b-collapse id="CalcContestOfStrengthDebug" class="text-left small">
+          <b-alert show variant="info">
+            <h6>計算の根拠</h6>
+            <p class="font-weight-bold">
+              注意：ここの中はあくまでデバッグ用のメモ書きなので、参考程度に留めて下さい。
+            </p>
+            <p class="font-weight-bold">
+              ロジックとしては挑戦回数を可能な限り(つまり{{
+                maxNumberOfChallenge
+              }})貯めて一気に消化する、を繰り返します。<br />
+              『次の回復まで』は一番最初に消化します。<br />
+              残り時間が不足してきた場合は可能な限り回復し、挑戦回数を全て使い切ります。
+            </p>
+            <p class="font-weight-bold">
+              勝利時の数式は以下の通りです。<br />
+              ( (基本 + 連勝ボーナス) * ターンボーナス * 相手ボーナス ) * 挑戦モード
+            </p>
+            <template v-for="(infoMessage, index) of result[2]">
+              {{ infoMessage }}<br :key="index" />
+            </template>
+          </b-alert>
+        </b-collapse>
+      </b-container>
+    </b-card>
+  </b-container>
+</template>
+
+<script>
+import dayjs from 'dayjs';
+
+import VueTimepicker from 'vue2-timepicker';
+
+import contestOfStrengthJson from '../json/contestOfStrength.json';
+
+export default {
+  name: 'CalcContestOfStrength',
+  components: { VueTimepicker },
+  props: {
+    //今期末日付
+    //引数として取れなかった場合は本日日付
+    endDate: {
+      type: Date,
+      require: false,
+      default: () => new Date(),
+    },
+  },
+  data() {
+    return {
+      rankArray: [], //次ランクへ上がるために必要なpt数を格納する配列。実際のランクはindex+1。mountedにて初期化。
+      inputEndDate: this.endDate,
+      inputMinDate: new Date(dayjs().startOf('day')),
+      inputEndTime: '13:50',
+      inputNumberOfChallenge: 0,
+      maxNumberOfChallenge: 9,
+      inputLeastTime: 30,
+      inputCurrentPoint: '',
+      selectDifficulty: [
+        { value: 1.2, text: 'てごわい (x1.2)' },
+        { value: 1.0, text: 'とんとん (x1.0)' },
+        { value: 0.8, text: 'やさしい (x0.8)' },
+      ],
+      inputDifficulty: 1.0,
+      selectAverageTurns: [
+        { value: 1.5, text: '1 ターン (x1.5)' },
+        { value: 1.4, text: '2 ターン (x1.4)' },
+        { value: 1.3, text: '3 ターン (x1.3)' },
+        { value: 1.2, text: '4 ターン (x1.2)' },
+        { value: 1.1, text: '5 ターン (x1.1)' },
+        { value: 1.0, text: '6 ターン以上 (x1.0)' },
+      ],
+      inputAverageTurns: 1.2,
+      inputWinRate: 90,
+      selectChallengeMode: [
+        { value: 3, text: '3倍モード' },
+        { value: 1, text: '通常モード(1倍)' },
+      ],
+      inputChallengeMode: 3,
+      selectRecoverLogic: [
+        { value: 'easy', text: '構わず3倍モードで継続' },
+        { value: 'smart', text: '連勝ボーナス回復まで通常モードに' },
+      ],
+      inputRecoverLogic: 'smart',
+      inputCurrentConsecutiveWinBonus: 5,
+    };
+  },
+  mounted() {
+    //ランクテーブルをjsonから作成
+    for (const row of contestOfStrengthJson) {
+      this.rankArray.push(row['くんれんポイント']);
+    }
+
+    //一応ソートしておく。そのままだと文字列で比較してしまうのでコールバック関数で数値比較に。
+    this.rankArray.sort((a, b) => a - b);
+  },
+  methods: {
+    //小数点2位に丸める（四捨五入）。勝率入力用。
+    winRateFormatter(value) {
+      if (value < 0) return 0;
+      if (100 < value) return 100;
+      return Number(value).toFixed(2);
+    },
+  },
+  computed: {
+    //『挑戦回数』がmaxNumberOfChallengeのときture。『次の回復まで』入力boxの有効/無効切り替え用。
+    isInputNumberOfChallengeFull() {
+      return this.inputNumberOfChallenge == this.maxNumberOfChallenge ? true : false;
+    },
+    currentRank() {
+      //簡単に入力チェック（''と0の区別がつかず先に進むとランク1がついてしまうので、ここでreturnする
+      if (this.inputCurrentPoint === '' || this.inputCurrentPoint < 0) return '';
+
+      //入力されたくんれんポイントから現在のランクを計算
+      let tmpRank = 0; //arrayの最初は0なのでいきなり1になるが、レベルは1から始まるのでこれで良い。
+      for (const i of this.rankArray) {
+        if (i <= this.inputCurrentPoint) tmpRank++;
+      }
+      return tmpRank;
+    },
+    result() {
+      const result = [[], [], []]; //メイン出力([0]:項目名、[1]:値。いずれもhtml可)、エラー出力(string(あとでulに入る),1要素1行)、計算詳細出力(string,1要素1行)。
+
+      //各入力値のチェック
+      if (
+        !dayjs(this.inputEndDate).isValid ||
+        dayjs(this.inputEndDate).isBefore(this.inputMinDate)
+      ) {
+        result[1].push('『今期終了日時』の『日』が不正です。');
+      }
+      if (
+        !(
+          0 <= this.inputEndTime.split(':')[0] &&
+          this.inputEndTime.split(':')[0] <= 23 &&
+          0 <= this.inputEndTime.split(':')[1] &&
+          this.inputEndTime.split(':')[1] <= 59
+        )
+      ) {
+        result[1].push('『今期終了日時』の『時間』が不正です。');
+      }
+      if (
+        dayjs(this.inputEndDate)
+          .set('h', this.inputEndTime.split(':')[0])
+          .set('m', this.inputEndTime.split(':')[1])
+          .isBefore(dayjs())
+      ) {
+        result[1].push('『今期終了日時』が現在時間よりも前です。');
+      }
+      if (
+        this.inputNumberOfChallenge === '' ||
+        parseInt(this.inputNumberOfChallenge) < 0 ||
+        this.maxNumberOfChallenge < parseInt(this.inputNumberOfChallenge)
+      ) {
+        result[1].push('『挑戦回数』が不正です。');
+      }
+      //『挑戦回数』がmaxNumberOfChallengeの場合は『次の回復まで』のエラー処理スキップ
+      if (this.inputNumberOfChallenge != this.maxNumberOfChallenge) {
+        if (
+          this.inputLeastTime === '' ||
+          parseInt(this.inputLeastTime) < 1 ||
+          59 < parseInt(this.inputLeastTime)
+        ) {
+          result[1].push('『次の回復まで』が不正です。(1～59、0不可)');
+        }
+      }
+      if (this.inputCurrentPoint === '') {
+        result[1].push('『くんれんポイント』が空です。');
+      }
+      if (parseInt(this.inputCurrentPoint) < 0) {
+        result[1].push('『くんれんポイント』が不正です。');
+      }
+      if (
+        this.inputDifficulty === '' ||
+        (this.inputDifficulty != 1.2 && this.inputDifficulty != 1.0 && this.inputDifficulty != 0.8)
+      ) {
+        result[1].push('『対戦相手難易度』が不正です。');
+      }
+      if (
+        this.inputAverageTurns === '' ||
+        (this.inputAverageTurns != 1.5 &&
+          this.inputAverageTurns != 1.4 &&
+          this.inputAverageTurns != 1.3 &&
+          this.inputAverageTurns != 1.2 &&
+          this.inputAverageTurns != 1.1 &&
+          this.inputAverageTurns != 1.0)
+      ) {
+        result[1].push('『平均ターン数』が不正です。');
+      }
+      if (
+        this.inputWinRate === '' ||
+        parseFloat(this.inputWinRate) < 0 ||
+        100 < parseFloat(this.inputWinRate)
+      ) {
+        result[1].push('『勝率』が不正です。');
+      }
+      if (
+        this.inputChallengeMode === '' ||
+        (this.inputChallengeMode != 3 && this.inputChallengeMode != 1)
+      ) {
+        result[1].push('『挑戦モード』が不正です。');
+      }
+      if (
+        this.inputChallengeMode == 3 &&
+        (this.inputRecoverLogic === '' ||
+          (this.inputRecoverLogic != 'easy' && this.inputRecoverLogic != 'smart'))
+      ) {
+        result[1].push('『負けた場合』が不正です。');
+      }
+      if (
+        this.inputCurrentConsecutiveWinBonus === '' ||
+        parseInt(this.inputCurrentConsecutiveWinBonus) < 0 ||
+        5 < parseInt(this.inputCurrentConsecutiveWinBonus)
+      ) {
+        result[1].push('『現在の連勝ボーナス』が不正です。');
+      }
+      //入力エラーがあったら終了
+      if (0 < result[1].length) return result;
+
+      //メイン計算処理開始
+      const maxButtleCount = 3000; //最大総対戦数。無限ループ対策。
+
+      //終了時間セット
+      const tmpEndTime = dayjs(this.inputEndDate)
+        .set('h', this.inputEndTime.split(':')[0])
+        .set('m', this.inputEndTime.split(':')[1]);
+      result[2].push(
+        '現在時間は' +
+          dayjs().format('llll') +
+          '、終了時間は' +
+          dayjs(tmpEndTime).format('llll') +
+          '。'
+      );
+
+      //対戦をシミュレートするのに必要なデータモデル
+      const challengeModel = {
+        parent: this, //関数内ではthisが参照できなくなるので、vueのリファレンスをここに保存しておく
+        result: result, //resultのリファレンス
+        currentTime: dayjs(), //シミュレーション上の現在時間
+        noMoreTime: false, //残り時間が1時間以下でこれ以上挑戦回数に追加がない場合ture。
+        buttleCounter: 0, //総対戦数。無限ループ防止用とstat用
+        tmpWinRate: this.inputWinRate / 100, //勝率
+        tmpCurrentPoint: this.inputCurrentPoint, //くんれんポイント
+        tmpCurrentRank: this.currentRank, //ランク(初期値は他のcomputedから。validateしていないが上のエラーチェックを抜けてきてるので正しいはず。)
+        tmpNumberOfChallenge: this.inputNumberOfChallenge, //挑戦回数
+        tmpConsecutiveWinBonus: this.inputCurrentConsecutiveWinBonus, //連勝ボーナス
+        tmpLastRankUpDate: '', //最終ランクアップ日付。出力用。
+        tmpKirakira: 0, //総獲得キラキラ数。入手方法はランクアップ報酬のみ。出力用。
+        tmpMedal: 0, //総獲得くんれんメダル数。対戦結果及びランクアップ報酬として獲得。出力用。
+      };
+
+      //対戦シミュレータ
+      //対戦データモデルを受け取り、それに基づいて可能な限り効率的な対戦を行う。
+      //この関数は再帰を行う。対戦回数があるか残り時間に都合がつく限り対戦を行い、なるべく対戦回数を空にして終了する。
+      //挑戦回数は通常maxNumberOfChallengeで呼び出される（再帰時を除く）。maxNumberOfChallenge以下になるのは残り時間が足りない場合のみ（のはず）。
+      //最適な対戦のみを行うため、挑戦回数が0でないのに終了する場合がある。具体的には3倍モードで残り時間がありかつ挑戦回数が1またはは2で次をするには足りない場合は挑戦回数を残したまま終了する。
+      const simulateChallenge = function(model) {
+        //総対戦数チェック。無限ループ対策として一定回数以上で処理を中断する。
+        if (maxButtleCount <= model['buttleCounter']) {
+          model['result'][1].push(
+            '総対戦数が ' +
+              maxButtleCount +
+              ' 回を越えたので処理を中断しました（無限ループ対策）。『今期終了日時』が遠すぎます。'
+          );
+          model['result'][2].push(
+            '総対戦数が ' + maxButtleCount + ' 回を越えたので中断（無限ループ対策）。'
+          );
+          return;
+        }
+
+        //これから行う対戦を何倍でやるか決定する
+        let tmpMode = 3; //初期値は3倍モード。
+        //1に下げる条件。元々１倍設定の場合。『負けた場合』がsmartかつ連勝ボーナスが下がっている場合。残り時間が１時間以下で挑戦回数が3未満の場合。
+        if (
+          model['parent'].inputChallengeMode == 1 ||
+          (model['parent'].inputRecoverLogic == 'smart' && model['tmpConsecutiveWinBonus'] < 5) ||
+          (model['noMoreTime'] && model['tmpNumberOfChallenge'] < 3)
+        ) {
+          tmpMode = 1;
+        }
+
+        //挑戦回数がモードに足りない場合は終了
+        if (model['tmpNumberOfChallenge'] < tmpMode) return;
+
+        //挑戦処理。
+        //総対戦数と挑戦回数は先払い（log出力のため）
+        model['buttleCounter']++; //総対戦数インクリメント
+        model['tmpNumberOfChallenge'] -= tmpMode; //挑戦回数
+        //乱数を作って勝利と比較。勝率以下なら勝ち、勝率を越えたら負け。
+        if (Math.random() < model['tmpWinRate']) {
+          //勝ち
+          //勝ち点
+          const tmpRewards =
+            Math.floor(
+              (10 + model['tmpConsecutiveWinBonus']) *
+                model['parent'].inputAverageTurns *
+                model['parent'].inputDifficulty
+            ) * tmpMode;
+
+          //modelに反映
+          model['tmpCurrentPoint'] += tmpRewards; //くんれんポイント
+          model['tmpMedal'] += 100 * tmpMode; //くんれんメダル
+
+          model['result'][2].push(
+            model['currentTime'].format('MM/DD(dd) HH:mm') +
+              ' [' +
+              model['buttleCounter'] +
+              '戦目] [勝ち] ( ( 10 + ' +
+              model['tmpConsecutiveWinBonus'] +
+              ' ) * ' +
+              model['parent'].inputAverageTurns +
+              ' * ' +
+              model['parent'].inputDifficulty +
+              ' ) * ' +
+              tmpMode +
+              ' = ' +
+              tmpRewards +
+              ' [総ポイント:' +
+              model['tmpCurrentPoint'] +
+              ' 総メダル:' +
+              model['tmpMedal'] +
+              ']'
+          );
+
+          //連勝ボーナス。次勝ったときに適用されるものを先行で入れる。5の時はそのまま。
+          if (model['tmpConsecutiveWinBonus'] != 5) {
+            if (model['tmpConsecutiveWinBonus'] == 3) {
+              //3のときは5
+              model['tmpConsecutiveWinBonus'] = 5;
+            } else {
+              //それ以外(0,1,2)はインクリメント
+              model['tmpConsecutiveWinBonus']++;
+            }
+          }
+          //新ランクに到達しているか計算
+          //ループ変数の初期値は現在のランクにすることで比較回数を減らす。rankArrayのindexと実ランクは1つずれているので初期値を実ランクにするとちょうど次lvのptと比較が出来る。
+          //通常２ランク一気にあがることはありえないので、実質このfor文はループすること無く１回で終了するはず。
+          for (let i = model['tmpCurrentRank']; i < model['parent'].rankArray.length; i++) {
+            if (model['parent'].rankArray[i] <= model['tmpCurrentPoint']) {
+              //ランク上昇
+              model['tmpCurrentRank']++;
+              model['tmpKirakira'] += contestOfStrengthJson[i]['キラキラ'];
+              model['tmpMedal'] += contestOfStrengthJson[i]['くんれんメダル'];
+              model['result'][2].push(
+                'ランク ' +
+                  model['tmpCurrentRank'] +
+                  ' に到達 [報酬: キラキラ' +
+                  contestOfStrengthJson[i]['キラキラ'] +
+                  ' メダル' +
+                  contestOfStrengthJson[i]['くんれんメダル'] +
+                  ']'
+              );
+              model['tmpLastRankUpDate'] = model['currentTime'].format('MM/DD(dd) HH:mm');
+            }
+          }
+        } else {
+          //負け
+          model['tmpMedal'] += 40 * tmpMode; //くんれんメダル
+          model['result'][2].push(
+            model['currentTime'].format('MM/DD(dd) HH:mm') +
+              ' [' +
+              model['buttleCounter'] +
+              '戦目] [負け] [総メダル:' +
+              model['tmpMedal'] +
+              ']'
+          );
+          //modelに反映
+          model['tmpConsecutiveWinBonus'] = 0; //連勝ボーナス
+        }
+
+        //再帰呼び出し
+        simulateChallenge(model);
+      };
+
+      //'待ち分'を変数に出す。そして挑戦回数がmaxNumberOfChallengeのときには'待ち分'は0(実質無視)とする。
+      let tmpLeastMin = this.inputLeastTime;
+      if (this.inputNumberOfChallenge == this.maxNumberOfChallenge) tmpLeastMin = 0;
+
+      //現在時間に'待ち分'を加算したら終了時間を越えてしまうか？
+      if (challengeModel['currentTime'].add(tmpLeastMin, 'm').isSameOrAfter(tmpEndTime)) {
+        //越えてしまうのでもう手持ちの挑戦回数分を回すしか無い。
+        //そのまま対戦を実行
+        simulateChallenge(challengeModel);
+      } else {
+        //越えないので、この時点で'待ち分'を消化して挑戦回数をインクリメントする。以後は1時間ごとの処理とする。
+        //挑戦回数がmaxNumberOfChallengeの場合インクリメントされては困るので処理をスキップする。
+        if (challengeModel['tmpNumberOfChallenge'] != this.maxNumberOfChallenge) {
+          challengeModel['currentTime'] = challengeModel['currentTime'].add(tmpLeastMin, 'm');
+          challengeModel['tmpNumberOfChallenge']++;
+        }
+
+        //残り時間がまだある（残り時間が1時間以下でない）かつ、総対戦数がmaxButtleCount以下の場合対戦を続ける。前者の条件は時間比較が素直だが、処理ステップ削減のため既に比較済の"残り時間が1時間以下"フラグを利用する。
+        while (!challengeModel['noMoreTime'] && challengeModel['buttleCounter'] < maxButtleCount) {
+          //挑戦回数がmaxNumberOfChallenge以下ならmaxNumberOfChallengeになるまで待つ。
+          if (challengeModel['tmpNumberOfChallenge'] < this.maxNumberOfChallenge) {
+            //不足時間計算
+            const tmpShortageHour =
+              this.maxNumberOfChallenge - challengeModel['tmpNumberOfChallenge'];
+            //不足時間を経過しても残り時間がまだあるか
+            if (challengeModel['currentTime'].add(tmpShortageHour, 'h').isBefore(tmpEndTime)) {
+              //時間はまだある。時間、挑戦回数フル加算
+              challengeModel['currentTime'] = challengeModel['currentTime'].add(
+                tmpShortageHour,
+                'h'
+              );
+              challengeModel['tmpNumberOfChallenge'] += tmpShortageHour;
+            } else {
+              //時間が足りない。時間、挑戦回数を足りる分のみ加算。更に"残り時間が1時間以下"フラグ設定。
+              const tmpLeastHour = tmpEndTime.diff(challengeModel['currentTime'], 'h');
+              challengeModel['currentTime'] = challengeModel['currentTime'].add(tmpLeastHour, 'h');
+              challengeModel['tmpNumberOfChallenge'] += tmpLeastHour;
+              challengeModel['noMoreTime'] = true;
+            }
+          }
+
+          //対戦を実行
+          simulateChallenge(challengeModel);
+        }
+
+        //最終出力
+        result[0].push(['最終ランク', challengeModel['tmpCurrentRank']]);
+        if (challengeModel['tmpLastRankUpDate'] != '') {
+          result[0].push(['最終ランクアップ日時', challengeModel['tmpLastRankUpDate']]);
+        }
+        result[0].push(['最終くんれんポイント', challengeModel['tmpCurrentPoint']]);
+        result[0].push(['総対戦数', challengeModel['buttleCounter']]);
+        result[0].push(['総獲得キラキラ', challengeModel['tmpKirakira']]);
+        result[0].push(['総獲得くんれんメダル', challengeModel['tmpMedal']]);
+
+        //最終ログ出力
+        result[2].push('');
+        result[2].push('最終時間 ' + challengeModel['currentTime'].format('MM/DD(dd) HH:mm'));
+        result[2].push('最終挑戦回数 ' + challengeModel['tmpNumberOfChallenge']);
+        result[2].push('最終くんれんポイント ' + challengeModel['tmpCurrentPoint']);
+        result[2].push('最終ランク ' + challengeModel['tmpCurrentRank']);
+        result[2].push('総対戦数 ' + challengeModel['buttleCounter']);
+        result[2].push('総獲得キラキラ ' + challengeModel['tmpKirakira']);
+        result[2].push('総獲得くんれんメダル ' + challengeModel['tmpMedal']);
+      }
+
+      //出力
+      return result;
+    },
+  },
+};
+</script>
+
+<style scoped>
+.input-number-5rem {
+  width: 5rem !important;
+  margin: 0.25em 0.5rem;
+}
+.input-number-7rem {
+  width: 7rem !important;
+  margin: 0.25em 0.5rem;
+}
+select.width12rem {
+  max-width: 12rem !important;
+  margin: 0.25em 0.5rem;
+}
+select.width20rem {
+  max-width: 20rem !important;
+  margin: 0.25em 0.5rem;
+}
+.input-right-display-unit {
+  display: inline-block;
+  width: 1.25rem;
+}
+.input-right-margin {
+  margin-right: 1.25rem;
+}
+.input-right-margin-endDate {
+  margin-right: 1.75rem;
+}
+
+.outputUnderBorder {
+  border-bottom: 2px solid #dee2e6;
+}
+</style>

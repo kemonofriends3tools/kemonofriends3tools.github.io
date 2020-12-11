@@ -1,0 +1,59 @@
+//パレット
+@import 'paletton';
+
+$vs-colors: (
+  lightest: $color-green-2,
+  //light:入力欄右のアイコン色等になる。color-green-4でも悪くないがこのくらいか。
+    light: $color-green-2,
+  //dark:テキスト色になる。この色はbootstrapの$gray-700から。他のコンポーネントと色を合わせてる。
+    dark: #495057,
+  darkest: rgba(0, 0, 0, 0.15),
+);
+$vs-component-line-height: 1.5;
+
+$vs-border-width: 3px;
+$vs-border-radius: 1rem;
+
+$vs-selected-bg: $color-green-0-5;
+
+//import
+@import 'vue-select/src/scss/vue-select';
+
+//デフォルトだと背景が透過になっているので色を塗る。
+.v-select {
+  background-color: white;
+  border-radius: 1rem;
+}
+// 最初の調整のときにいじったがmultiselectがおかしくなるので一旦解除して様子見。安定するようなら消す。
+// .vs__selected {
+//   border-width: 0;
+//   display: inline-block;
+//   white-space: nowrap;
+//   overflow: hidden;
+//   text-overflow: ellipsis;
+// }
+
+.vs__search,
+.vs__search:focus {
+  padding: 2px 7px;
+}
+
+.vs__dropdown-toggle {
+  &:focus-within {
+    border-color: $color-green-4;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem $color-green-1;
+  }
+}
+.vs__dropdown-menu {
+  border-color: $color-green-4;
+  outline: 0;
+  box-shadow: 0 0.2rem 0 0.2rem $color-green-1;
+}
+
+//項目が長いとflex内のinputが改行されて空行にみえてしまうので、その対策
+//・・・と最初そうやって下の記述を作ったが入れたほうが悪化してる（全て１行におさめようとして子タグが縦長になる）のでコメントアウト。問題ないようなら削除。
+// .vs__selected-options {
+//   flex-wrap: nowrap;
+//   min-width: 0;
+// }

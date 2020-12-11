@@ -1,0 +1,77 @@
+// SASS style sheet
+// Palette color codes
+// Palette URL: http://paletton.com/#uid=70L1V0kfkpT5lBA9Sufkmmup5iK
+// Palette URL: http://paletton.com/#uid=50T0T0klsuW9vMZg0CdqgtstGp9
+
+// Feel free to copy&paste color codes to your application
+
+// As hex codes
+
+$color-primary-0: #f7bc51; // Main Primary color
+$color-primary-1: #ffe4b3;
+$color-primary-2: #ffd180;
+$color-primary-3: #eba62a; //cardやtableのボーダーとして使用。区切り色のベース。
+$color-primary-4: #c8860f;
+$color-primary-almost-white: #fdfcf9; //color-primary-0をギリギリまで白に寄せた色
+
+$color-green-0: #41c541; // Main
+$color-green-1: #a4e9a4;
+$color-green-2: #6cd76c;
+$color-green-3: #22bc22;
+$color-green-4: #0ca00c;
+$color-green-0-5: #a4e9a454; //v-selectの背景色等。color-green-1にαを足して薄めたもの
+
+$color-purple-0: #763ea6; // Main
+$color-purple-1: #bf9eda;
+$color-purple-2: #9566be;
+$color-purple-3: #66259e;
+$color-purple-4: #511287;
+
+$color-yellow-0: #f7ef51; // Main
+$color-yellow-1: #fffcb3;
+$color-yellow-2: #fff980;
+$color-yellow-3: #ebe22a;
+$color-yellow-4: #c8c00f;
+
+$color-red-0: #f75151; // Main
+$color-red-1: #ffb3b3;
+$color-red-2: #ff8080;
+$color-red-3: #eb2a2a;
+$color-red-4: #c80f0f;
+
+$color-blue-0: #1974d2; // Main
+$color-blue-1: #6fa4dc;
+$color-blue-2: #438bd5;
+$color-blue-3: #0865c7;
+$color-blue-4: #064c95;
+
+$color-text: #2c3e50; //大本はvueテンプレートのデフォルト色
+$gray-dark: #546e7a;
+
+//属性色。色はsvgから。フレンド検索の背景色等で薄めて使用。
+$funny-color: rgb(250, 60, 60);
+$friendly-color: rgb(16, 186, 16);
+$relax-color: rgb(24, 85, 255);
+$lovely-color: rgb(254, 200, 249);
+$active-color: rgb(199, 255, 124);
+$mypace-color: rgb(173, 253, 255);
+$photoType1-color: rgb(255, 60, 96);
+$photoType2-color: rgb(97, 63, 255);
+
+//属性背景色。上記を見た目で調整しながら薄めたもの。フレンド検索の背景等に利用。
+$funny-background-color: rgb($funny-color, 0.25);
+$friendly-background-color: rgb($friendly-color, 0.35);
+$relax-background-color: rgb($relax-color, 0.25);
+$lovely-background-color: rgb($lovely-color, 0.35);
+$active-background-color: rgb($active-color, 0.3);
+$mypace-background-color: rgb($mypace-color, 0.35);
+$photoType1-background-color: rgb($photoType1-color, 0.25);
+$photoType2-background-color: rgb($photoType2-color, 0.25);
+
+//フラッグ色。このままだと濃ゆいのでグラデーション等で薄めて使用すべき。文字色も黒だと沈むので注意。
+$beat-color-1: #ff6b2b;
+$beat-color-2: #ff982b;
+$action-color-1: #1089e5;
+$action-color-2: #00afff;
+$try-color-1: #4cc826;
+$try-color-2: #90db40;

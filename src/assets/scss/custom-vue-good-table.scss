@@ -1,0 +1,259 @@
+//vue-good-tableのscssは用意されてはいるものの!default指定が無いものが多い。
+//先に一通りロードし、それにたいして上書きするほうが良さそう
+
+//パレット
+@import 'paletton';
+
+//style.scssをここで読み込む。わざわざ転写したのはthemeを除外する為。
+// @import '~vue-good-table/src/styles/style.scss';
+@import '~vue-good-table/src/styles/striped';
+// base table styles
+@import '~vue-good-table/src/styles/variables';
+@import '~vue-good-table/src/styles/utils';
+@import '~vue-good-table/src/styles/wrap';
+@import '~vue-good-table/src/styles/table';
+@import '~vue-good-table/src/styles/table-th';
+@import '~vue-good-table/src/styles/input';
+@import '~vue-good-table/src/styles/loading';
+// table enhancements
+@import '~vue-good-table/src/styles/bordered';
+@import '~vue-good-table/src/styles/rtl';
+@import '~vue-good-table/src/styles/condensed';
+@import '~vue-good-table/src/styles/compact';
+// controls on top
+@import '~vue-good-table/src/styles/control-bar';
+// table footer
+@import '~vue-good-table/src/styles/table-footer';
+
+//_variables.scss
+// grey ramp
+// $base-grey: #dcdfe6 !default;   //下$border-colorの初期値
+// $light-grey: #e4e7ed !default; //不明
+// $lighter-grey: #ebeef5 !default; //不明
+// $extra-light: #f2f6fc !default; //不明
+
+// $text-color: $color-text; //テキスト色。オリジナルも悪くない。
+// $secondary-text-color: #909399 !default; //場所不明
+// $input-border-color: $color-green-4; //入力フォーム枠
+// $border-color: $base-grey !default; //内側罫線 見た目への影響が大きい
+// $highlight-color: #f1f5fd !default; //場所不明
+
+//$thead-bg-color-1: $color-primary-almost-white; //th部分背景色。1,2でグラデーションになっている。
+//$thead-bg-color-2: $color-primary-1;
+// $chevron-color: darken($thead-bg-color-1, 12%);
+
+// link ただしここにある指定は !default がないため単純に上書き出来ない。import順をずらすか、ここを諦め個別にclassを上書きするかの２択
+// $link-color: $color-green-4; //th横のソート矢印等
+// $notify-bg-color: #fdf9e8; //場所不明
+// $notify-fg-color: #b38d28; //場所不明
+
+//上書きここから
+//_table.scss
+table.vgt-table {
+  border: 3px solid $color-primary-3;
+  border-top: 0px solid $color-primary-3;
+}
+
+//_table-th.scss
+$sort-chevron-width: 8px;
+.vgt-table {
+  & th {
+    padding: 0.75em 1.5em 0.75em 0.75em;
+    vertical-align: middle;
+    position: relative;
+    &.sortable {
+      &:after {
+        margin-top: -10px;
+        border-left: $sort-chevron-width solid transparent;
+        border-right: $sort-chevron-width solid transparent;
+        border-bottom: $sort-chevron-width solid $chevron-color;
+      }
+      &::before {
+        margin-bottom: -10px;
+        border-left: $sort-chevron-width solid transparent;
+        border-right: $sort-chevron-width solid transparent;
+        border-top: $sort-chevron-width solid $chevron-color;
+      }
+    }
+  }
+  & th.filter-th {
+    padding: 0.25rem 0.25rem 0.25rem 0.25rem;
+    vertical-align: middle; //オリジナルには指定無いがズレが気になったので追加
+  }
+}
+thead th {
+  &.sorting-asc {
+    &:after {
+      border-bottom: $sort-chevron-width solid $color-green-4 !important; //!importantがないとうまく上書きされなかった
+    }
+  }
+  &.sorting-desc {
+    &::before {
+      border-top: $sort-chevron-width solid $color-green-4 !important; //!importantがないとうまく上書きされなかった
+    }
+  }
+}
+
+//_input.scss
+//importantをつけないと外部フォーム(全文検索入力欄)にて反映されない
+.vgt-input,
+.vgt-select {
+  height: 2.2rem !important;
+  color: #495057 !important; //bootstrapの$input-colorであり、$gray-700の色
+  border-radius: 1rem !important; //0.6くらいなら角が見える。1ならほぼ円。
+  border: 3px solid $color-green-2 !important;
+  &::placeholder {
+    /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #6c757d; //bootstrapの$input-placeholder-colorであり、$gray-600の色
+    opacity: 1; /* Firefox */
+  }
+  &:focus {
+    outline: 0 !important;
+    border: 3px solid $color-green-4 !important;
+    box-shadow: 0 0 0 0.2rem $color-green-1;
+  }
+}
+.vgt-select {
+  //以下はbootstrapの.custom-selectにあわせている。注釈ない限りほぼ丸写し。
+  padding: 0.375rem 1.75rem 0.375rem 0.5rem; //狭めたときに右ボタンに文字がかぶらないよう右を多めにとってある(bootstrapでそうなってる)。表示領域は大きくとりたいので左をわずかに削っている。
+  background: white
+    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e")
+    no-repeat right 0.75rem center/8px 10px !important;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out !important;
+}
+
+//独自定義。テーブル付随関連
+.table-attached-header {
+  padding: 5px 0;
+  border-width: 0 3px 8px 3px;
+  border-style: dotted solid;
+  border-color: $color-primary-2 $color-primary-3;
+  &:first-child {
+    border-top: solid 3px $color-primary-3;
+    border-bottom-width: 8px;
+  }
+  &:last-child {
+    border-bottom: solid 3px $color-primary-3;
+  }
+  background: linear-gradient(#f4f5f8, #f1f3f6);
+  display: flex;
+  align-items: center;
+}
+.table-attached-header-solidBottom {
+  border-bottom: solid 2px $color-primary-3 !important;
+}
+.table-attached-header-icon {
+  width: 40px;
+}
+.table-attached-header-contents {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.table-attached-header-view-button {
+  margin: 1px 2px;
+}
+.input-externalQuery {
+  margin-right: 6px;
+}
+
+//独自定義。属性別背景色をそのまま使うと濃すぎるのでαで薄めてる。
+.row-funny {
+  background: linear-gradient(
+    transparent,
+    $funny-background-color 10%,
+    $funny-background-color 90%,
+    transparent
+  );
+}
+.row-friendly {
+  background: linear-gradient(
+    transparent,
+    $friendly-background-color 10%,
+    $friendly-background-color 90%,
+    transparent
+  );
+}
+.row-relax {
+  background: linear-gradient(
+    transparent,
+    $relax-background-color 10%,
+    $relax-background-color 90%,
+    transparent
+  );
+}
+.row-lovely {
+  background: linear-gradient(
+    transparent,
+    $lovely-background-color 10%,
+    $lovely-background-color 90%,
+    transparent
+  );
+}
+.row-active {
+  background: linear-gradient(
+    transparent,
+    $active-background-color 10%,
+    $active-background-color 90%,
+    transparent
+  );
+}
+.row-mypace {
+  background: linear-gradient(
+    transparent,
+    $mypace-background-color 10%,
+    $mypace-background-color 90%,
+    transparent
+  );
+}
+.row-photoType1 {
+  background: linear-gradient(
+    transparent,
+    $photoType1-background-color 10%,
+    $photoType1-background-color 90%,
+    transparent
+  );
+}
+.row-photoType2 {
+  background: linear-gradient(
+    transparent,
+    $photoType2-background-color 10%,
+    $photoType2-background-color 90%,
+    transparent
+  );
+}
+//v-calendarと合わせる場合の配色用。色の定義はそちらの--red-200等から。既に薄まってるのでそのまま使用する。
+.row-vcal-red {
+  background: linear-gradient(transparent, #fed7d7 10%, #fed7d7 90%, transparent);
+}
+.row-vcal-orange {
+  background: linear-gradient(transparent, #feebc8 10%, #feebc8 90%, transparent);
+}
+.row-vcal-yellow {
+  background: linear-gradient(transparent, #fefcbf 10%, #fefcbf 90%, transparent);
+}
+.row-vcal-green {
+  background: linear-gradient(transparent, #c6f6d5 10%, #c6f6d5 90%, transparent);
+}
+.row-vcal-teal {
+  background: linear-gradient(transparent, #b2f5ea 10%, #b2f5ea 90%, transparent);
+}
+.row-vcal-blue {
+  background: linear-gradient(transparent, #bee3f8 10%, #bee3f8 90%, transparent);
+}
+.row-vcal-indigo {
+  background: linear-gradient(transparent, #c3dafe 10%, #c3dafe 90%, transparent);
+}
+.row-vcal-purple {
+  background: linear-gradient(transparent, #e9d8fd 10%, #e9d8fd 90%, transparent);
+}
+.row-vcal-pink {
+  background: linear-gradient(transparent, #fed7e2 10%, #fed7e2 90%, transparent);
+}
+.row-vcal-gray {
+  background: linear-gradient(transparent, #edf2f7 10%, #edf2f7 90%, transparent);
+}

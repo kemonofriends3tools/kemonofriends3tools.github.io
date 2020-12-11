@@ -1,0 +1,161 @@
+//サイト全般で使うもの
+
+//パレット
+@import 'paletton';
+
+//heading関連
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  &::before {
+    font-family: 'Font Awesome 5 Free';
+    content: '\f1b0';
+    padding-right: 0.125em;
+    color: $color-red-2;
+  }
+  &.input::before {
+    content: '\f11c';
+  }
+  &.output::before {
+    content: '\f26c';
+  }
+}
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+}
+h5,
+h6 {
+  border-bottom: 0.2rem solid $color-primary-3;
+  padding-top: 1.2rem;
+}
+h1 {
+  text-align: center;
+}
+
+div.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+hr {
+  border: 0;
+  margin: 1.35em auto;
+  max-width: 100%;
+  background-position: 50%;
+  box-sizing: border-box;
+}
+.charlie {
+  position: relative;
+  font-size: 1.5em;
+  height: 1em;
+  border: 0;
+  filter: drop-shadow(hsla(0, 0%, 0%, 0.75) 1px 3px 5px);
+  width: 100%;
+  &::before,
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-size: 1em 100%;
+    height: inherit;
+  }
+  &::before {
+    background-image: linear-gradient(315deg, $color-primary-0 25%, transparent 25%),
+      linear-gradient(45deg, $color-primary-0 25%, transparent 25%);
+    background-position: 50%;
+    top: -0.5em;
+  }
+  &:after {
+    background-image: linear-gradient(135deg, $color-primary-0 25%, transparent 25%),
+      linear-gradient(225deg, $color-primary-0 25%, transparent 25%);
+    background-position: -webkit-calc(50% - 0.5em);
+    top: 0.5em;
+  }
+}
+
+//改行を含んだStingをそのまま出力したい場合に使用
+.preText {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+//resizable table関連 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
+//ハンドルとなる空divに付与する
+.resizableTableHandle {
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  width: 5px;
+  position: absolute;
+  cursor: col-resize;
+}
+
+.vueTimepickerInput {
+  //vueTimepickerをv-date-pickerと同じ列に並べたりする場合は
+  //それらを囲う親要素にd-flex(display: flex;)を入れてalign-items-center(align-items: center;)を効かせたほうが良い。少しズレる。
+  text-align: center;
+  color: #495057; //bootstrapの$gray-700
+  border: 3px solid $color-green-2 !important;
+  border-radius: 1rem;
+  height: calc(1.5em + 0.75rem + 6px) !important;
+}
+
+//v-date-pickerのinput用。
+//主に背景色目的で、readonlyにするとデフォルトで背景が灰色になってしまうので白に戻してる。その他幅等の調整など。
+//使用する際には<input readonly class="datePickerInput form-control" /> などと使う。
+//表示はデフォルトである"2020/11/27 (金)"となることを想定している。他のフォーマットを使う場合は幅が合わなくなるので注意。
+.datePickerInput {
+  background-color: white !important;
+  width: 10rem !important;
+  text-align: center !important;
+}
+
+//Eventにて使用しているカスタムバッチ関連
+span {
+  &.custom-badge {
+    display: inline-block;
+    padding: 0.25em 0.4em;
+    font-size: 75%;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 1rem;
+    color: #343a40; //bootstrapの$gray-800
+  }
+  //以下各色
+  &.badge-invite-color {
+    background-color: $color-green-2;
+    border: solid 3px $color-green-4;
+  }
+  &.badge-special-color {
+    background-color: $color-primary-0;
+    border: solid 3px $color-primary-4;
+  }
+  &.badge-distribute-color {
+    background-color: $color-blue-1;
+    border: solid 3px $color-blue-4;
+  }
+  &.badge-exchange-color {
+    background-color: $color-purple-1;
+    border: solid 3px $color-purple-4;
+  }
+  &.badge-target-color {
+    background-color: $color-red-2;
+    border: solid 3px $color-red-4;
+  }
+}
+
+//文字通りdebug用の他、上級者向けのオプションを表示するためのボタン等に利用
+.debugButton {
+  font-size: 60% !important;
+}

@@ -1,0 +1,16 @@
+//パレット
+@import 'paletton';
+
+$themeColor: $color-green-3;
+
+// $bgColor: #ccc !default;
+
+$dotShadowFocus: 0px 0px 1px 2px $color-green-1;
+$dotBgColor: $color-green-4;
+
+// $stepBgColor: rgba(0, 0, 0, 0.16) !default;
+
+$labelFontSize: 14px !default;
+
+//import theme style
+@import '~vue-slider-component/lib/theme/default';

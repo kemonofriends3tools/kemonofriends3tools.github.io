@@ -1,0 +1,42 @@
+{
+  "name": "kemonofriends3-tools",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.5.4",
+    "bootstrap": "^4.5.3",
+    "bootstrap-honoka": "^4.4.0",
+    "bootstrap-vue": "^2.20.1",
+    "core-js": "^3.8.0",
+    "dayjs": "^1.9.6",
+    "node-sass": "^4.14.1",
+    "sass": "^1.29.0",
+    "sass-loader": "^10.1.0",
+    "v-calendar": "^2.1.1",
+    "vue": "^2.6.12",
+    "vue-good-table": "^2.21.1",
+    "vue-router": "^3.4.9",
+    "vue-select": "^3.10.8",
+    "vue-slider-component": "^3.2.11",
+    "vue2-timepicker": "^1.1.5"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.5.9",
+    "@vue/cli-plugin-eslint": "~4.5.9",
+    "@vue/cli-plugin-router": "~4.5.9",
+    "@vue/cli-service": "~4.5.9",
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-prettier": "^3.2.0",
+    "eslint-plugin-vue": "^6.2.2",
+    "prettier": "^1.19.1",
+    "vue-cli": "^2.9.6",
+    "vue-template-compiler": "^2.6.12"
+  }
+}

@@ -1,0 +1,126 @@
+//参考
+//Bootstrap-vueで編集した_variables.scssを適用する
+//https://wood-roots.com/web/vue-js/2225
+
+//scssでファイル名の頭に_があるのは分割ファイル。_無しの名前をimportするとそのファイルへと統合される。
+//よくわからないのがpath。チルダをいれるとnode_modules内のパスへと解決してくれるが
+// ex: @import "~normalize.css/normalize.css";
+//現状の動作を見る限り @import 'bootstrap/scss/variables';でも通っているらしい。
+
+//あとで余裕あれば_honoka.scssから不要なimportを削ってファイル削減を試みること。
+//functions variables mixins は必須。 rootとrebootもほとんどの場合必要か（詳細未確認）。
+
+//パレット
+@import 'paletton';
+
+$primary: $color-primary-0;
+$secondary: $color-green-4;
+$success: $color-blue-4;
+$info: $color-blue-0;
+$warning: $color-yellow-3;
+$danger: $color-red-3;
+//$light: $gray-100 !default;
+//$dark: $gray-800 !default;
+
+//border関連
+$border-width: 3px !default;
+//$border-color: $gray-300 !default; //あまり有用ではないかも
+//border-radiusは2でも良いが１文字だと円になってしまって少し違和感。あとここいじるとハンバーガーボタンも曲がる。
+$border-radius: 1rem;
+
+//body関連
+$body-bg: $color-primary-1;
+$body-color: $color-text;
+body {
+  background: $color-primary-1; //fallback for old browsers
+  background: -webkit-linear-gradient(
+    to bottom,
+    white,
+    $color-primary-1
+  ); //Chrome 10-25, Safari 5.1-6
+  background: linear-gradient(to bottom, white, $color-primary-1) fixed; //W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+
+}
+
+//link関連
+$link-color: $color-blue-0;
+
+// Components
+$component-active-bg: $color-green-4; //$color-green-3程度にするか迷うがcheckbox等は小さいので濃ゆいほうが良いか
+
+// Typography
+$headings-font-weight: 700; //google fontの指定に絡んでいるので変更する場合は注意
+
+// Navs
+$nav-tabs-link-hover-border-color: $color-primary-2 $color-primary-2 $color-primary-1;
+$nav-tabs-link-active-border-color: $color-primary-3 $color-primary-3 white;
+
+//navbar
+$navbar-light-color: rgba($color-text, 1); //primary寄りの色は見づらいので
+//$navbar-light-hover-color: rgba(black, 0.7) !default;
+$navbar-light-active-color: rgba(
+  $color-blue-0,
+  0.9
+) !default; //マウスオーバー時の下線に影響するが、.brand名にも影響を与えてしまう。.brandは.brand-textで個別対処。
+//$navbar-light-disabled-color: rgba(black, 0.3) !default;
+$navbar-light-toggler-border-color: rgba($color-green-4, 0.7) !default;
+$navbar-toggler-border-radius: 0.5em;
+nav {
+  background: $color-primary-0; //fallback for old browsers
+  background: -webkit-linear-gradient(
+    to bottom,
+    white,
+    $color-primary-0
+  ); //Chrome 10-25, Safari 5.1-6
+  background: linear-gradient(to top left, $color-primary-1, $color-primary-0) fixed; //W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+
+  .nav-logo {
+    color: $color-red-0;
+  }
+  .brand-text {
+    vertical-align: middle;
+    color: $navbar-light-color;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  text-align: center;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-size: 1.3rem;
+  a {
+    font-weight: 400;
+  }
+  .router-link-exact-active {
+    color: $color-blue-0 !important;
+  }
+}
+
+//card関連
+$card-spacer-x: 0.75rem;
+$card-bg: $color-primary-almost-white;
+$card-border-color: $color-primary-3;
+// $card-group-margin: 0;
+
+//Buttons + Forms
+$input-btn-focus-color: $color-green-1;
+
+//button関連
+//$btn-border-width: $input-btn-border-width !default;
+//$btn-font-weight:             $font-weight-normal !default;
+button {
+  //font-family: 'M PLUS Rounded 1c', sans-serif !important;
+  //font-weight: 400 !important;
+  //M PLUS Rounded 1cを使う場合、700もわるくないが400程度に細くするのもまた味がある。500はゴミが目立つ。
+  //そのように色々試したがM PLUS Rounded 1c使わないほうが良さそうだという方向になり、普通のフォントに。
+  font-size: 1rem;
+}
+
+//form関連。custom-component(checkbox等)の背景色は $component-active-bg にて一括定義されているのでそちら参照
+$input-border-color: $color-green-2;
+$input-focus-border-color: $color-green-4;
+$custom-control-indicator-border-color: $color-green-2; //custom-componentの非アクティブ時border
+$custom-checkbox-indicator-border-radius: 0.2rem;
+
+// $custom-control-indicator-checked-bg: $color-green-3;
+
+//modal
+$modal-content-bg: $color-primary-almost-white;
+
+@import 'honoka/honoka';

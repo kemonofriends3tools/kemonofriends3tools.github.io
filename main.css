@@ -1,0 +1,20 @@
+body {
+  background: #ffefba; //* fallback for old browsers */
+  background: -webkit-linear-gradient(to bottom, #ffffff, #ffefba); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to bottom, #ffffff, #ffefba) fixed; /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+h1::before,
+h2::before,
+h3::before,
+h4::before,
+h5::before,
+h6::before {
+  font-family: 'Font Awesome 5 Free';
+  content: '\f1b0';
+  padding-right: 0.125em; /*文字との隙間*/
+  color: #f89174; /*アイコンの色*/
+  font-size: 1em;
+  z-index: -100;
+  opacity: 0.5;
+}

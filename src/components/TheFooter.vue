@@ -7,7 +7,8 @@
       」 に、「けものフレンズ３」に関するものは 「
       <a href="https://kemono-friends.sega.jp/">SEGA</a>
       」にそれぞれ帰属しています。<br />
-      それら以外のものは © 2020 けものフレンズ3ツール です。
+      それら以外のものは
+      <a href="https://discord.gg/yru5YvBmCx">© 2020 けものフレンズ3ツール</a> です。
     </p>
   </footer>
 </template>

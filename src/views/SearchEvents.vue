@@ -125,7 +125,15 @@
             class="w-100 mt-0 mb-2 mx-4 py-1 px-4 border border-info rounded"
           >
             <div class="my-2">
-              カレンダーの表示行数:<b-input
+              カレンダー表示 列数:<b-input
+                class="d-inline ml-2"
+                style="width: 4rem"
+                v-model.number="inputCalendarCols"
+                type="number"
+                min="1"
+                max="6"
+              />
+              行数:<b-input
                 class="d-inline ml-2"
                 style="width: 4rem"
                 v-model.number="inputCalendarRows"
@@ -134,13 +142,13 @@
                 max="12"
               />
               <b-alert show variant="warning" class="mt-2 mb-0 small">
-                表示行数を増やすと重くなります。特に画面幅が広い場合（カレンダーが横に数カ月分表示されている場合）、より影響が大きくなります。
+                表示数を増やすと重くなります。
               </b-alert>
             </div>
           </b-collapse>
           <v-calendar
             :rows="inputCalendarRows"
-            :columns="$screens({ default: 1, c2: 2, c3: 3, c4: 4, c5: 5, c6: 6 })"
+            :columns="inputCalendarCols"
             :min-date="minDate"
             :to-page="todayObj"
             :transition="'slide-h'"
@@ -389,8 +397,9 @@ export default {
       //valueは基本['招待', '特効', '配布', '引換']
       originalColumn: new Map(),
 
-      //calenderの初期表示行数
+      //calenderの初期表示数
       inputCalendarRows: 1,
+      inputCalendarCols: 1,
 
       //出力テーブルカラム
       tableColumns: [
@@ -485,6 +494,11 @@ export default {
       if (thElm) thElm.style.width = startOffset + e.pageX + 'px';
     });
     document.addEventListener('mouseup', () => (thElm = undefined));
+
+    //カレンダーの初期表示列数を設定する。
+    //尚、参考までに以下に初期に検討していたレスポンシブな表示列の例を示す。見た目は良かったがパフォーマンスにHITするので断念した。
+    //$screens({ default: 1, c2: 2, c3: 3, c4: 4, c5: 5, c6: 6 })
+    this.inputCalendarCols = this.$screens({ default: 1, c2: 2 });
 
     //eventsJsonからevent情報全部入りのmasterAttributesを作る。
     //その過程で出現したカテゴリ、タグ、個別アイテム名（フレンズ、フォト、衣装、家具、インテリア等）のリストも生成する。

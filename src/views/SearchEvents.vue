@@ -487,14 +487,7 @@ export default {
       },
     };
   },
-  mounted() {
-    //resizable table 2/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
-    //グローバルなmousemove,mouseupイベントハンドラ追加
-    document.addEventListener('mousemove', e => {
-      if (thElm) thElm.style.width = startOffset + e.pageX + 'px';
-    });
-    document.addEventListener('mouseup', () => (thElm = undefined));
-
+  created() {
     //カレンダーの初期表示列数を設定する。
     //尚、参考までに以下に初期に検討していたレスポンシブな表示列の例を示す。見た目は良かったがパフォーマンスにHITするので断念した。
     //$screens({ default: 1, c2: 2, c3: 3, c4: 4, c5: 5, c6: 6 })
@@ -683,6 +676,14 @@ export default {
     this.masterCategoryList.set('個別検索', tmpClothArray);
     //その他uniqueSetMapに登録したもの。sortして渡す。
     uniqueSetMap.forEach((v, k) => this.masterNameList.set(k, Array.from(v).sort()));
+  },
+  mounted() {
+    //resizable table 2/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
+    //グローバルなmousemove,mouseupイベントハンドラ追加
+    document.addEventListener('mousemove', e => {
+      if (thElm) thElm.style.width = startOffset + e.pageX + 'px';
+    });
+    document.addEventListener('mouseup', () => (thElm = undefined));
   },
   computed: {
     filteredAttributes() {

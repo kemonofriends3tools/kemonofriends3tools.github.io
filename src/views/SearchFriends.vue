@@ -695,13 +695,21 @@ export default {
         {
           field: 'CV',
           label: 'CV',
-          sortable: false,
+          sortable: true,
           hidden: true,
+          filterOptions: {
+            enabled: true,
+            placeholder: 'CV名',
+          },
         },
         {
           field: '備考',
           label: '備考',
-          sortable: false,
+          sortable: true,
+          filterOptions: {
+            enabled: true,
+            placeholder: '備考',
+          },
         },
         {
           label: '入手可能期間',

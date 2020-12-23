@@ -105,97 +105,128 @@
           </div>
         </div>
         <div
-          class="table-attached-header table-attached-header-solidBottom flex-wrap justify-content-center pb-4"
+          class="table-attached-header table-attached-header-solidBottom"
           style="background: #fdfcf9 !important"
         >
-          <div class="my-2 w-100 d-flex justify-content-between">
+          <div class="d-none d-sm-block">
             <b-icon
               class="table-attached-header-icon"
               icon="calendar3"
               variant="dark"
               font-scale="1.5"
             />
-
-            <b-button v-b-toggle.calendarAdvancedOptions variant="info" class="debugButton mr-4">
-              上級者向けオプション
-            </b-button>
           </div>
-          <b-collapse
-            id="calendarAdvancedOptions"
-            class="w-100 mt-0 mb-2 mx-4 py-1 px-4 border border-info rounded"
-          >
-            <div class="my-2">
-              カレンダー表示 列数:<b-input
-                class="d-inline ml-2"
-                style="width: 4rem"
-                v-model.number="inputCalendarCols"
-                type="number"
-                min="1"
-                max="6"
-              />
-              行数:<b-input
-                class="d-inline ml-2"
-                style="width: 4rem"
-                v-model.number="inputCalendarRows"
-                type="number"
-                min="1"
-                max="12"
-              />
-              <b-alert show variant="warning" class="mt-2 mb-0 small">
-                表示数を増やすと重くなります。
-              </b-alert>
-            </div>
-          </b-collapse>
-          <v-calendar
-            :rows="inputCalendarRows"
-            :columns="inputCalendarCols"
-            :min-date="minDate"
-            :to-page="todayObj"
-            :transition="'slide-h'"
-            :attributes="filteredAttributes"
-          >
-            <template v-slot:day-popover="{ attributes }">
-              <popoverRow v-for="attr of attributes" :key="attr.id" :attribute="attr">
-                <div class="d-flex flex-column">
-                  <div>[{{ attr.customData.labelDate }}] {{ attr.popover.label }}</div>
-                  <template v-for="[ikey, ivalue] of getPopoverColumns">
-                    <template v-for="j of ivalue">
-                      <div
-                        v-if="attr.customData[ikey].has(j)"
-                        :key="'pop-' + attr.customData.id + ikey + j"
-                      >
-                        <span class="pl-3">{{ ikey }}（{{ j }}）</span>
-                        <ul v-if="ikey == '衣装'" class="mb-0">
-                          <li
-                            v-for="[kKey, kValue] of attr.customData[ikey].get(j)"
-                            :key="'pop-' + attr.customData.id + ikey + j + kKey"
-                          >
-                            {{ kKey }}
-                            <ul>
-                              <li
-                                v-for="l of kValue"
-                                :key="'pop-' + attr.customData.id + ikey + j + kKey + l"
-                              >
-                                {{ l }}
-                              </li>
-                            </ul>
-                          </li>
-                        </ul>
-                        <ul v-else class="mb-0">
-                          <li
-                            v-for="k of attr.customData[ikey].get(j)"
-                            :key="'pop-' + attr.customData.id + ikey + j + k"
-                          >
-                            {{ k }}
-                          </li>
-                        </ul>
-                      </div>
-                    </template>
-                  </template>
+          <b-container fluid>
+            <b-row class="d-block d-sm-none">
+              <b-col cols="12" class="mt-2 p-0" sytle="margin-left: -24px">
+                <b-icon
+                  class="table-attached-header-icon"
+                  icon="calendar3"
+                  variant="dark"
+                  font-scale="1.5"
+                />
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col cols="12">
+                <b-alert show variant="warning" class="my-2 px-2 small">
+                  カレンダー表示は便利ですが少々重いです。表示をONにする前にある程度データを絞り込むことを推奨します。
+                </b-alert>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col>
+                <b-checkbox v-model="inputCalendarVisible" class="d-inline-block mr-2">
+                  カレンダー表示
+                </b-checkbox>
+                <div class="d-inline-block">
+                  <b-select
+                    v-model.number="inputCalendarCols"
+                    :options="[
+                      { value: 1, text: '1列' },
+                      { value: 2, text: '2列' },
+                      { value: 3, text: '3列' },
+                      { value: 4, text: '4列' },
+                      { value: 5, text: '5列' },
+                      { value: 6, text: '6列' },
+                    ]"
+                    class="mx-1"
+                    style="width:4.5rem"
+                    required
+                  />
+                  <b-select
+                    v-model.number="inputCalendarRows"
+                    :options="[
+                      { value: 1, text: '1行' },
+                      { value: 2, text: '2行' },
+                      { value: 3, text: '3行' },
+                      { value: 4, text: '4行' },
+                      { value: 5, text: '5行' },
+                      { value: 6, text: '6行' },
+                    ]"
+                    class="mx-1"
+                    style="width:4.5rem"
+                    required
+                  />
                 </div>
-              </popoverRow>
-            </template>
-          </v-calendar>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col cols="12">
+                <v-calendar
+                  :rows="inputCalendarRows"
+                  :columns="inputCalendarCols"
+                  :min-date="minDate"
+                  :to-page="todayObj"
+                  :transition="'slide-h'"
+                  :attributes="inputCalendarVisible ? filteredAttributes : []"
+                  :style="getCalendarStyle"
+                >
+                  <template v-slot:day-popover="{ attributes }">
+                    <popoverRow v-for="attr of attributes" :key="attr.id" :attribute="attr">
+                      <div class="d-flex flex-column">
+                        <div>[{{ attr.customData.labelDate }}] {{ attr.popover.label }}</div>
+                        <template v-for="[ikey, ivalue] of getPopoverColumns">
+                          <template v-for="j of ivalue">
+                            <div
+                              v-if="attr.customData[ikey].has(j)"
+                              :key="'pop-' + attr.customData.id + ikey + j"
+                            >
+                              <span class="pl-3">{{ ikey }}（{{ j }}）</span>
+                              <ul v-if="ikey == '衣装'" class="mb-0">
+                                <li
+                                  v-for="[kKey, kValue] of attr.customData[ikey].get(j)"
+                                  :key="'pop-' + attr.customData.id + ikey + j + kKey"
+                                >
+                                  {{ kKey }}
+                                  <ul>
+                                    <li
+                                      v-for="l of kValue"
+                                      :key="'pop-' + attr.customData.id + ikey + j + kKey + l"
+                                    >
+                                      {{ l }}
+                                    </li>
+                                  </ul>
+                                </li>
+                              </ul>
+                              <ul v-else class="mb-0">
+                                <li
+                                  v-for="k of attr.customData[ikey].get(j)"
+                                  :key="'pop-' + attr.customData.id + ikey + j + k"
+                                >
+                                  {{ k }}
+                                </li>
+                              </ul>
+                            </div>
+                          </template>
+                        </template>
+                      </div>
+                    </popoverRow>
+                  </template>
+                </v-calendar>
+              </b-col>
+            </b-row>
+          </b-container>
         </div>
         <div class="table-attached-header">
           <div>
@@ -235,6 +266,16 @@
         :row-style-class="getRowStyleClass"
         :sort-options="tableSortOptions"
         styleClass="vgt-table bordered condensed"
+        :pagination-options="{
+          enabled: true,
+          perPage: 10,
+          position: 'top',
+          nextLabel: '次',
+          prevLabel: '前',
+          rowsPerPageLabel: 'ページあたりの表示件数',
+          ofLabel: '/',
+          allLabel: '全て',
+        }"
       >
         <template v-slot:table-column="props">
           {{ props.column.label }}
@@ -397,7 +438,8 @@ export default {
       //valueは基本['招待', '特効', '配布', '引換']
       originalColumn: new Map(),
 
-      //calenderの初期表示数
+      //calendarの初期表示数
+      inputCalendarVisible: false,
       inputCalendarRows: 1,
       inputCalendarCols: 1,
 
@@ -488,11 +530,6 @@ export default {
     };
   },
   created() {
-    //カレンダーの初期表示列数を設定する。
-    //尚、参考までに以下に初期に検討していたレスポンシブな表示列の例を示す。見た目は良かったがパフォーマンスにHITするので断念した。
-    //$screens({ default: 1, c2: 2, c3: 3, c4: 4, c5: 5, c6: 6 })
-    this.inputCalendarCols = this.$screens({ default: 1, c2: 2 });
-
     //eventsJsonからevent情報全部入りのmasterAttributesを作る。
     //その過程で出現したカテゴリ、タグ、個別アイテム名（フレンズ、フォト、衣装、家具、インテリア等）のリストも生成する。
 
@@ -535,6 +572,9 @@ export default {
 
     //eventsJson解析
     for (const row of eventsJson) {
+      //恒常を除外する場合ここで以下のようにすれば排除できる。排除するか別配列にいれるかは迷うところ。
+      //if (row.タグ.split(',').some(i => i == '恒常')) continue;
+
       //jsonの開始日時、終了日時をオブジェクト化
       const startDate = dayjs(row.開始, 'YYMMDDHHmm');
       const endDate = dayjs(row.終了, 'YYMMDDHHmm');
@@ -684,6 +724,11 @@ export default {
       if (thElm) thElm.style.width = startOffset + e.pageX + 'px';
     });
     document.addEventListener('mouseup', () => (thElm = undefined));
+
+    //カレンダーの初期表示列数を設定する。
+    //尚、参考までに以下に初期に検討していたレスポンシブな表示列の例を示す。見た目は良かったがパフォーマンスにHITするので断念した。
+    //$screens({ default: 1, c2: 2, c3: 3, c4: 4, c5: 5, c6: 6 })
+    this.inputCalendarCols = this.$screens({ default: 1, c2: 2, c3: 3, c4: 4, c5: 5, c6: 6 });
   },
   computed: {
     filteredAttributes() {
@@ -968,6 +1013,10 @@ export default {
       }
 
       return outMap;
+    },
+    getCalendarStyle() {
+      //カレンダーの表示スタイルを返す。カレンダー非表示の時には薄くする。
+      return this.inputCalendarVisible ? 'opacity: 1;margin:auto;' : 'opacity: 0.2;margin:auto;';
     },
   },
   methods: {

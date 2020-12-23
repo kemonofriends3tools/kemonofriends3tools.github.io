@@ -270,6 +270,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '0攻撃',
@@ -277,6 +278,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '0守り',
@@ -284,6 +286,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '4体力',
@@ -291,6 +294,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '4攻撃',
@@ -298,6 +302,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '4守り',
@@ -305,6 +310,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: 'とくせい(変化前)',
@@ -321,13 +327,21 @@ export default {
         {
           field: 'イラストレータ名',
           label: 'イラストレータ名',
-          sortable: false,
+          sortable: true,
+          filterOptions: {
+            enabled: true,
+            placeholder: 'イラストレータ名',
+          },
           hidden: true,
         },
         {
           field: '備考',
           label: '備考',
-          sortable: false,
+          sortable: true,
+          filterOptions: {
+            enabled: true,
+            placeholder: '備考',
+          },
         },
       ],
       //columns配列についてfield名からindexを引くためのMap()。初期化はmountedにて。
@@ -372,6 +386,10 @@ export default {
     },
   },
   methods: {
+    //vue-good-tableデータ生出力用formatter
+    formatFnRaw(v) {
+      return v;
+    },
     //表内全文検索
     globalSearch(row, col, cellValue, globalSearchTerm) {
       //colがhiddenの場合は探索しない

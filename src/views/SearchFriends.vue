@@ -421,6 +421,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '70体力',
@@ -428,6 +429,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '70攻撃',
@@ -435,6 +437,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '70守り',
@@ -442,6 +445,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '90けもステ',
@@ -449,6 +453,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '90体力',
@@ -456,6 +461,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '90攻撃',
@@ -463,6 +469,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '90守り',
@@ -470,6 +477,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '99けもステ',
@@ -477,6 +485,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '99体力',
@@ -484,6 +493,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '99攻撃',
@@ -491,6 +501,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '99守り',
@@ -498,6 +509,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: '回避',
@@ -512,6 +524,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: 'フラッグ補正',
@@ -594,6 +607,7 @@ export default {
           type: 'number',
           sortable: true,
           hidden: true,
+          formatFn: this.formatFnRaw,
         },
         {
           field: 'ミラクル+',
@@ -743,6 +757,10 @@ export default {
     },
   },
   methods: {
+    //vue-good-tableデータ生出力用formatter
+    formatFnRaw(v) {
+      return v;
+    },
     //表内全文検索
     globalSearch(row, col, cellValue, globalSearchTerm) {
       //colがhiddenの場合は探索しない

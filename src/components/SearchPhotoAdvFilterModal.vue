@@ -5,21 +5,101 @@
     </b-button>
     <b-modal id="modal-advFilter" title="特殊検索" title-tag="h4" size="xl">
       <b-container fluid>
-        フォト用に最適化されてない。中身は考えてちゃんと作ること。
-        <b-button
-          @click="
-            advFilterSelected(
-              'たいりょくが50%以下のとき',
-              ['とくせい(変化前)', 'とくせい(変化後)'],
-              'たいりょくが50%以下のとき'
-            )
-          "
-        >
-          テスト用(たいりょくが50%以下のとき)
-        </b-button>
-        <b-alert show variant="warning">
-          NOTE:指定できるのは以下から１つだけです。
+        <b-alert show variant="warning" class="small">
+          指定できるのは以下から１つだけです。
         </b-alert>
+        <b-card class="mb-2" title="地形/時間特効" sub-title="特定の地形/時間に特効をもつフレンズ">
+          <b-card-text>
+            <b-button
+              @click="
+                advFilterSelected(
+                  '地形/時間特効(サバンナ)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  '(地形|ステージ)がサバンナの(場合|とき)'
+                )
+              "
+              class="table-attached-header-view-button"
+              >サバンナ</b-button
+            >
+            <b-button
+              @click="
+                advFilterSelected(
+                  '地形/時間特効(さばく)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  '(地形|ステージ)がさばくの(場合|とき)'
+                )
+              "
+              class="table-attached-header-view-button"
+              >さばく</b-button
+            >
+            <b-button
+              @click="
+                advFilterSelected(
+                  '地形/時間特効(みずべ)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  '(地形|ステージ)がみずべの(場合|とき)'
+                )
+              "
+              class="table-attached-header-view-button"
+              >みずべ</b-button
+            >
+            <b-button
+              @click="
+                advFilterSelected(
+                  '地形/時間特効(寒冷地)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  '(地形|ステージ)が寒冷地の(場合|とき)'
+                )
+              "
+              class="table-attached-header-view-button"
+              >寒冷地</b-button
+            >
+            <b-button
+              @click="
+                advFilterSelected(
+                  '地形/時間特効(どうくつ)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  '(地形|ステージ)がどうくつの(場合|とき)'
+                )
+              "
+              class="table-attached-header-view-button"
+              >どうくつ</b-button
+            >
+            <b-button
+              @click="
+                advFilterSelected(
+                  '地形/時間特効(ジャングル)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  '(地形|ステージ)がジャングルの(場合|とき)'
+                )
+              "
+              class="table-attached-header-view-button"
+              >ジャングル</b-button
+            >
+            <b-button
+              @click="
+                advFilterSelected(
+                  '地形/時間特効(やま)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  '(地形|ステージ)がやまの(場合|とき)'
+                )
+              "
+              class="table-attached-header-view-button"
+              >やま</b-button
+            >
+            <b-button
+              @click="
+                advFilterSelected(
+                  '地形/時間特効(夜)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  'ステージ(|の時間)が夜の(場合|とき)'
+                )
+              "
+              class="table-attached-header-view-button"
+              >夜</b-button
+            >
+          </b-card-text>
+        </b-card>
         <b-alert show variant="warning">
           開発用：以下は「指定なし」以外全てダミー。
         </b-alert>

@@ -8,7 +8,7 @@
         <b-alert show variant="warning" class="small">
           指定できるのは以下から１つだけです。
         </b-alert>
-        <b-card class="mb-2" title="地形/時間特効" sub-title="特定の地形/時間に特効をもつフレンズ">
+        <b-card class="mb-2" title="地形/時間特効" sub-title="特定の地形/時間に特効をもつフォト">
           <b-card-text>
             <b-button
               @click="

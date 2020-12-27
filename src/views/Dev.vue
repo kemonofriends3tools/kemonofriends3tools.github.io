@@ -26,6 +26,91 @@
         <b-button variant="outline-dark">Dark</b-button>
       </b-col>
     </b-row>
+    <h2 class="my-4">friendsの特殊条件初期案</h2>
+    <b-container>
+      <b-alert show variant="warning">
+        開発用：以下は「指定なし」以外全てダミー。
+      </b-alert>
+      <b-card class="mb-2" title="状態異常/特殊行動">
+        <b-form-radio-group>
+          <b-form-radio value="all">与える</b-form-radio>
+          <b-form-radio value="all">防ぐ</b-form-radio>
+        </b-form-radio-group>
+        <b-card-text>
+          <b-button>くらくら</b-button>
+          <b-button>どく</b-button>
+          <b-button>すやすや</b-button>
+          <b-button>くたくた</b-button>
+          <b-button>ひやひや</b-button>
+          <b-button>ズキンズキン</b-button>
+          <b-button>からげんき</b-button>
+          <b-button>はねかえし</b-button>
+          <b-button>かばう</b-button>
+        </b-card-text>
+      </b-card>
+      <b-card class="mb-2" title="バフ/デバフ">
+        <b-alert show variant="info">
+          未完成。メモ参照
+        </b-alert>
+        <b-card-text>
+          <b-button>指定しない</b-button>
+          <b-button>自身</b-button>
+          <b-button>複数体</b-button>
+          <b-button>ファ</b-button>
+          <b-button>フレ</b-button>
+          <b-button>リラ</b-button>
+          <b-button>ラブ</b-button>
+          <b-button>アク</b-button>
+          <b-button>マイ</b-button>
+          <b-button>全体</b-button>
+        </b-card-text>
+        <b-card-text>
+          <b-button>指定しない</b-button>
+          <b-button>くらくら</b-button>
+          <b-button>どく</b-button>
+          <b-button>すやすや</b-button>
+          <b-button>くたくた</b-button>
+          <b-button>ひやひや</b-button>
+          <b-button>ズキンズキン</b-button>
+          <b-button>からげんき</b-button>
+        </b-card-text>
+      </b-card>
+      <b-card class="mb-2" title="特定フラッグ所持">
+        <b-card-text>
+          <b-button>try1</b-button>
+          <b-button>try2</b-button>
+          <b-button>try3</b-button>
+          <b-button>action1</b-button>
+          <b-button>action2</b-button>
+          <b-button>action3</b-button>
+          <b-button>beat3枚以上</b-button>
+          <b-button>try3枚以上</b-button>
+          <b-button>action3枚以上</b-button>
+        </b-card-text>
+      </b-card>
+      <b-card class="mb-2" title="ミラクル対象">
+        <b-card-text>
+          <b-button>相手単体</b-button>
+          <b-button>相手複数体</b-button>
+          <b-button>相手全体</b-button>
+          <b-button>自身</b-button>
+          <b-button>味方単体</b-button>
+          <b-button>味方複数体</b-button>
+          <b-button>味方全体</b-button>
+          ここオプションで（防御バフ、攻撃バフえらばせてもよいかも）
+        </b-card-text>
+      </b-card>
+      <b-card class="mb-2" title="声優">
+        <b-card-text>
+          <b-button>新</b-button>
+          <b-button>NEXON</b-button>
+          <b-button>アニメ１期</b-button>
+          <b-button>アニメ２期</b-button>
+          <b-button>アニメ１、２期</b-button>
+          <b-button>舞台</b-button>
+        </b-card-text>
+      </b-card>
+    </b-container>
     <h2 class="my-4">calcにてアコーディオンで非表示に出来るよう作ろうかと思ったときのサンプル</h2>
     <b-container role="tablist" class="mb-2">
       <b-card no-body>

@@ -20,6 +20,7 @@
     "v-calendar": "^2.1.1",
     "vue": "^2.6.12",
     "vue-good-table": "^2.21.1",
+    "vue-gtag": "^1.10.0",
     "vue-router": "^3.4.9",
     "vue-select": "^3.10.8",
     "vue-slider-component": "^3.2.11",

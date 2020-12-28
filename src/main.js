@@ -2,6 +2,11 @@
 import Vue from 'vue';
 import App from './App.vue';
 import router from './router/router';
+import vuegtag from 'vue-gtag';
+
+Vue.use(vuegtag, {
+  config: { id: 'G-D4MYVEK3TJ' },
+});
 
 import '@/assets/scss/kemonofriends3tools.scss';
 

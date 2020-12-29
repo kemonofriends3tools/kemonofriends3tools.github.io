@@ -108,6 +108,94 @@
             </b-button>
           </b-card-text>
         </b-card>
+        <b-card class="mb-2" title="対・状態異常" sub-title="特定の状態異常に耐性を与えるフォト">
+          <b-card-text>
+            <b-button
+              @click="
+                advFilterSelected(
+                  '対・状態異常(くらくら)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  'くらくら耐性|((どく|くらくら|すやすや|くたくた|ひやひや|からげんき|ズキンズキン)(|、|\r\n))+状態にならない'
+                )
+              "
+              class="table-attached-header-view-button"
+            >
+              くらくら
+            </b-button>
+            <b-button
+              @click="
+                advFilterSelected(
+                  '対・状態異常(どく)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  'どく耐性|((どく|くらくら|すやすや|くたくた|ひやひや|からげんき|ズキンズキン)(|、|\r\n))+状態にならない'
+                )
+              "
+              class="table-attached-header-view-button"
+            >
+              どく
+            </b-button>
+            <b-button
+              @click="
+                advFilterSelected(
+                  '対・状態異常(すやすや)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  'すやすや耐性|((どく|くらくら|すやすや|くたくた|ひやひや|からげんき|ズキンズキン)(|、|\r\n))+状態にならない'
+                )
+              "
+              class="table-attached-header-view-button"
+            >
+              すやすや
+            </b-button>
+            <b-button
+              @click="
+                advFilterSelected(
+                  '対・状態異常(くたくた)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  'くたくた耐性|((どく|くらくら|すやすや|くたくた|ひやひや|からげんき|ズキンズキン)(|、|\r\n))+状態にならない'
+                )
+              "
+              class="table-attached-header-view-button"
+            >
+              くたくた
+            </b-button>
+            <b-button
+              @click="
+                advFilterSelected(
+                  '対・状態異常(ひやひや)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  'ひやひや耐性|((どく|くらくら|すやすや|くたくた|ひやひや|からげんき|ズキンズキン)(|、|\r\n))+状態にならない'
+                )
+              "
+              class="table-attached-header-view-button"
+            >
+              ひやひや
+            </b-button>
+            <b-button
+              @click="
+                advFilterSelected(
+                  '対・状態異常(ズキンズキン)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  'ズキンズキン耐性|((どく|くらくら|すやすや|くたくた|ひやひや|からげんき|ズキンズキン)(|、|\r\n))+状態にならない'
+                )
+              "
+              class="table-attached-header-view-button"
+            >
+              ズキンズキン
+            </b-button>
+            <b-button
+              @click="
+                advFilterSelected(
+                  '対・状態異常(からげんき)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  'からげんき耐性|((どく|くらくら|すやすや|くたくた|ひやひや|からげんき|ズキンズキン)(|、|\r\n))+状態にならない'
+                )
+              "
+              class="table-attached-header-view-button"
+            >
+              からげんき
+            </b-button>
+          </b-card-text>
+        </b-card>
       </b-container>
       <template v-slot:modal-footer>
         <b-button @click="advFilterSelected('', '', '')">

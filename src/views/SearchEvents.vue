@@ -2,9 +2,20 @@
   <b-container fluid class="mt-2">
     <h1>イベント・しょうたい検索</h1>
     <b-container fluid>
-      <b-alert show variant="info" class="small">
-        使い方に少々クセがあります。基本上から順番に利用して下さい。
+      <b-alert show variant="info" class="small mb-1">
+        使い方に少々クセがあります。基本上から順に利用して下さい。詳しくは下の「使い方」を押してください。
       </b-alert>
+      <div class="text-right">
+        <b-button v-b-toggle.collapse1.collapse2.collapse3 variant="info">
+          <b-icon
+            class="align-text-bottom mx-1"
+            icon="question-circle-fill
+"
+            variant="light"
+          />使い方
+        </b-button>
+      </div>
+
       <!-- table-attached-headerのfirst/last-childを見ているのでこのdivは必要 -->
       <div>
         <div class="table-attached-header table-attached-header-solidBottom">
@@ -19,15 +30,17 @@
           <div class="table-attached-header-contents pl-1" style="width: calc(100% - 25px)">
             <b-row class="w-100">
               <b-col cols="12" class="px-1">
-                <b-alert show variant="info" class="small mb-1">
-                  １：最初にここで検索したいものを入力してください。例えば以下のような感じです。<br />
-                  <p class="my-1 ml-2">
-                    特定フレンズがいつ引けたか調べたい場合：個別検索 ＞ フレンズ ＞
-                    [探したいフレンズ名] ＞ フレンズ（招待または配布）<br />
-                    週末ピックアップを見たい場合：イベント検索 ＞ しょうたい ＞ 週末ピックアップ
-                  </p>
-                  ここの選択ボックスは探したい文字列の一部を入力することで候補を絞り込むことが出来ます。フレンズやフォトを探すときに便利です。タグは複数選択可能です（and条件）。
-                </b-alert>
+                <b-collapse id="collapse1">
+                  <b-alert show variant="info" class="small mb-1">
+                    １：最初にここで検索したいものを入力してください。例えば以下のような感じです。<br />
+                    <p class="my-1 ml-2">
+                      特定フレンズがいつ引けたか調べたい場合：個別検索 ＞ フレンズ ＞
+                      [探したいフレンズ名] ＞ フレンズ（招待または配布）<br />
+                      週末ピックアップを見たい場合：イベント検索 ＞ しょうたい ＞ 週末ピックアップ
+                    </p>
+                    ここの選択ボックスは探したい文字列の一部を入力することで候補を絞り込むことが出来ます。フレンズやフォトを探すときに便利です。タグは複数選択可能です（and条件）。
+                  </b-alert>
+                </b-collapse>
               </b-col>
             </b-row>
             <b-row class="w-100">
@@ -145,11 +158,13 @@
             </b-row>
             <b-row>
               <b-col cols="12" class="pl-1 pr-3 mr-2">
-                <b-alert show variant="info" class="small mb-1">
-                  ２：カレンダーを見たいのであればカレンダー表示をONにしてください。<br />
-                  便利なのですが１の絞り込みが足りなかったりすると表示時に重くなります。一旦表示してしまえばあとはそれ程重くはありません。<br />
-                  カレンダーを表示した状態で１を再度触ると動的に再表示しようとするので重くなります。色々と条件を変えて試したい場合はいったんカレンダー表示をOFFにすることをオススメします。
-                </b-alert>
+                <b-collapse id="collapse2">
+                  <b-alert show variant="info" class="small mb-1">
+                    ２：カレンダーを見たいのであればカレンダー表示をONにしてください。<br />
+                    便利なのですが１の絞り込みが足りなかったりすると表示時に重くなります。一旦表示してしまえばあとはそれ程重くはありません。<br />
+                    カレンダーを表示した状態で１を再度触ると動的に再表示しようとするので重くなります。色々と条件を変えて試したい場合はいったんカレンダー表示をOFFにすることをオススメします。
+                  </b-alert>
+                </b-collapse>
               </b-col>
             </b-row>
             <b-row>
@@ -254,12 +269,14 @@
             <b-container fluid>
               <b-row>
                 <b-col cols="12" class="px-1">
-                  <b-alert show variant="info" class="small mb-1">
-                    ３：必要であればここで<span class="font-weight-bold">下表内の</span
-                    >表示カラムを切り替えてください。<br />
-                    ここを変更して切り替わるのは<span class="font-weight-bold">下の表</span
-                    >です。１の絞り込み条件や２のカレンダーには影響しません。
-                  </b-alert>
+                  <b-collapse id="collapse3">
+                    <b-alert show variant="info" class="small mb-1">
+                      ３：必要であればここで<span class="font-weight-bold">下表内の</span
+                      >表示カラムを切り替えてください。<br />
+                      ここを変更して切り替わるのは<span class="font-weight-bold">下の表</span
+                      >です。１の絞り込み条件や２のカレンダーには影響しません。
+                    </b-alert>
+                  </b-collapse>
                 </b-col>
               </b-row>
             </b-container>

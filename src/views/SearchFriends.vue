@@ -7,10 +7,27 @@
     </b-alert>
 
     <b-container fluid>
+      <div class="text-right">
+        <b-button v-b-toggle.collapse1.collapse2.collapse3 variant="info">
+          <b-icon
+            class="align-text-bottom mx-1"
+            icon="question-circle-fill
+"
+            variant="light"
+          />使い方
+        </b-button>
+      </div>
       <div>
         <div class="table-attached-header">
           <b-container fluid>
             <b-row class="align-items-baseline">
+              <b-col cols="12">
+                <b-collapse id="collapse1">
+                  <b-alert show variant="info" class="small mb-1">
+                    １：特殊条件を使いたい場合は最初にここで指定してデータを絞り込みます。尚、ここで条件を選択するとデータ量が減るので後の動作が軽くなります。
+                  </b-alert>
+                </b-collapse>
+              </b-col>
               <b-col class="pl-0 pr-4 font-weight-bold flex-grow-0 text-nowrap">
                 <b-icon
                   class="table-attached-header-icon"
@@ -53,8 +70,15 @@
             </b-row>
             <b-row>
               <b-col cols="12">
+                <b-collapse id="collapse2">
+                  <b-alert show variant="info" class="small mb-1">
+                    ２：下の表の表示列を切り替えます。<br />
+                    表示列を切り替えるだけなので、ここを触ってもデータ行数が変化することはありません。ただしここの選択は３の『表内全文検索』と深く関係しています。<br />
+                    ３の『表内全文検索』はここで表示させたものが検索対象となります。なので”とくいわざ”や”たいきスキル”の中身だけを検索対象としたい場合は『その他詳細・個別カラム表示』から”とくいわざ詳細”や”たいきスキル詳細”を選んだ方が良いでしょう。
+                  </b-alert>
+                </b-collapse>
                 <b-alert show variant="warning" class="mt-2 mb-0 px-2 small">
-                  表示を増やすとそれだけ重くなります。<br />選択をリセットしたい場合はページをリロードして下さい。
+                  表示を増やすとそれだけ重くなります。選択をリセットしたい場合はページをリロードして下さい。
                 </b-alert>
               </b-col>
             </b-row>
@@ -188,17 +212,40 @@
           </b-container>
         </div>
         <div class="table-attached-header">
-          <b-icon
-            class="table-attached-header-icon"
-            icon="search"
-            variant="dark"
-            font-scale="1.5"
-          />
-          <b-form-input
-            class="vgt-input input-externalQuery my-1"
-            v-model="globalSearchTerm"
-            placeholder="表内全文検索"
-          />
+          <div>
+            <b-icon
+              class="table-attached-header-icon"
+              icon="search"
+              variant="dark"
+              font-scale="1.5"
+            />
+          </div>
+          <div class="table-attached-header-contents w-100">
+            <b-row class="w-100">
+              <b-col cols="12">
+                <b-collapse id="collapse3">
+                  <b-alert show variant="info" class="small mb-1">
+                    ３：表内全文検索を行います。<br />
+                    これは<span class="font-weight-bold"
+                      >現在表内に表示されている全文字列を対象に</span
+                    >、入力された文字列でデータ行の絞り込みを行います。<br />
+                    注意してほしいのは検索対象は<span class="font-weight-bold"
+                      >現在表に表示されている文字列</span
+                    >だという点です。例えばたいきスキルに”くらくら”を持つフレンズが居たとしても、２で”たいきスキル”や”たいきスキル詳細”列を表示させていないとHITしません。
+                  </b-alert>
+                </b-collapse>
+              </b-col>
+            </b-row>
+            <b-row class="w-100">
+              <b-col cols="12" class="pr-0">
+                <b-form-input
+                  class="vgt-input input-externalQuery my-1"
+                  v-model="globalSearchTerm"
+                  placeholder="表内全文検索"
+                />
+              </b-col>
+            </b-row>
+          </div>
         </div>
       </div>
       <vue-good-table

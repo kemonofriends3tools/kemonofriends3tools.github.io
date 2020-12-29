@@ -384,6 +384,7 @@ export default {
           label: '初期けも級',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: false,
           filterOptions: {
             enabled: true,
@@ -396,6 +397,7 @@ export default {
           label: '最大フォトポケ',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           filterOptions: {
             enabled: true,
@@ -408,6 +410,7 @@ export default {
           label: '最大野生解放',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           filterOptions: {
             enabled: true,
@@ -420,6 +423,7 @@ export default {
           label: 'けもステ',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -428,6 +432,7 @@ export default {
           label: '体力',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -436,6 +441,7 @@ export default {
           label: '攻撃',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -444,6 +450,7 @@ export default {
           label: '守り',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -452,6 +459,7 @@ export default {
           label: 'けもステ',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -460,6 +468,7 @@ export default {
           label: '体力',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -468,6 +477,7 @@ export default {
           label: '攻撃',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -476,6 +486,7 @@ export default {
           label: '守り',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -484,6 +495,7 @@ export default {
           label: 'けもステ',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -492,6 +504,7 @@ export default {
           label: '体力',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -500,6 +513,7 @@ export default {
           label: '攻撃',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -508,6 +522,7 @@ export default {
           label: '守り',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -516,6 +531,7 @@ export default {
           label: '回避',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
         },
         {
@@ -523,6 +539,7 @@ export default {
           label: 'プラズム',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -537,6 +554,7 @@ export default {
           label: 'Beat補正',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
         },
         {
@@ -544,6 +562,7 @@ export default {
           label: 'Try補正',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
         },
         {
@@ -551,6 +570,7 @@ export default {
           label: 'Action補正',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
         },
         {
@@ -606,6 +626,7 @@ export default {
           label: 'MP',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -768,6 +789,13 @@ export default {
     //vue-good-tableデータ生出力用formatter
     formatFnRaw(v) {
       return v;
+    },
+    //vue-good-table用numberカラムのsort用function
+    //デフォルトのsortだと上のformatFnRawの影響か、空欄があったときにそこでソートが分割されてしまう。なので、空欄は0とみなし、正常にsortが行えるようにする。
+    numberColumnSortFn(x, y) {
+      const ix = x == '' ? 0 : x;
+      const iy = y == '' ? 0 : y;
+      return ix < iy ? -1 : ix > iy ? 1 : 0;
     },
     //表内全文検索
     globalSearch(row, col, cellValue, globalSearchTerm) {

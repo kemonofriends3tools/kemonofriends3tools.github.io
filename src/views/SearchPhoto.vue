@@ -257,6 +257,7 @@ export default {
           label: '☆',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: false,
           filterOptions: {
             enabled: true,
@@ -269,6 +270,7 @@ export default {
           label: '体力',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -277,6 +279,7 @@ export default {
           label: '攻撃',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -285,6 +288,7 @@ export default {
           label: '守り',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -293,6 +297,7 @@ export default {
           label: '体力',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -301,6 +306,7 @@ export default {
           label: '攻撃',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -309,6 +315,7 @@ export default {
           label: '守り',
           type: 'number',
           sortable: true,
+          sortFn: this.numberColumnSortFn,
           hidden: true,
           formatFn: this.formatFnRaw,
         },
@@ -389,6 +396,13 @@ export default {
     //vue-good-tableデータ生出力用formatter
     formatFnRaw(v) {
       return v;
+    },
+    //vue-good-table用numberカラムのsort用function
+    //デフォルトのsortだと上のformatFnRawの影響か、空欄があったときにそこでソートが分割されてしまう。なので、空欄は0とみなし、正常にsortが行えるようにする。
+    numberColumnSortFn(x, y) {
+      const ix = x == '' ? 0 : x;
+      const iy = y == '' ? 0 : y;
+      return ix < iy ? -1 : ix > iy ? 1 : 0;
     },
     //表内全文検索
     globalSearch(row, col, cellValue, globalSearchTerm) {

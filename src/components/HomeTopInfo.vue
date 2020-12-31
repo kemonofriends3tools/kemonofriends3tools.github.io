@@ -24,7 +24,12 @@
         <b-col cols="12" lg="7">
           <h4>シーサーバル道場β</h4>
           <template v-if="masterDojoData.has(getDayOfTheWeek)">
-            <template v-if="masterDojoData.get(getDayOfTheWeek).get('有効期限') < new Date()">
+            <template
+              v-if="
+                masterDojoData.get(getDayOfTheWeek).get('有効期限') <
+                  new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
+              "
+            >
               <b-alert show variant="danger" class="small">
                 表示されているデータは{{ getFormattedExpirationDate }}以前のものです。
               </b-alert>

@@ -88,7 +88,7 @@
                 ['ステータス(Lv)', null],
                 ['ステータス(他)', ['回避', 'プラズム', 'フラッグ補正', 'フラッグ']],
                 ['技・特性', ['ミラクル', 'とくいわざ', 'たいきスキル', 'とくせい/キセキとくせい']],
-                ['その他', ['CV', '備考']],
+                ['その他', ['CV', '実装日', '備考']],
               ])"
               :key="key"
               class="align-items-center search-option-grid m-1 px-1"
@@ -258,6 +258,10 @@
           skipDiacritics: true,
           searchFn: globalSearch,
           externalQuery: globalSearchTerm,
+        }"
+        :sort-options="{
+          enabled: true,
+          initialSortBy: { field: '実装日', type: 'desc' },
         }"
         styleClass="vgt-table bordered condensed"
       >
@@ -771,6 +775,19 @@ export default {
           },
         },
         {
+          label: '実装日',
+          field: '実装日',
+          sortable: true,
+          hidden: false,
+          type: 'date',
+          dateInputFormat: 'yyyyMMdd',
+          dateOutputFormat: 'yyyy/MM/dd',
+          filterOptions: {
+            enabled: false,
+            placeholder: '実装日',
+          },
+        },
+        {
           field: '備考',
           label: '備考',
           sortable: true,
@@ -778,15 +795,6 @@ export default {
             enabled: true,
             placeholder: '備考',
           },
-        },
-        {
-          label: '入手可能期間',
-          field: '入手可能期間',
-          hidden: true,
-          // type: 'date', //date-fnsのperseがうまくいってない
-          // dateInputFormat: 'YYYY-MM-DDTHH:mm:ss.SSSZ',
-          // dateOutputFormat: 'YYYY/MM/DD',
-          // sortable: true,
         },
       ],
       //columns配列についてfield名からindexを引くためのMap()。初期化はmountedにて。

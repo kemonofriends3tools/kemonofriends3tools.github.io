@@ -86,7 +86,7 @@
                 ['基本', ['属性', '☆']],
                 ['限界突破', null],
                 ['とくせい', ['とくせい(変化前)', 'とくせい(変化後)']],
-                ['その他', ['イラストレータ名', '備考']],
+                ['その他', ['イラストレータ名', '実装日', '備考']],
               ])"
               :key="key"
               class="align-items-center search-option-grid m-1 px-1"
@@ -203,6 +203,10 @@
           skipDiacritics: true,
           searchFn: globalSearch,
           externalQuery: globalSearchTerm,
+        }"
+        :sort-options="{
+          enabled: true,
+          initialSortBy: { field: '実装日', type: 'desc' },
         }"
         styleClass="vgt-table bordered condensed"
       >
@@ -386,6 +390,19 @@ export default {
             placeholder: 'イラストレータ名',
           },
           hidden: true,
+        },
+        {
+          label: '実装日',
+          field: '実装日',
+          sortable: true,
+          hidden: false,
+          type: 'date',
+          dateInputFormat: 'yyyyMMdd',
+          dateOutputFormat: 'yyyy/MM/dd',
+          filterOptions: {
+            enabled: false,
+            placeholder: '実装日',
+          },
         },
         {
           field: '備考',

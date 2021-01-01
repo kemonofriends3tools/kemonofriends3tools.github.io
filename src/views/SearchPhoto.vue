@@ -261,7 +261,8 @@
 </template>
 
 <script>
-import photoJson from '../json/photo.json';
+import photoNormalJson from '../json/photo_normal.json';
+import photoWildJson from '../json/photo_wild.json';
 import SearchPhotoAdvFilterModal from '@/components/SearchPhotoAdvFilterModal.vue';
 import TypeSelectModalPhoto from '@/components/TypeSelectModalPhoto.vue';
 import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
@@ -427,7 +428,7 @@ export default {
         { name: '攻撃', hidden: true },
         { name: '守り', hidden: true },
       ],
-      //フォトのマスターデータ。内容はPhotoJsonと同等だがjson時の一部省略記法を復元している。詳細は初期化しているmounted参照。
+      //フォトのマスターデータ。内容はPhotoNormalJson+PhotoWildJsonだがjson時の一部省略記法を復元している。詳細は初期化しているmounted参照。
       masterPhoto: null,
       //その他ページ内で使用している変数。不要かもしれないが初期値絡みの面倒を避けるため一応定義しておく。
       globalSearchTerm: '',
@@ -535,7 +536,8 @@ export default {
 
     //masterPhoto初期化
     //こちらもmountedに置くとmasterPhotoがまだnullのときにアクセスされてコンソールにエラーが出るのでここで初期化する。
-    this.masterPhoto = photoJson;
+    //photoNormalJsonとphotoWildJsonを結合してmasterPhotoとする。
+    this.masterPhoto = photoNormalJson.concat(photoWildJson);
   },
   mounted() {
     //resizable table 2/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue

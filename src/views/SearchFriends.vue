@@ -73,8 +73,8 @@
                 <b-collapse id="collapse2">
                   <b-alert show variant="info" class="small mb-1">
                     ２：下の表の表示列を切り替えます。<br />
-                    表示列を切り替えるだけなので、ここを触ってもデータ行数が変化することはありません。ただしここの選択は３の『表内全文検索』と深く関係しています。<br />
-                    ３の『表内全文検索』はここで表示させたものが検索対象となります。なので”とくいわざ”や”たいきスキル”の中身だけを検索対象としたい場合は『その他詳細・個別カラム表示』から”とくいわざ詳細”や”たいきスキル詳細”を選んだ方が良いでしょう。
+                    表示列を切り替えるだけなので、ここを触ってもデータ行数が変化することはありません。ただしここの選択は３の『表内検索』と深く関係しています。<br />
+                    ３の『表内検索』はここで表示させたものが検索対象となります。なので”とくいわざ”や”たいきスキル”の中身だけを厳密に検索したい場合は『その他詳細・個別カラム表示』から”とくいわざ詳細”や”たいきスキル詳細”を利用して下さい。
                   </b-alert>
                 </b-collapse>
                 <b-alert show variant="warning" class="mt-2 mb-0 px-2 small">
@@ -225,13 +225,26 @@
               <b-col cols="12">
                 <b-collapse id="collapse3">
                   <b-alert show variant="info" class="small mb-1">
-                    ３：表内全文検索を行います。<br />
-                    これは<span class="font-weight-bold"
-                      >現在表内に表示されている全文字列を対象に</span
-                    >、入力された文字列でデータ行の絞り込みを行います。<br />
-                    注意してほしいのは検索対象は<span class="font-weight-bold"
-                      >現在表に表示されている文字列</span
-                    >だという点です。例えばたいきスキルに”くらくら”を持つフレンズが居たとしても、２で”たいきスキル”や”たいきスキル詳細”列を表示させていないとHITしません。
+                    ３：表内検索を行います。
+                    <ul class="pl-4 mb-0">
+                      <li>
+                        これは<span class="font-weight-bold"
+                          >現在表内に表示されている各項目を対象に</span
+                        >、入力された文字列でデータ行の絞り込みを行います。<br />
+                        注意してほしいのは検索対象は<span class="font-weight-bold"
+                          >現在表に表示されている項目だけ</span
+                        >という点です。例えばたいきスキルに”くらくら”を持つフレンズが居たとしても、２で”たいきスキル”や”たいきスキル詳細”列を表示させていないとHITしません。つまり２の表示／非表示で検索対象列を指定することが出来ます。
+                      </li>
+                      <li>
+                        半角スペースで区切るとAND条件で複数キーワードによる検索することが出来ます。<br />
+                        検索は各データ行中の各項目単位で判定されます。つまりキーワード１が"とくいわざ"に<span
+                          class="font-weight-bold"
+                          >のみ</span
+                        >、キーワード２が"たいきスキル"に<span class="font-weight-bold">のみ</span
+                        >存在する場合、この行には両方のキーワード満たす項目が１つも存在しなかったと判定され、そのデータ行は非表示となります。<br />
+                        "とくせい/キセキとくせい"のように1項目に複数の項目がまとまっている場合は"とくせい"と"キセキとくせい"を同時に検索することが出来ます。
+                      </li>
+                    </ul>
                   </b-alert>
                 </b-collapse>
               </b-col>
@@ -241,7 +254,7 @@
                 <b-form-input
                   class="vgt-input input-externalQuery my-1"
                   v-model="globalSearchTerm"
-                  placeholder="表内全文検索"
+                  placeholder="表内検索"
                 />
               </b-col>
             </b-row>
@@ -852,7 +865,7 @@ export default {
       const iy = y == '' ? 0 : y;
       return ix < iy ? -1 : ix > iy ? 1 : 0;
     },
-    //表内全文検索
+    //表内検索
     globalSearch(row, col, cellValue, globalSearchTerm) {
       //colがhiddenの場合は探索しない
       if (col['hidden']) return false;
@@ -881,16 +894,28 @@ export default {
         altTargetColumns = [col.field + 'Formatted'];
       }
 
-      //代替検索カラム配列に要素が存在するか
+      //検索文字列を半角スペースでsplitする
+      const tmpSearchTerms = globalSearchTerm.split(' ');
+      //検索対象文字列定義
+      let tmpCellString;
+
+      //代替検索カラム配列をもとに検索対象文字列を作り出す
       if (altTargetColumns) {
         //代替検索必要
-        //配列にて示された各カラムをsomeで調べる。比較は単純にindexOfで判定する。
-        return altTargetColumns.some(i => row[i].toString().indexOf(globalSearchTerm) != -1);
+        //配列にて示された各セル値を結合して検索対象文字列とする。
+        altTargetColumns.forEach(i => (tmpCellString = tmpCellString + row[i].toString() + '\r\n'));
+        // return altTargetColumns.some(i =>
+        //   tmpSearchTerms.every(j => row[i].toString().indexOf(j) != -1)
+        // );
       } else {
         //代替検索不要
-        //セル値を単純にindexOfで判定する。
-        return cellValue.toString().indexOf(globalSearchTerm) != -1;
+        //検索対象文字列はセル値
+        tmpCellString = cellValue.toString();
       }
+
+      //検索対象文字列を検索文字列で、and条件で検査する。(every()は全要素がテストに合格するか判断する)
+      //各検査では検索対象文字列を単純にindexOfで判定する。
+      return tmpSearchTerms.every(i => tmpCellString.indexOf(i) != -1);
     },
 
     //advFilterボタンが押された時にこれを通してadvFilterに値をセットする。

@@ -73,6 +73,8 @@ import {
   BIconEye,
   BIconSearch,
   BIconQuestionCircleFill,
+  BIconServer,
+  BIconXCircle,
 } from 'bootstrap-vue';
 Vue.use(BootstrapVue);
 import '@/assets/scss/custom-honoka.scss'; //bootstrapのカスタムテーマ
@@ -82,6 +84,8 @@ Vue.component('BIconCalendar3', BIconCalendar3);
 Vue.component('BIconEye', BIconEye);
 Vue.component('BIconSearch', BIconSearch);
 Vue.component('BIconQuestionCircleFill', BIconQuestionCircleFill);
+Vue.component('BIconServer', BIconServer);
+Vue.component('BIconXCircle', BIconXCircle);
 
 Vue.config.productionTip = false;
 

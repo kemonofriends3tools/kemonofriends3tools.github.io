@@ -8,11 +8,10 @@
 
     <b-container fluid>
       <div class="text-right">
-        <b-button v-b-toggle.collapse1.collapse2.collapse3 variant="info">
+        <b-button v-b-toggle.collapse1.collapse2.collapse3.collapse4 variant="info">
           <b-icon
             class="align-text-bottom mx-1"
-            icon="question-circle-fill
-"
+            icon="question-circle-fill"
             variant="light"
           />使い方
         </b-button>
@@ -24,7 +23,42 @@
               <b-col cols="12">
                 <b-collapse id="collapse1">
                   <b-alert show variant="info" class="small mb-1">
-                    １：特殊条件を使いたい場合は最初にここで指定してデータを絞り込みます。尚、ここで条件を選択するとデータ量が減るので後の動作が軽くなります。
+                    １：検索したい対象をここで指定します。たとえばワイルドフォトを検索結果から除外したいのであればワイルドフォトのチェックを外します。尚、ここでチェックを外すとデータ量が減るので後の動作が軽くなります。
+                  </b-alert>
+                </b-collapse>
+              </b-col>
+              <b-col class="pl-0 pr-4 font-weight-bold flex-grow-0 text-nowrap">
+                <b-icon
+                  class="table-attached-header-icon"
+                  icon="server"
+                  variant="dark"
+                  font-scale="1.5"
+                />
+                検索対象
+              </b-col>
+              <b-col cols="12" sm="auto" class="pl-4 flex-grow-0">
+                <b-form-checkbox-group v-model="searchTargetFlag">
+                  <b-checkbox value="normal" checked>
+                    通常フォト
+                  </b-checkbox>
+                  <b-checkbox value="wild">
+                    ワイルドフォト
+                  </b-checkbox>
+                  <b-checkbox value="material">
+                    強化素材
+                  </b-checkbox>
+                </b-form-checkbox-group>
+              </b-col>
+            </b-row>
+          </b-container>
+        </div>
+        <div class="table-attached-header">
+          <b-container fluid>
+            <b-row class="align-items-baseline">
+              <b-col cols="12">
+                <b-collapse id="collapse2">
+                  <b-alert show variant="info" class="small mb-1">
+                    ２：特殊条件による絞り込みをしたい場合はここで指定してデータを絞り込みます。尚、ここで条件を選択するとデータ量が減るので後の動作が軽くなります。
                   </b-alert>
                 </b-collapse>
               </b-col>
@@ -70,10 +104,10 @@
             </b-row>
             <b-row>
               <b-col cols="12">
-                <b-collapse id="collapse2">
+                <b-collapse id="collapse3">
                   <b-alert show variant="info" class="small mb-1">
-                    ２：下の表の表示列を切り替えます。<br />
-                    表示列を切り替えるだけなので、ここを触ってもデータ行数が変化することはありません。ただしここの選択は３の『表内検索』と深く関係しています。３の『表内検索』はここで表示させたものが検索対象となります。
+                    ３：下の表の表示列を切り替えます。<br />
+                    表示列を切り替えるだけなので、ここを触ってもデータ行数が変化することはありません。ただしここの選択は４の『表内検索』と深く関係しています。４の『表内検索』はここで表示させたものが検索対象となります。
                   </b-alert>
                 </b-collapse>
                 <b-alert show variant="warning" class="mt-2 mb-0 px-2 small">
@@ -168,9 +202,9 @@
           <div class="table-attached-header-contents w-100">
             <b-row class="w-100">
               <b-col cols="12">
-                <b-collapse id="collapse3">
+                <b-collapse id="collapse4">
                   <b-alert show variant="info" class="small mb-1">
-                    ３：表内検索を行います。
+                    ４：表内検索を行います。
                     <ul class="pl-4 mb-0">
                       <li>
                         これは<span class="font-weight-bold"
@@ -178,7 +212,7 @@
                         >、入力された文字列でデータ行の絞り込みを行います。<br />
                         注意してほしいのは検索対象は<span class="font-weight-bold"
                           >現在表に表示されている項目だけ</span
-                        >という点です。例えばとくせいに”くらくら耐性”を持つフォトがあったとしても、２で”とくせい”関係の列を表示させていないとHITしません。つまり２の表示／非表示で検索対象列を指定することが出来ます。
+                        >という点です。例えばとくせいに”くらくら耐性”を持つフォトがあったとしても、３で”とくせい”関係の列を表示させていないとHITしません。つまり３の表示／非表示で検索対象列を指定することが出来ます。
                       </li>
                       <li>
                         半角スペースで区切るとAND条件で複数キーワードによる検索することが出来ます。<br />
@@ -276,6 +310,7 @@
 <script>
 import photoNormalJson from '../json/photo_normal.json';
 import photoWildJson from '../json/photo_wild.json';
+import photoMaterialJson from '../json/photo_material.json';
 import SearchPhotoAdvFilterModal from '@/components/SearchPhotoAdvFilterModal.vue';
 import TypeSelectModalPhoto from '@/components/TypeSelectModalPhoto.vue';
 import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
@@ -441,8 +476,8 @@ export default {
         { name: '攻撃', hidden: true },
         { name: '守り', hidden: true },
       ],
-      //フォトのマスターデータ。内容はPhotoNormalJson+PhotoWildJsonだがjson時の一部省略記法を復元している。詳細は初期化しているmounted参照。
-      masterPhoto: null,
+      //検索対象を管理する配列
+      searchTargetFlag: ['normal', 'wild'],
       //その他ページ内で使用している変数。不要かもしれないが初期値絡みの面倒を避けるため一応定義しておく。
       globalSearchTerm: '',
       advFilter: {
@@ -454,6 +489,14 @@ export default {
     };
   },
   computed: {
+    //フォトのマスターデータ。検索対象チェックボックス配列の値を元に対応するJsonを結合して返す。
+    masterPhoto() {
+      let retArray = [];
+      if (this.searchTargetFlag.includes('normal')) retArray = retArray.concat(photoNormalJson);
+      if (this.searchTargetFlag.includes('wild')) retArray = retArray.concat(photoWildJson);
+      if (this.searchTargetFlag.includes('material')) retArray = retArray.concat(photoMaterialJson);
+      return retArray;
+    },
     //tableにセットする実データを作り出す(computedなのでキャッシュが効き、パラメータに変化があった場合のみ再計算される)。
     //masterPhotoを特殊条件でフィルタリングして作る。
     filterdPhoto() {
@@ -555,11 +598,6 @@ export default {
     //columnsIndexはtemplateにてcolumns[columnsIndex.get(i)].labelなどと参照されているが、columnsIndexの初期化が遅いと空であり、参照エラーになってしまう。
     //そのためpage描画が始まる前（elementがマウントされる前）であるここbeforeMountにて初期化を行う。
     this.columns.forEach((i, j) => this.columnsIndex.set(i.field, j));
-
-    //masterPhoto初期化
-    //こちらもmountedに置くとmasterPhotoがまだnullのときにアクセスされてコンソールにエラーが出るのでここで初期化する。
-    //photoNormalJsonとphotoWildJsonを結合してmasterPhotoとする。
-    this.masterPhoto = photoNormalJson.concat(photoWildJson);
   },
   mounted() {
     //resizable table 2/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue

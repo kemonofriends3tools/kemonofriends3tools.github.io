@@ -277,6 +277,16 @@
           initialSortBy: { field: '実装日', type: 'desc' },
         }"
         styleClass="vgt-table bordered condensed"
+        :pagination-options="{
+          enabled: true,
+          perPage: 10,
+          position: 'both',
+          nextLabel: '次',
+          prevLabel: '前',
+          rowsPerPageLabel: 'ページあたりの表示件数',
+          ofLabel: '/',
+          allLabel: '全て',
+        }"
       >
         <template v-slot:table-column="props">
           {{ props.column.label }}

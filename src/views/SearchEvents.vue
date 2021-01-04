@@ -316,7 +316,7 @@
         :pagination-options="{
           enabled: true,
           perPage: 10,
-          position: 'top',
+          position: 'both',
           nextLabel: '次',
           prevLabel: '前',
           rowsPerPageLabel: 'ページあたりの表示件数',

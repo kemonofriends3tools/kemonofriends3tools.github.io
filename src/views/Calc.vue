@@ -8,7 +8,7 @@
       </b-alert>
     </b-container>
     <CalcEventGeneral />
-    <CalcContestOfStrength :endDate="endDate" />
+    <CalcContestOfStrength />
     <CalcDojo />
     <CalcPicnic />
   </b-container>
@@ -20,8 +20,6 @@ import CalcContestOfStrength from '@/components/CalcContestOfStrength.vue';
 import CalcDojo from '@/components/CalcDojo.vue';
 import CalcPicnic from '@/components/CalcPicnic.vue';
 
-import dayjs from 'dayjs';
-
 export default {
   name: 'Calc',
   components: {
@@ -29,20 +27,6 @@ export default {
     CalcContestOfStrength,
     CalcDojo,
     CalcPicnic,
-  },
-  data() {
-    return {
-      //ちからくらべ今期末日付
-      endDate: new Date('2021/1/29'),
-    };
-  },
-  beforeMount() {
-    //endDateの初期化。初期値が古い場合はとりあえず今月末とする。
-    //componentsに渡される前に初期化したいのでbeforeMountにて行う。
-    const tmpDate = new Date();
-    if (this.endDate < tmpDate) {
-      this.endDate = new Date(dayjs().endOf('month'));
-    }
   },
 };
 </script>

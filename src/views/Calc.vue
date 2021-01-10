@@ -33,7 +33,7 @@ export default {
   data() {
     return {
       //ちからくらべ今期末日付
-      endDate: new Date('2020/12/25'),
+      endDate: new Date('2021/1/29'),
     };
   },
   beforeMount() {

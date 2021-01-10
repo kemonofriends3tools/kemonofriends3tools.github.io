@@ -323,7 +323,7 @@ export default {
   components: { VueTimepicker },
   data() {
     return {
-      endDate: new Date('2021/1/1 13:50:00'), //今期末日付。更新する場合はここを変更する。
+      endDate: new Date('2021/1/29 13:50:00'), //今期末日付。更新する場合はここを変更する。
       rankArray: [], //次ランクへ上がるために必要なpt数を格納する配列。実際のランクはindex+1。mountedにて初期化。
       inputEndDate: undefined,
       inputMinDate: new Date(dayjs().startOf('day')),

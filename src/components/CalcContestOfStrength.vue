@@ -5,7 +5,7 @@
         今期末までにランクいくつになれるかを計算します。
       </b-alert>
       <b-alert show variant="warning" class="mt-4 small">
-        注意：対戦(勝敗・ターン数等)が安定しない場合、結果の誤差も大きくなります。
+        対戦(勝敗・ターン数等)が安定しない場合、結果の誤差も大きくなります。
       </b-alert>
       <b-row>
         <b-col cols="12" lg="8" xl="7" class="mb-4">
@@ -43,6 +43,13 @@
                 hour-label="時"
                 minute-label="分"
               ></vue-timepicker>
+            </b-col>
+          </b-row>
+          <b-row class="align-items-center" v-if="endDate < new Date()">
+            <b-col class="d-inline">
+              <b-alert show variant="warning" class="my-1 small"
+                >（管理者が更新をサボっている為）正しい今期終了日時が判りません。お手数ですが正しい日付を入れてください。</b-alert
+              >
             </b-col>
           </b-row>
           <b-row class="align-items-center">
@@ -314,21 +321,13 @@ import contestOfStrengthJson from '../json/contestOfStrength.json';
 export default {
   name: 'CalcContestOfStrength',
   components: { VueTimepicker },
-  props: {
-    //今期末日付
-    //引数として取れなかった場合は本日日付
-    endDate: {
-      type: Date,
-      require: false,
-      default: () => new Date(),
-    },
-  },
   data() {
     return {
+      endDate: new Date('2021/1/1 13:50:00'), //今期末日付。更新する場合はここを変更する。
       rankArray: [], //次ランクへ上がるために必要なpt数を格納する配列。実際のランクはindex+1。mountedにて初期化。
-      inputEndDate: this.endDate,
+      inputEndDate: undefined,
       inputMinDate: new Date(dayjs().startOf('day')),
-      inputEndTime: '13:50',
+      inputEndTime: '13:50', //参照していないがこの時間はinputEndDateの初期化に関係有なので変更時注意
       inputNumberOfChallenge: 0,
       maxNumberOfChallenge: 9,
       inputLeastTime: 30,
@@ -348,7 +347,7 @@ export default {
         { value: 1.0, text: '6 ターン以上 (x1.0)' },
       ],
       inputAverageTurns: 1.2,
-      inputWinRate: 90,
+      inputWinRate: 100,
       selectChallengeMode: [
         { value: 3, text: '3倍モード' },
         { value: 1, text: '通常モード(1倍)' },
@@ -363,6 +362,28 @@ export default {
     };
   },
   mounted() {
+    //inputEndDateの初期化。
+    const tmpDateNow = new Date();
+    if (tmpDateNow < this.endDate) {
+      //endDateが正しい（未来日付）場合はその値を採用する。
+      this.inputEndDate = this.endDate;
+    } else {
+      //endDateが古い場合は現在時刻によって本日もしくは翌日の日付とする。
+      //inputEndDateにいれる変数を用意する。時間はinputEndTimeと共通のマジックナンバー。ないだろうけど変更する際は注意。
+      const tmpThresholdDate = new Date(
+        tmpDateNow.getFullYear(),
+        tmpDateNow.getMonth(),
+        tmpDateNow.getDate(),
+        13,
+        50
+      );
+
+      //今日の時刻が13:50を超えているなら1日ずらして翌日を〆とする
+      if (tmpThresholdDate <= tmpDateNow) tmpThresholdDate.setDate(tmpThresholdDate.getDate() + 1);
+
+      this.inputEndDate = tmpThresholdDate;
+    }
+
     //ランクテーブルをjsonから作成
     for (const row of contestOfStrengthJson) {
       this.rankArray.push(row['くんれんポイント']);

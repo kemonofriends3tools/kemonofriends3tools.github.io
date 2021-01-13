@@ -6,6 +6,7 @@ import Home from '@/views/Home.vue';
 import SearchFriends from '@/views/SearchFriends.vue';
 import SearchPhoto from '@/views/SearchPhoto.vue';
 import SearchEvents from '@/views/SearchEvents.vue';
+import SearchEvents2 from '@/views/SearchEvents2.vue';
 import Calc from '@/views/Calc.vue';
 import dev from '@/views/Dev.vue';
 
@@ -41,9 +42,19 @@ const routes = [
     },
   },
   {
-    path: '/Events',
-    name: 'Events',
+    path: '/events',
+    name: 'events',
     component: SearchEvents,
+    meta: {
+      title: 'イベント・しょうたい検索',
+      description:
+        'アプリ版「けものフレンズ３」のイベントやしょうたいを特殊な条件で検索することができます。',
+    },
+  },
+  {
+    path: '/events2',
+    name: 'events2',
+    component: SearchEvents2,
     meta: {
       title: 'イベント・しょうたい検索',
       description:

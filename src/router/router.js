@@ -66,7 +66,7 @@ const routes = [
     name: 'calc',
     component: Calc,
     meta: {
-      title: 'calc',
+      title: '各種計算',
       description: 'アプリ版「けものフレンズ３」のプレイに役立つ各種計算などが行えます。',
     },
   },

@@ -215,7 +215,7 @@
                         >という点です。例えばとくせいに”くらくら耐性”を持つフォトがあったとしても、３で”とくせい”関係の列を表示させていないとHITしません。つまり３の表示／非表示で検索対象列を指定することが出来ます。
                       </li>
                       <li>
-                        半角スペースで区切るとAND条件で複数キーワードによる検索することが出来ます。<br />
+                        半角または全角スペースで区切るとAND条件で複数キーワードによる検索することが出来ます。<br />
                         検索は各データ行中の各項目単位で判定されます。つまりキーワード１が"とくせい(変化前)"に<span
                           class="font-weight-bold"
                           >のみ</span
@@ -542,8 +542,8 @@ export default {
       //フォトの場合属性は検索対象としない
       if (col.field == '属性') return false;
 
-      //検索文字列を半角スペースでsplitする
-      const tmpSearchTerms = globalSearchTerm.split(' ');
+      //検索文字列を半角または全角スペースでsplitする。全角スペースを直で書くとlintでエラーになるので文字コードで指定する。
+      const tmpSearchTerms = globalSearchTerm.split(/[\x20\u3000]/);
       //検索対象文字列はセル値
       const tmpCellString = cellValue.toString();
 

@@ -236,7 +236,7 @@
                         >という点です。例えばたいきスキルに”くらくら”を持つフレンズが居たとしても、２で”たいきスキル”や”たいきスキル詳細”列を表示させていないとHITしません。つまり２の表示／非表示で検索対象列を指定することが出来ます。
                       </li>
                       <li>
-                        半角スペースで区切るとAND条件で複数キーワードによる検索することが出来ます。<br />
+                        半角または全角スペースで区切るとAND条件で複数キーワードによる検索することが出来ます。<br />
                         検索は各データ行中の各項目単位で判定されます。つまりキーワード１が"とくいわざ"に<span
                           class="font-weight-bold"
                           >のみ</span
@@ -904,8 +904,8 @@ export default {
         altTargetColumns = [col.field + 'Formatted'];
       }
 
-      //検索文字列を半角スペースでsplitする
-      const tmpSearchTerms = globalSearchTerm.split(' ');
+      //検索文字列を半角または全角スペースでsplitする。全角スペースを直で書くとlintでエラーになるので文字コードで指定する。
+      const tmpSearchTerms = globalSearchTerm.split(/[\x20\u3000]/);
       //検索対象文字列定義
       let tmpCellString;
 

@@ -85,6 +85,10 @@ Vue.component('BIconSearch', BIconSearch);
 Vue.component('BIconQuestionCircleFill', BIconQuestionCircleFill);
 Vue.component('BIconServer', BIconServer);
 
+//vue-text-highlight
+import TextHighlight from 'vue-text-highlight';
+Vue.component('text-highlight', TextHighlight);
+
 Vue.config.productionTip = false;
 
 new Vue({

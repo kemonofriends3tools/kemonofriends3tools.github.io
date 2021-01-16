@@ -3,7 +3,7 @@
     <h1>イベント・しょうたい検索</h1>
     <b-container fluid>
       <b-alert show variant="info" class="small mb-1">
-        使い方に少々クセがあります。基本上から順に利用して下さい。詳しくは下の「使い方」を押してください。
+        使い方に少々クセがあります。詳しくは下の「使い方」を押してください。
       </b-alert>
       <div class="text-right">
         <b-button v-b-toggle.collapse1.collapse2.collapse3 variant="info">
@@ -18,7 +18,7 @@
 
       <!-- table-attached-headerのfirst/last-childを見ているのでこのdivは必要 -->
       <div>
-        <div class="table-attached-header">
+        <div class="table-attached-header table-attached-header-solidBottom">
           <div>
             <b-icon
               class="table-attached-header-icon"
@@ -29,6 +29,14 @@
           </div>
           <div class="table-attached-header-contents pl-1" style="width: calc(100% - 25px)">
             <b-row class="w-100">
+              <b-col cols="12" class="px-1">
+                <b-alert show variant="warning" class="small mb-1">
+                  以下の検索欄はすべてand条件で繋がっており、他の検索条件により選択できる内容が動的に変わり（絞り込まれ）ます。<br />
+                  例えばデフォルトでは除外タグに『恒常』が指定されています。そのため『個別検索 ＞
+                  家具』としても家具名は空になります（現在家具は恒常のメインシナリオ等のみの為）<br />
+                  なにかおかしいと思ったら他の条件を見直してみてください（単純にはタグを両方とも空にしてみてください）。
+                </b-alert>
+              </b-col>
               <b-col cols="12" class="px-1">
                 <b-collapse id="collapse1">
                   <b-alert show variant="info" class="small mb-1">
@@ -105,18 +113,6 @@
                 </v-select>
               </b-col>
             </b-row>
-          </div>
-        </div>
-        <div class="table-attached-header table-attached-header-solidBottom">
-          <div>
-            <b-icon
-              class="table-attached-header-icon"
-              icon="tags"
-              variant="dark"
-              font-scale="1.5"
-            />
-          </div>
-          <div class="table-attached-header-contents pl-1" style="width: calc(100% - 25px)">
             <b-row class="w-100">
               <b-col cols="12" class="px-1">
                 <b-collapse id="collapse1">

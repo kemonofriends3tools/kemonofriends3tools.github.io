@@ -254,7 +254,34 @@
                 <b-form-input
                   class="vgt-input input-externalQuery my-1"
                   v-model="globalSearchTerm"
-                  placeholder="表内検索"
+                  placeholder="表内検索(オリジナル)"
+                />
+              </b-col>
+              <b-col cols="12" class="pr-0">
+                <b-form-input
+                  class="vgt-input input-externalQuery my-1"
+                  v-model="globalSearchTerm"
+                  placeholder="表内検索(search,lazy)"
+                  type="search"
+                  lazy
+                />
+              </b-col>
+              <b-col cols="12" class="pr-0">
+                <b-form-input
+                  class="vgt-input input-externalQuery my-1"
+                  v-model="globalSearchTerm"
+                  placeholder="表内検索(search,debounce 500ms)"
+                  type="search"
+                  debounce="500"
+                />
+              </b-col>
+              <b-col cols="12" class="pr-0">
+                <b-form-input
+                  class="vgt-input input-externalQuery my-1"
+                  v-model="globalSearchTerm"
+                  placeholder="表内検索(search,debounce 1000ms)"
+                  type="search"
+                  debounce="1000"
                 />
               </b-col>
             </b-row>

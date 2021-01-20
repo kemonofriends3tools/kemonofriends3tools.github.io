@@ -234,6 +234,8 @@
                   class="vgt-input input-externalQuery my-1"
                   v-model="globalSearchTerm"
                   placeholder="表内検索"
+                  type="search"
+                  debounce="500"
                 />
               </b-col>
             </b-row>
@@ -301,10 +303,16 @@
             "
           >
             <!-- これらは複数行になりうる。複数行クラスを適用する。 -->
-            <p class="preText m-0">{{ props.row[props.column.field] }}</p>
+            <p class="preText m-0">
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row[props.column.field] }}
+              </text-highlight>
+            </p>
           </template>
           <template v-else>
-            {{ props.formattedRow[props.column.field] }}
+            <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              {{ props.formattedRow[props.column.field] }}
+            </text-highlight>
           </template>
         </template>
         <div slot="emptystate">
@@ -521,6 +529,26 @@ export default {
         return this.masterPhoto;
       }
     },
+    //検索文字列を半角または全角スペースでsplitし、表内検索やvue-text-hightlight等で使いやすい形式（正規表現の配列）に直して返す。
+    //メイン処理は単純なsplitだが複数個所で利用しているのでキャッシュの効くcomputedとして提供する。
+    getGlobalSearchTermArray() {
+      //tirmで前後空白を除き、正規表現の特殊文字をエスケープ、半または全角スペースでsplitする
+      //全角スペースをソースに直で書くとlintでエラーになるので文字コードで指定する。
+      const queries = this.globalSearchTerm
+        .trim()
+        .replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
+        .split(/[\x20\u3000]/);
+
+      //戻り値となる正規表現配列を定義する。
+      const regex = [];
+      //検索文字列が空（queriesの長さが１かつ空白）の場合は処理しない（vue-text-hightlight内のロジック絡みでフリーズする模様）
+      //RegExpのコンストラクタに不正な正規表現を入れると例外がおきるが、先にエスケープしているので例外はおきないものとする。今後正規表現検索に対応したりする場合は例外を考慮のこと。
+      //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。
+      if (!(queries.length == 1 && queries[0] == '')) {
+        queries.forEach(i => regex.push(new RegExp(i, 'i')));
+      }
+      return regex;
+    },
   },
   methods: {
     //vue-good-tableデータ生出力用formatter
@@ -534,22 +562,20 @@ export default {
       const iy = y == '' ? 0 : y;
       return ix < iy ? -1 : ix > iy ? 1 : 0;
     },
-    //表内検索
-    globalSearch(row, col, cellValue, globalSearchTerm) {
+    //表内検索。第4引数はglobalSearchTermだが使ってないので省略。
+    globalSearch(row, col, cellValue) {
       //colがhiddenの場合は探索しない
       if (col['hidden']) return false;
 
       //フォトの場合属性は検索対象としない
       if (col.field == '属性') return false;
 
-      //検索文字列を半角または全角スペースでsplitする。全角スペースを直で書くとlintでエラーになるので文字コードで指定する。
-      const tmpSearchTerms = globalSearchTerm.split(/[\x20\u3000]/);
       //検索対象文字列はセル値
       const tmpCellString = cellValue.toString();
 
-      //検索対象文字列を検索文字列で、and条件で検査する。(every()は全要素がテストに合格するか判断する)
-      //各検査では検索対象文字列を単純にindexOfで判定する。
-      return tmpSearchTerms.every(i => tmpCellString.indexOf(i) != -1);
+      //検索条件（正規表現配列）で検索対象文字列をテストする。
+      //and条件としたいのでevery()を用いる。(every()は全要素がテストに合格するか判断する)
+      return this.getGlobalSearchTermArray.every(i => i.test(tmpCellString));
     },
 
     //advFilterボタンが押された時にこれを通してadvFilterに値をセットする。

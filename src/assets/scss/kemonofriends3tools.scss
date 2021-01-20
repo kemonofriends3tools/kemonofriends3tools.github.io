@@ -118,6 +118,14 @@ hr {
   text-align: center !important;
 }
 
+//vue-text-highlight用。
+//component読み込み時にデフォルトのCSSを排除してロードし、代わりにこの値を利用する。
+// https://github.com/AlbertLucianto/vue-text-highlight/issues/17#issuecomment-549071242
+.text__highlight {
+  background: $color-primary-0;
+  border-radius: 0.7rem;
+}
+
 //Eventにて使用しているカスタムバッチ関連
 span {
   &.custom-badge {

@@ -255,6 +255,8 @@
                   class="vgt-input input-externalQuery my-1"
                   v-model="globalSearchTerm"
                   placeholder="表内検索"
+                  type="search"
+                  debounce="500"
                 />
               </b-col>
             </b-row>
@@ -315,7 +317,9 @@
             <TypeNameToIcon :type="props.row.属性" :imgRemSize="1.8" />
           </template>
           <template v-else-if="props.column.label == '回避'">
-            {{ props.row[props.column.field + 'Formatted'] }}
+            <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              {{ props.row[props.column.field + 'Formatted'] }}
+            </text-highlight>
           </template>
           <template v-else-if="props.column.label == 'フラッグ補正'">
             <p
@@ -324,51 +328,102 @@
               :key="'flagCorrection' + i"
             >
               {{ i.substring(0, 1).toUpperCase() + i.substring(1) }} :
-              {{ props.row[i + 'Formatted'] }}
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row[i + 'Formatted'] }}
+              </text-highlight>
             </p>
           </template>
           <template v-else-if="props.column.label == 'フラッグ'">
             <div v-for="i of ['1', '2', '3', '4', '5']" :key="'flag' + i">
               <p :class="getFlagCorrectionColumnClass('m-0', props.row['flag' + i])">
-                {{ props.row['flag' + i] }}
+                <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                  {{ props.row['flag' + i] }}
+                </text-highlight>
               </p>
             </div>
           </template>
           <template v-else-if="props.column.label == 'ミラクル'">
-            <p class="font-weight-bold m-0">{{ props.row.ミラクル名 }}</p>
+            <p class="font-weight-bold m-0">
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row.ミラクル名 }}
+              </text-highlight>
+            </p>
             <p class="m-0 pl-2">
-              MP: {{ props.row.MP }}
+              MP:
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row.MP }}
+              </text-highlight>
               <span
                 :class="getFlagCorrectionColumnClass('pr-3', props.row['ミラクル+'])"
                 style="padding-left:0.5rem;"
               >
-                {{ props.row['ミラクル+'] }}
+                <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                  {{ props.row['ミラクル+'] }}
+                </text-highlight>
               </span>
               Lv.5
             </p>
-            <p class="preText m-0 pl-2">{{ props.row.ミラクルlv5 }}</p>
+            <p class="preText m-0 pl-2">
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row.ミラクルlv5 }}
+              </text-highlight>
+            </p>
           </template>
           <template v-else-if="props.column.label == 'とくいわざ'">
-            <p class="font-weight-bold m-0">{{ props.row.とくいわざ名 }}</p>
-            <p class="preText m-0 pl-2">{{ props.row.とくいわざ詳細 }}</p>
+            <p class="font-weight-bold m-0">
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row.とくいわざ名 }}
+              </text-highlight>
+            </p>
+            <p class="preText m-0 pl-2">
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row.とくいわざ詳細 }}
+              </text-highlight>
+            </p>
           </template>
           <template v-else-if="props.column.label == 'たいきスキル'">
-            <p class="font-weight-bold m-0">{{ props.row.たいきスキル名 }}</p>
-            <p class="preText m-0 pl-2">{{ props.row.たいきスキル詳細 }}</p>
+            <p class="font-weight-bold m-0">
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row.たいきスキル名 }}
+              </text-highlight>
+            </p>
+            <p class="preText m-0 pl-2">
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row.たいきスキル詳細 }}
+              </text-highlight>
+            </p>
           </template>
           <template v-else-if="props.column.label == 'とくせい/キセキとくせい'">
-            <p class="font-weight-bold m-0">{{ props.row.とくせい名 }}</p>
-            <p class="preText m-0 pl-2">{{ props.row.とくせい詳細 }}</p>
+            <p class="font-weight-bold m-0">
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row.とくせい名 }}
+              </text-highlight>
+            </p>
+            <p class="preText m-0 pl-2">
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row.とくせい詳細 }}
+              </text-highlight>
+            </p>
             <hr class="multiLine_hr" />
-            <p class="font-weight-bold m-0">{{ props.row.キセキとくせい名 }}</p>
-            <p class="preText m-0 pl-2">{{ props.row.キセキとくせい詳細 }}</p>
+            <p class="font-weight-bold m-0">
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row.キセキとくせい名 }}
+              </text-highlight>
+            </p>
+            <p class="preText m-0 pl-2">
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row.キセキとくせい詳細 }}
+              </text-highlight>
+            </p>
           </template>
           <template
             v-else-if="['Beat補正', 'Try補正', 'Action補正'].some(i => i == props.column.label)"
           >
             <!-- ここも背景色を変えるが、値に入っているのは数値のみなのでgetFlagCorrectionColumnClassにはfield名を渡す。頭文字判定なので問題ない。 -->
             <p :class="getFlagCorrectionColumnClass('m-0 text-right', props.column.field)">
-              {{ props.row[props.column.field + 'Formatted'] }}
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row[props.column.field + 'Formatted'] }}
+              </text-highlight>
             </p>
           </template>
           <template
@@ -380,7 +435,9 @@
           >
             <!-- フラッグ1-5のfield名は"flag"なので表示にはprops.column.fieldを利用する。ミラクル+は同一だが処理は共通なのでここに置く。 -->
             <p :class="getFlagCorrectionColumnClass('m-0', props.row[props.column.field])">
-              {{ props.row[props.column.field] }}
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row[props.column.field] }}
+              </text-highlight>
             </p>
           </template>
           <template
@@ -395,10 +452,16 @@
             "
           >
             <!-- これらは複数行になりうる。複数行クラスを適用する。 -->
-            <p class="preText m-0">{{ props.row[props.column.field] }}</p>
+            <p class="preText m-0">
+              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                {{ props.row[props.column.field] }}
+              </text-highlight>
+            </p>
           </template>
           <template v-else>
-            {{ props.formattedRow[props.column.field] }}
+            <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              {{ props.formattedRow[props.column.field] }}
+            </text-highlight>
           </template>
         </template>
         <div slot="emptystate">
@@ -862,6 +925,26 @@ export default {
         return this.masterFriends;
       }
     },
+    //検索文字列を半角または全角スペースでsplitし、表内検索やvue-text-hightlight等で使いやすい形式（正規表現の配列）に直して返す。
+    //メイン処理は単純なsplitだが複数個所で利用しているのでキャッシュの効くcomputedとして提供する。
+    getGlobalSearchTermArray() {
+      //tirmで前後空白を除き、正規表現の特殊文字をエスケープ、半または全角スペースでsplitする
+      //全角スペースをソースに直で書くとlintでエラーになるので文字コードで指定する。
+      const queries = this.globalSearchTerm
+        .trim()
+        .replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
+        .split(/[\x20\u3000]/);
+
+      //戻り値となる正規表現配列を定義する。
+      const regex = [];
+      //検索文字列が空（queriesの長さが１かつ空白）の場合は処理しない（vue-text-hightlight内のロジック絡みでフリーズする模様）
+      //RegExpのコンストラクタに不正な正規表現を入れると例外がおきるが、先にエスケープしているので例外はおきないものとする。今後正規表現検索に対応したりする場合は例外を考慮のこと。
+      //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。
+      if (!(queries.length == 1 && queries[0] == '')) {
+        queries.forEach(i => regex.push(new RegExp(i, 'i')));
+      }
+      return regex;
+    },
   },
   methods: {
     //vue-good-tableデータ生出力用formatter
@@ -875,8 +958,8 @@ export default {
       const iy = y == '' ? 0 : y;
       return ix < iy ? -1 : ix > iy ? 1 : 0;
     },
-    //表内検索
-    globalSearch(row, col, cellValue, globalSearchTerm) {
+    //表内検索。第4引数はglobalSearchTermだが使ってないので省略。
+    globalSearch(row, col, cellValue) {
       //colがhiddenの場合は探索しない
       if (col['hidden']) return false;
 
@@ -904,8 +987,6 @@ export default {
         altTargetColumns = [col.field + 'Formatted'];
       }
 
-      //検索文字列を半角または全角スペースでsplitする。全角スペースを直で書くとlintでエラーになるので文字コードで指定する。
-      const tmpSearchTerms = globalSearchTerm.split(/[\x20\u3000]/);
       //検索対象文字列定義
       let tmpCellString;
 
@@ -914,18 +995,15 @@ export default {
         //代替検索必要
         //配列にて示された各セル値を結合して検索対象文字列とする。
         altTargetColumns.forEach(i => (tmpCellString = tmpCellString + row[i].toString() + '\r\n'));
-        // return altTargetColumns.some(i =>
-        //   tmpSearchTerms.every(j => row[i].toString().indexOf(j) != -1)
-        // );
       } else {
         //代替検索不要
         //検索対象文字列はセル値
         tmpCellString = cellValue.toString();
       }
 
-      //検索対象文字列を検索文字列で、and条件で検査する。(every()は全要素がテストに合格するか判断する)
-      //各検査では検索対象文字列を単純にindexOfで判定する。
-      return tmpSearchTerms.every(i => tmpCellString.indexOf(i) != -1);
+      //検索条件（正規表現配列）で検索対象文字列をテストする。
+      //and条件としたいのでevery()を用いる。(every()は全要素がテストに合格するか判断する)
+      return this.getGlobalSearchTermArray.every(i => i.test(tmpCellString));
     },
 
     //advFilterボタンが押された時にこれを通してadvFilterに値をセットする。

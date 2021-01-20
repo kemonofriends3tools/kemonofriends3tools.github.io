@@ -4,7 +4,6 @@ import { setTitle, setDescription } from '@/mixins/title';
 
 import Home from '@/views/Home.vue';
 import SearchFriends from '@/views/SearchFriends.vue';
-import SearchFriends2 from '@/views/SearchFriends2.vue';
 import SearchPhoto from '@/views/SearchPhoto.vue';
 import SearchEvents from '@/views/SearchEvents.vue';
 import SearchEvents2 from '@/views/SearchEvents2.vue';
@@ -30,15 +29,6 @@ const routes = [
     component: SearchFriends,
     meta: {
       title: 'フレンズ検索',
-      description: 'アプリ版「けものフレンズ３」のフレンズを特殊な条件で検索することができます。',
-    },
-  },
-  {
-    path: '/friends2',
-    name: 'SearchFriends2',
-    component: SearchFriends2,
-    meta: {
-      title: 'フレンズ検索(開発版β)',
       description: 'アプリ版「けものフレンズ３」のフレンズを特殊な条件で検索することができます。',
     },
   },

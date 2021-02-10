@@ -11,8 +11,7 @@
         <b-button v-b-toggle.collapse1.collapse2.collapse3 variant="info">
           <b-icon
             class="align-text-bottom mx-1"
-            icon="question-circle-fill
-"
+            icon="question-circle-fill"
             variant="light"
           />使い方
         </b-button>

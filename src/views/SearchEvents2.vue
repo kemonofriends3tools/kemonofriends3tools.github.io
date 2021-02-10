@@ -9,8 +9,7 @@
         <b-button v-b-toggle.collapse1.collapse2.collapse3 variant="info">
           <b-icon
             class="align-text-bottom mx-1"
-            icon="question-circle-fill
-"
+            icon="question-circle-fill"
             variant="light"
           />使い方
         </b-button>
@@ -477,8 +476,6 @@ export default {
       },
       minDate: new Date('2019/9/24'), //けもフレ３リリース日。min-date。
       masterAttributes: [], //全てのイベントを記録したマスターデータ。jsonのデータをv-calendar用に構造変換したもの。これをcomputedでフィルターする。
-
-      selectedTest: ['通常フォト', 'ワイルドフォト', 'test'],
 
       //フィルターの表示制御に必要な要素をまとめたフィルターオブジェクト配列。表示有無、選択値、選択項目等を保持する。
       SearchFilter: {

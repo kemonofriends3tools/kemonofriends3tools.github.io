@@ -87,7 +87,7 @@ hr {
   word-wrap: break-word;
 }
 
-//resizable table関連 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
+//resizable table関連 (@/mixins/resizableTable.js参照)
 //ハンドルとなる空divに付与する
 .resizableTableHandle {
   top: 0px;

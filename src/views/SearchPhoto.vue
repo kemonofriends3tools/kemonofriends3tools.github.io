@@ -332,13 +332,10 @@ import photoMaterialJson from '../json/photo_material.json';
 import SearchPhotoAdvFilterModal from '@/components/SearchPhotoAdvFilterModal.vue';
 import TypeSelectModalPhoto from '@/components/TypeSelectModalPhoto.vue';
 import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
-
-//resizable table 1/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
-//グローバル変数
-var thElm;
-var startOffset;
+import resizableTable from '@/mixins/resizableTable.js';
 
 export default {
+  mixins: [resizableTable],
   name: 'SearchPhoto',
   components: {
     SearchPhotoAdvFilterModal,
@@ -481,7 +478,7 @@ export default {
           },
         },
       ],
-      //columns配列についてfield名からindexを引くためのMap()。初期化はmountedにて。
+      //columns配列についてfield名からindexを引くためのMap()。初期化はbeforeMountにて。
       columnsIndex: new Map(),
       //ステータス表示関係
       selectedLevel: 0,
@@ -621,27 +618,12 @@ export default {
         this.$set(this.columns[this.columnsIndex.get(i.value + columnLabel)], 'hidden', tmpValue);
       }
     },
-
-    //resizable table 3/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
-    //th内ハンドルのmousedownに追加するイベントハンドラー。
-    resizableTableEventHandler(event) {
-      thElm = event.target.parentNode;
-      startOffset = event.target.parentNode.offsetWidth - event.pageX;
-    },
   },
   beforeMount() {
     //columnsIndexを初期化。
     //columnsIndexはtemplateにてcolumns[columnsIndex.get(i)].labelなどと参照されているが、columnsIndexの初期化が遅いと空であり、参照エラーになってしまう。
     //そのためpage描画が始まる前（elementがマウントされる前）であるここbeforeMountにて初期化を行う。
     this.columns.forEach((i, j) => this.columnsIndex.set(i.field, j));
-  },
-  mounted() {
-    //resizable table 2/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
-    //グローバルなmousemove,mouseupイベントハンドラ追加
-    document.addEventListener('mousemove', e => {
-      if (thElm) thElm.style.width = startOffset + e.pageX + 'px';
-    });
-    document.addEventListener('mouseup', () => (thElm = undefined));
   },
 };
 </script>

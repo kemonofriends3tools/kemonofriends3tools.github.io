@@ -445,11 +445,7 @@
 import popoverRow from 'v-calendar/lib/components/popover-row.umd.min';
 import dayjs from 'dayjs';
 import eventsJson from '../json/events.json';
-
-//resizable table 1/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
-//グローバル変数
-var thElm;
-var startOffset;
+import resizableTable from '@/mixins/resizableTable.js';
 
 //v-calendarが利用可能な色リスト。mountedの他conputed等で利用しそうなのでここにいれておく。
 const color = [
@@ -466,6 +462,7 @@ const color = [
 ];
 
 export default {
+  mixins: [resizableTable],
   name: 'SearchEvents2',
   components: {
     popoverRow,
@@ -812,13 +809,6 @@ export default {
     uniqueSetMap.forEach((v, k) => this.masterNameList.set(k, Array.from(v).sort()));
   },
   mounted() {
-    //resizable table 2/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
-    //グローバルなmousemove,mouseupイベントハンドラ追加
-    document.addEventListener('mousemove', e => {
-      if (thElm) thElm.style.width = startOffset + e.pageX + 'px';
-    });
-    document.addEventListener('mouseup', () => (thElm = undefined));
-
     //カレンダーの初期表示列数を設定する。
     //尚、参考までに以下に初期に検討していたレスポンシブな表示列の例を示す。見た目は良かったがパフォーマンスにHITするので断念した。
     //$screens({ default: 1, c2: 2, c3: 3, c4: 4, c5: 5, c6: 6 })
@@ -1113,12 +1103,6 @@ export default {
     },
   },
   methods: {
-    //resizable table 3/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
-    //th内ハンドルのmousedownに追加するイベントハンドラー。
-    resizableTableEventHandler(event) {
-      thElm = event.target.parentNode;
-      startOffset = event.target.parentNode.offsetWidth - event.pageX;
-    },
     selectedTarget() {
       //filterのtargetが選択された場合の処理
       //note:既に選択されているtargetを削除した場合もこのfunctionは呼ばれる。その場合SearchFilter.target.valueはnullである。

@@ -479,13 +479,10 @@ import friendsJson from '../json/friends.json';
 import SearchFriendsAdvFilterModal from '@/components/SearchFriendsAdvFilterModal.vue';
 import TypeSelectModalFriends from '@/components/TypeSelectModalFriends.vue';
 import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
-
-//resizable table 1/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
-//グローバル変数
-var thElm;
-var startOffset;
+import resizableTable from '@/mixins/resizableTable.js';
 
 export default {
+  mixins: [resizableTable],
   name: 'SearchFriends',
   components: {
     SearchFriendsAdvFilterModal,
@@ -883,7 +880,7 @@ export default {
           },
         },
       ],
-      //columns配列についてfield名からindexを引くためのMap()。初期化はmountedにて。
+      //columns配列についてfield名からindexを引くためのMap()。初期化はbeforeMountにて。
       columnsIndex: new Map(),
       //ステータス表示関係
       selectedLevel: 70,
@@ -1068,13 +1065,6 @@ export default {
       }
       return otherClassesStr + ' color-' + tmpFlag;
     },
-
-    //resizable table 3/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
-    //th内ハンドルのmousedownに追加するイベントハンドラー。
-    resizableTableEventHandler(event) {
-      thElm = event.target.parentNode;
-      startOffset = event.target.parentNode.offsetWidth - event.pageX;
-    },
   },
   beforeMount() {
     //columnsIndexを初期化。
@@ -1121,14 +1111,6 @@ export default {
         i['ミラクル+'] = 'Try';
       }
     });
-  },
-  mounted() {
-    //resizable table 2/3 https://stackoverflow.com/questions/52759087/resizable-vue-good-table-or-vue
-    //グローバルなmousemove,mouseupイベントハンドラ追加
-    document.addEventListener('mousemove', e => {
-      if (thElm) thElm.style.width = startOffset + e.pageX + 'px';
-    });
-    document.addEventListener('mouseup', () => (thElm = undefined));
   },
 };
 </script>

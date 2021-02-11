@@ -922,21 +922,25 @@ export default {
       }
     },
     //検索文字列を半角または全角スペースでsplitし、表内検索やvue-text-hightlight等で使いやすい形式（正規表現の配列）に直して返す。
-    //メイン処理は単純なsplitだが複数個所で利用しているのでキャッシュの効くcomputedとして提供する。
+    //複数個所で利用しているのでキャッシュの効くcomputedとして提供する。
     getGlobalSearchTermArray() {
-      //tirmで前後空白を除き、正規表現の特殊文字をエスケープ、半または全角スペースでsplitする
+      //検索文字列配列を取得する。
+      //tirmで前後空白を除き、正規表現の特殊文字をエスケープ、半または全角スペースでsplitする。
       //全角スペースをソースに直で書くとlintでエラーになるので文字コードで指定する。
-      const queries = this.globalSearchTerm
+      let queries = this.globalSearchTerm
         .trim()
         .replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
         .split(/[\x20\u3000]/);
+
+      //検索文字列配列から空文字要素を排除する（空文字要素があるとvue-text-hightlight内のロジックでフリーズする模様）。ページロード時などにそういう配列が生まれることがある。
+      queries = queries.filter(i => i != '');
 
       //戻り値となる正規表現配列を定義する。
       const regex = [];
       //検索文字列が空（queriesの長さが１かつ空白）の場合は処理しない（vue-text-hightlight内のロジック絡みでフリーズする模様）
       //RegExpのコンストラクタに不正な正規表現を入れると例外がおきるが、先にエスケープしているので例外はおきないものとする。今後正規表現検索に対応したりする場合は例外を考慮のこと。
       //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。
-      if (!(queries.length == 1 && queries[0] == '')) {
+      if (queries.length) {
         queries.forEach(i => regex.push(new RegExp(i, 'i')));
       }
       return regex;

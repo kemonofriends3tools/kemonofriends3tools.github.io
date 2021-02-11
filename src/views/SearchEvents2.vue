@@ -6,7 +6,10 @@
         使い方に少々クセがあります。詳しくは下の「使い方」を押してください。
       </b-alert>
       <div class="text-right">
-        <b-button v-b-toggle.collapse1.collapse2.collapse3 variant="info">
+        <b-button
+          v-b-toggle.collapse0.collapse1.collapse2.collapse3.collapse4.collapse5
+          variant="info"
+        >
           <b-icon
             class="align-text-bottom mx-1"
             icon="question-circle-fill"
@@ -17,7 +20,7 @@
 
       <!-- table-attached-headerのfirst/last-childを見ているのでこのdivは必要 -->
       <div>
-        <div class="table-attached-header table-attached-header-solidBottom">
+        <div class="table-attached-header">
           <div>
             <b-icon
               class="table-attached-header-icon"
@@ -30,96 +33,31 @@
             <b-row class="w-100">
               <b-col cols="12" class="px-1">
                 <b-alert show variant="warning" class="small mb-1">
-                  以下の検索欄はすべてand条件で繋がっており、他の検索条件により選択できる内容が動的に変わり（絞り込まれ）ます。<br />
-                  例えばデフォルトでは除外タグに『恒常』が指定されています。そのため『個別検索 ＞
-                  家具』としても家具名は空になります（現在家具は恒常のメインシナリオ等のみの為）<br />
-                  なにかおかしいと思ったら他の条件を見直してみてください（単純にはタグを両方とも空にしてみてください）。
+                  この欄にあるタグ検索と指名検索はand条件で連動しており、選択できる項目が動的に絞り込まれます。<br />
+                  なにかおかしいなと思ったら他の検索条件を見直してみてください（詳しくは「使い方」を押して下さい）。
                 </b-alert>
               </b-col>
               <b-col cols="12" class="px-1">
-                <b-collapse id="collapse1">
+                <b-collapse id="collapse0">
                   <b-alert show variant="info" class="small mb-1">
-                    １：最初にここで検索したいものを入力してください。例えば以下のような感じです。<br />
-                    <p class="my-1 ml-2">
-                      特定フレンズがいつ引けたか調べたい場合：個別検索 ＞ フレンズ ＞
-                      [探したいフレンズ名] ＞ フレンズ（招待または配布）<br />
-                      週末ピックアップを見たい場合：イベント検索 ＞ しょうたい ＞ 週末ピックアップ
+                    <p>
+                      上にある通り、各入力欄で選択出来る項目は他の検索条件の影響を受けます。<br />
+                      例えば除外タグに『有料パック』があると、指名検索でピクニックを選んでも項目はほとんど出てきません（ピクニックアイテムはほぼ全てが有料パックの為）。<br />
+                      逆に指名検索で『フレンズ＞ドール』と選ぶと、タグではドールが関係したイベントに関連したものしか出てきません。<br />
+                      なにかおかしいな？足りないな？と思ったらこの欄の条件全体を見直してみてください。一般的にはタグの指定に問題があることが多いので、なにか変だなとおもったらタグの指定を外してみて下さい。
                     </p>
-                    ここの選択ボックスは探したい文字列の一部を入力することで候補を絞り込むことが出来ます。フレンズやフォトを探すときに便利です。タグは複数選択可能です（AND条件）。
+                    <p class="mb-0">
+                      この欄にあるセレクトボックスは全て文字入力で項目を絞り込むことが出来ます。<br />
+                      特に指名検索にてフレンズ名等を指定する場合、一部だけでも入力すれば探し出すのが非常に楽になります。
+                    </p>
                   </b-alert>
                 </b-collapse>
               </b-col>
-            </b-row>
-            <b-row class="w-100">
-              <b-col cols="12" sm="5" xl="3" class="px-1 my-1" v-if="SearchFilter.target.visible">
-                <v-select
-                  v-model="SearchFilter.target.value"
-                  :options="SearchFilter.target.list"
-                  :placeholder="SearchFilter.target.placeholder"
-                  @input="selectedTarget"
-                  class="background-white"
-                  style="width: 100%"
-                >
-                  <template v-slot:no-options="{ search, searching }">
-                    <template v-if="searching">
-                      <em>{{ search }}</em>
-                      に一致する項目は存在しません。
-                    </template>
-                    <template v-else>
-                      選択可能な{{ SearchFilter.target.placeholder }}はありません。
-                    </template>
-                  </template>
-                </v-select>
-              </b-col>
-              <b-col cols="12" sm="7" xl="3" class="px-1 my-1" v-if="SearchFilter.category.visible">
-                <v-select
-                  v-model="SearchFilter.category.value"
-                  :options="getCategoryList"
-                  :placeholder="SearchFilter.category.placeholder"
-                  @input="selectedCategory"
-                  class="background-white"
-                  style="width: 100%"
-                  :selectable="option => !option.startsWith('━')"
-                >
-                  <template v-slot:no-options="{ search, searching }">
-                    <template v-if="searching">
-                      <em>{{ search }}</em>
-                      に一致する項目は存在しません。
-                    </template>
-                    <template v-else>
-                      選択可能な{{ SearchFilter.category.placeholder }}はありません。
-                    </template>
-                  </template>
-                </v-select>
-              </b-col>
-              <b-col cols="12" xl="6" class="px-1 my-1" v-if="SearchFilter.name.visible">
-                <v-select
-                  v-model="SearchFilter.name.value"
-                  :options="getNameList"
-                  :placeholder="SearchFilter.name.placeholder"
-                  class="background-white"
-                  style="width: 100%"
-                >
-                  <template v-slot:no-options="{ search, searching }">
-                    <template v-if="searching">
-                      <em>{{ search }}</em>
-                      に一致する項目は存在しません。
-                    </template>
-                    <template v-else>
-                      選択可能な{{ SearchFilter.name.placeholder }}はありません。
-                    </template>
-                  </template>
-                </v-select>
-              </b-col>
-            </b-row>
-            <b-row class="w-100">
               <b-col cols="12" class="px-1">
                 <b-collapse id="collapse1">
                   <b-alert show variant="info" class="small mb-1">
-                    ２：ここで指定されたタグを持つデータは非表示となります。<br />
-                    １にタグを指定できる機能がありますが、これはその逆となります。１のタグ指定とは併用できるので、データをさらに絞り込むことが出来ます。<br />
-                    条件はOR条件です。この中のタグが１つでも含まれていたら非表示となります。<br />
-                    デフォルトでは"恒常"や"有料パック"などが指定されています。これらは一般的に邪魔になることが多いと予想される為です。恒常フレンズや有用インテリア等を探したいときには邪魔になるので、それら外して下さい。
+                    １：含めたい／除外したいタグを指定します。<br />
+                    除外の方にデフォルトで『恒常』や『有料パック』等が含まれている点に注意して下さい。これらは一般的に邪魔になることが多いと思われるため指定していますが、恒常フレンズや家具等を探すときには外す必要があります。
                   </b-alert>
                 </b-collapse>
               </b-col>
@@ -148,7 +86,9 @@
               </b-col>
             </b-row>
             <b-row class="w-100 mr-0 my-1">
-              <b-col cols="12" sm="auto" class="pr-0 align-self-center">次のタグを除く：</b-col>
+              <b-col cols="12" sm="auto" class="pr-0 align-self-center" style="width:9rem;"
+                >次のタグを除く：</b-col
+              >
               <b-col cols="12" sm="auto" class="pr-1 flex-grow-1">
                 <v-select
                   multiple
@@ -170,135 +110,78 @@
                 </v-select>
               </b-col>
             </b-row>
-          </div>
-        </div>
-        <div
-          class="table-attached-header table-attached-header-solidBottom"
-          style="background: #fdfcf9 !important"
-        >
-          <div class="d-none d-sm-block">
-            <b-icon
-              class="table-attached-header-icon"
-              icon="calendar3"
-              variant="dark"
-              font-scale="1.5"
-            />
-          </div>
-          <b-container fluid>
-            <b-row class="d-block d-sm-none">
-              <b-col cols="12" class="mt-2 p-0" sytle="margin-left: -24px">
-                <b-icon
-                  class="table-attached-header-icon"
-                  icon="calendar3"
-                  variant="dark"
-                  font-scale="1.5"
-                />
-              </b-col>
-            </b-row>
-            <b-row>
-              <b-col cols="12" class="pl-1 pr-3 mr-2">
+            <b-row class="w-100">
+              <b-col cols="12" class="px-1">
                 <b-collapse id="collapse2">
                   <b-alert show variant="info" class="small mb-1">
-                    ２：カレンダーを見たいのであればカレンダー表示をONにしてください。<br />
-                    便利なのですが１の絞り込みが足りなかったりすると表示時に重くなります。一旦表示してしまえばあとはそれ程重くはありません。<br />
-                    カレンダーを表示した状態で１を再度触ると動的に再表示しようとするので重くなります。色々と条件を変えて試したい場合はいったんカレンダー表示をOFFにすることをオススメします。
+                    ２：検索したいもの（フレンズ名や家具名等）が判っている場合はここで指定して下さい。<br />
+                    下の表内検索でも似たようなことが出来ますが、こちらのほうがより確実です。<br />
+                    衣装は衣装名からとフレンズからの２通りで検索出来ます。<br />
+                    上の方でも書きましたがセレクトボックスは文字入力で項目を絞り込むことが出来ます。フレンズ名やフォト名などを指定する場合は一部（頭文字でなくても構いません）だけでも入力すると選ぶのが楽になります。
                   </b-alert>
                 </b-collapse>
               </b-col>
             </b-row>
-            <b-row>
-              <b-col>
-                <b-checkbox v-model="inputCalendarVisible" class="d-inline-block mr-2">
-                  カレンダー表示
-                </b-checkbox>
-                <div class="d-inline-block">
-                  <b-select
-                    v-model.number="inputCalendarCols"
-                    :options="[
-                      { value: 1, text: '1列' },
-                      { value: 2, text: '2列' },
-                      { value: 3, text: '3列' },
-                      { value: 4, text: '4列' },
-                      { value: 5, text: '5列' },
-                      { value: 6, text: '6列' },
-                    ]"
-                    class="mx-1"
-                    style="width:4.5rem"
-                    required
-                  />
-                  <b-select
-                    v-model.number="inputCalendarRows"
-                    :options="[
-                      { value: 1, text: '1行' },
-                      { value: 2, text: '2行' },
-                      { value: 3, text: '3行' },
-                      { value: 4, text: '4行' },
-                      { value: 5, text: '5行' },
-                      { value: 6, text: '6行' },
-                    ]"
-                    class="mx-1"
-                    style="width:4.5rem"
-                    required
-                  />
-                </div>
-              </b-col>
-            </b-row>
-            <b-row>
-              <b-col cols="12">
-                <v-calendar
-                  :rows="inputCalendarRows"
-                  :columns="inputCalendarCols"
-                  :min-date="minDate"
-                  :to-page="todayObj"
-                  :transition="'slide-h'"
-                  :attributes="inputCalendarVisible ? filteredAttributes : []"
-                  :style="getCalendarStyle"
-                >
-                  <template v-slot:day-popover="{ attributes }">
-                    <popoverRow v-for="attr of attributes" :key="attr.id" :attribute="attr">
-                      <div class="d-flex flex-column">
-                        <div>[{{ attr.customData.labelDate }}] {{ attr.popover.label }}</div>
-                        <template v-for="[ikey, ivalue] of getPopoverColumns">
-                          <template v-for="j of ivalue">
-                            <div
-                              v-if="attr.customData[ikey].has(j)"
-                              :key="'pop-' + attr.customData.id + ikey + j"
-                            >
-                              <span class="pl-3">{{ ikey }}（{{ j }}）</span>
-                              <ul v-if="ikey == '衣装'" class="mb-0">
-                                <li
-                                  v-for="[kKey, kValue] of attr.customData[ikey].get(j)"
-                                  :key="'pop-' + attr.customData.id + ikey + j + kKey"
-                                >
-                                  {{ kKey }}
-                                  <ul>
-                                    <li
-                                      v-for="l of kValue"
-                                      :key="'pop-' + attr.customData.id + ikey + j + kKey + l"
-                                    >
-                                      {{ l }}
-                                    </li>
-                                  </ul>
-                                </li>
-                              </ul>
-                              <ul v-else class="mb-0">
-                                <li
-                                  v-for="k of attr.customData[ikey].get(j)"
-                                  :key="'pop-' + attr.customData.id + ikey + j + k"
-                                >
-                                  {{ k }}
-                                </li>
-                              </ul>
-                            </div>
+            <b-row class="w-100 mr-0 my-1">
+              <b-col
+                cols="12"
+                sm="auto"
+                class="pr-0 align-self-center"
+                style="width:calc(9rem - 1px);"
+                >指名検索：</b-col
+              >
+              <b-col cols="12" sm="auto" class="pl-2 pr-1 flex-grow-1">
+                <b-row class="w-100 p-0 m-0">
+                  <b-col cols="12" md="4" class="pl-2 pr-0 pb-1 flex-grow-1 align-self-center">
+                    <v-select
+                      v-model="SearchFilter.category.value"
+                      :options="SearchFilter.category.list"
+                      :placeholder="SearchFilter.category.placeholder"
+                      @input="selectedCategory"
+                      class="background-white"
+                      style="width: 100%"
+                      :selectable="option => !option.startsWith('━')"
+                    >
+                      <template v-slot:no-options="{ search, searching }">
+                        <template v-if="searching">
+                          <em>{{ search }}</em>
+                          に一致する項目は存在しません。
+                        </template>
+                        <template v-else>
+                          選択可能な{{ SearchFilter.category.placeholder }}はありません。
+                        </template>
+                      </template>
+                    </v-select>
+                  </b-col>
+                  <b-col cols="12" md="8" class="pl-2 pr-0 pb-1 flex-grow-1 align-self-center">
+                    <v-select
+                      v-model="SearchFilter.name.value"
+                      :options="getNameList"
+                      :placeholder="SearchFilter.name.placeholder"
+                      @search:focus="SearchFilter.name.value = ''"
+                      class="background-white"
+                      style="width: 100%"
+                    >
+                      <template v-slot:no-options="{ search, searching }">
+                        <template v-if="searching">
+                          <em>{{ search }}</em>
+                          に一致する項目は存在しません。
+                        </template>
+                        <template v-else>
+                          <template v-if="SearchFilter.category.value">
+                            選択可能な{{ SearchFilter.name.placeholder }}はありません。
+                          </template>
+                          <template v-else>
+                            先にカテゴリーを選んで下さい。
                           </template>
                         </template>
-                      </div>
-                    </popoverRow>
-                  </template>
-                </v-calendar>
+                      </template>
+                    </v-select>
+                  </b-col>
+                </b-row>
               </b-col>
             </b-row>
-          </b-container>
+          </div>
         </div>
         <div class="table-attached-header">
           <div>
@@ -310,10 +193,9 @@
                 <b-col cols="12" class="px-1">
                   <b-collapse id="collapse3">
                     <b-alert show variant="info" class="small mb-1">
-                      ３：必要であればここで<span class="font-weight-bold">下表内の</span
-                      >表示カラムを切り替えてください。<br />
-                      ここを変更して切り替わるのは<span class="font-weight-bold">下の表</span
-                      >です。１の絞り込み条件や２のカレンダーには影響しません。
+                      ３：一番下の表の表示列を切り替えます。<br />
+                      表示列を切り替えるだけなので、ここを触ってもデータ行数が変化することはありません。<br />
+                      ただしここの選択は４の『表内検索』と深く関係しています。４の『表内検索』はここで表示させたものが検索対象となります。
                     </b-alert>
                   </b-collapse>
                 </b-col>
@@ -344,12 +226,198 @@
             </template>
           </div>
         </div>
+        <div class="table-attached-header">
+          <div>
+            <b-icon
+              class="table-attached-header-icon"
+              icon="search"
+              variant="dark"
+              font-scale="1.5"
+            />
+          </div>
+          <div class="table-attached-header-contents w-100">
+            <b-row class="w-100">
+              <b-col cols="12">
+                <b-collapse id="collapse4">
+                  <b-alert show variant="info" class="small mb-1">
+                    ４：表内検索を行います。
+                    <ul class="pl-4 mb-0">
+                      <li>
+                        これは<span class="font-weight-bold"
+                          >現在表内に表示されている各項目を対象に</span
+                        >、入力された文字列でデータ行の絞り込みを行います。<br />
+                        注意してほしいのは検索対象は<span class="font-weight-bold"
+                          >現在表に表示されている項目だけ</span
+                        >という点です。例えばドールが特攻になっているイベントがあったとしても、３で”フレンズ”列を表示させていないとHITしません。つまり３の表示／非表示で検索対象列を指定することが出来ます。
+                      </li>
+                      <li>
+                        半角または全角スペースで区切るとAND条件で複数キーワードによる検索することが出来ます。
+                      </li>
+                      <li>
+                        検索は各データ行中の各項目単位で判定されます。つまりキーワード１が"フレンズ"に<span
+                          class="font-weight-bold"
+                          >のみ</span
+                        >、キーワード２が"フォト"に<span class="font-weight-bold">のみ</span
+                        >存在する場合、この行には両方のキーワード満たす項目が１つも存在しなかったと判定され、そのデータ行は非表示となります。
+                      </li>
+                      <li>
+                        例外として”タグ”列は検索対象とはなりません。また”フレンズ”や”フォト”等に出てくる”招待”や"配布"といった区分名も検索対象とはなりません。（どちらも意味がない為）
+                      </li>
+                    </ul>
+                  </b-alert>
+                </b-collapse>
+              </b-col>
+            </b-row>
+            <b-row class="w-100">
+              <b-col cols="12" class="pr-0">
+                <b-form-input
+                  class="vgt-input input-externalQuery my-1"
+                  v-model="globalSearchTerm"
+                  placeholder="表内検索"
+                  type="search"
+                  debounce="500"
+                />
+              </b-col>
+            </b-row>
+          </div>
+        </div>
+      </div>
+      <div class="table-attached-header" style="background: #fdfcf9 !important">
+        <div class="d-none d-sm-block">
+          <b-icon
+            class="table-attached-header-icon"
+            icon="calendar3"
+            variant="dark"
+            font-scale="1.5"
+          />
+        </div>
+        <b-container fluid>
+          <b-row class="d-block d-sm-none">
+            <b-col cols="12" class="mt-2 p-0" sytle="margin-left: -24px">
+              <b-icon
+                class="table-attached-header-icon"
+                icon="calendar3"
+                variant="dark"
+                font-scale="1.5"
+              />
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col cols="12" class="pl-1 pr-3 mr-2">
+              <b-collapse id="collapse5">
+                <b-alert show variant="info" class="small mb-1">
+                  ５：カレンダーを見たいのであればカレンダー表示をONにしてください。<br />
+                  便利なのですが上で絞り込みが足りなかったりすると（データ量が多いと）表示時に重くなります。一旦表示してしまえばあとはそれ程重くはありません。<br />
+                  カレンダーを表示した状態で上の検索条件を触ると動的に再表示しようとするので重くなります。色々と条件を変えて試したい場合はいったんカレンダー表示をOFFにすることをオススメします。
+                </b-alert>
+              </b-collapse>
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col>
+              <b-checkbox v-model="inputCalendarVisible" class="d-inline-block mr-2">
+                カレンダー表示
+              </b-checkbox>
+              <div class="d-inline-block">
+                <b-select
+                  v-model.number="inputCalendarCols"
+                  :options="[
+                    { value: 1, text: '1列' },
+                    { value: 2, text: '2列' },
+                    { value: 3, text: '3列' },
+                    { value: 4, text: '4列' },
+                    { value: 5, text: '5列' },
+                    { value: 6, text: '6列' },
+                  ]"
+                  class="mx-1"
+                  style="width:5rem"
+                  required
+                />
+                <b-select
+                  v-model.number="inputCalendarRows"
+                  :options="[
+                    { value: 1, text: '1行' },
+                    { value: 2, text: '2行' },
+                    { value: 3, text: '3行' },
+                    { value: 4, text: '4行' },
+                    { value: 5, text: '5行' },
+                    { value: 6, text: '6行' },
+                  ]"
+                  class="mx-1"
+                  style="width:5rem"
+                  required
+                />
+              </div>
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col cols="12">
+              <v-calendar
+                :rows="inputCalendarRows"
+                :columns="inputCalendarCols"
+                :min-date="minDate"
+                :to-page="todayObj"
+                :transition="'slide-h'"
+                :attributes="inputCalendarVisible ? filteredAttributes : []"
+                :style="getCalendarStyle"
+              >
+                <template v-slot:day-popover="{ attributes }">
+                  <popoverRow v-for="attr of attributes" :key="attr.id" :attribute="attr">
+                    <div class="d-flex flex-column">
+                      <div>[{{ attr.customData.labelDate }}] {{ attr.popover.label }}</div>
+                      <template v-for="[ikey, ivalue] of getPopoverColumns">
+                        <template v-for="j of ivalue">
+                          <div
+                            v-if="attr.customData[ikey].has(j)"
+                            :key="'pop-' + attr.customData.id + ikey + j"
+                          >
+                            <span class="pl-3">{{ ikey }}（{{ j }}）</span>
+                            <ul v-if="ikey == '衣装'" class="mb-0">
+                              <li
+                                v-for="[kKey, kValue] of attr.customData[ikey].get(j)"
+                                :key="'pop-' + attr.customData.id + ikey + j + kKey"
+                              >
+                                {{ kKey }}
+                                <ul>
+                                  <li
+                                    v-for="l of kValue"
+                                    :key="'pop-' + attr.customData.id + ikey + j + kKey + l"
+                                  >
+                                    {{ l }}
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>
+                            <ul v-else class="mb-0">
+                              <li
+                                v-for="k of attr.customData[ikey].get(j)"
+                                :key="'pop-' + attr.customData.id + ikey + j + k"
+                              >
+                                {{ k }}
+                              </li>
+                            </ul>
+                          </div>
+                        </template>
+                      </template>
+                    </div>
+                  </popoverRow>
+                </template>
+              </v-calendar>
+            </b-col>
+          </b-row>
+        </b-container>
       </div>
       <vue-good-table
         compactMode
         :rows="filteredAttributes"
         :columns="tableColumns"
         :row-style-class="getRowStyleClass"
+        :search-options="{
+          enabled: false,
+          skipDiacritics: true,
+          searchFn: globalSearch,
+          externalQuery: globalSearchTerm,
+        }"
         :sort-options="tableSortOptions"
         styleClass="vgt-table bordered condensed"
         :pagination-options="{
@@ -372,7 +440,9 @@
         </template>
         <template v-slot:table-row="props">
           <template v-if="props.column.label == 'イベント名'">
-            {{ props.formattedRow[props.column.field] }}
+            <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              {{ props.formattedRow[props.column.field] }}
+            </text-highlight>
             <a :href="props.row.customData.url" target="_blank" rel="noopener">
               <i class="fas fa-external-link-alt" />
             </a>
@@ -398,7 +468,9 @@
                 class="m-1"
               >
                 <span :class="getBadgeLikeClass(key)">{{ key }}</span>
-                {{ value.join(',') }}
+                <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                  {{ value.join(',') }}
+                </text-highlight>
               </p>
             </template>
             <template v-else>-</template>
@@ -412,8 +484,16 @@
               >
                 <span :class="getBadgeLikeClass(ikey)">{{ ikey }}</span>
                 <div v-for="[jkey, jvalue] of ivalue" :key="jkey">
-                  <p class="m-0 ml-2 font-weight-bold">{{ jkey }}</p>
-                  <p class="m-0 ml-4">{{ jvalue.join(',') }}</p>
+                  <p class="m-0 ml-2 font-weight-bold">
+                    <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                      {{ jkey }}
+                    </text-highlight>
+                  </p>
+                  <p class="m-0 ml-4">
+                    <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                      {{ jvalue.join(',') }}
+                    </text-highlight>
+                  </p>
                 </div>
               </div>
             </template>
@@ -429,11 +509,13 @@
             </span>
           </div>
           <template v-else>
-            {{ props.formattedRow[props.column.field] }}
+            <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              {{ props.formattedRow[props.column.field] }}
+            </text-highlight>
           </template>
         </template>
         <div slot="emptystate">
-          <b-alert show variant="warning"> 該当する項目がありません。 </b-alert>
+          <b-alert show variant="warning">該当する項目がありません。</b-alert>
         </div>
       </vue-good-table>
     </b-container>
@@ -479,30 +561,27 @@ export default {
 
       //フィルターの表示制御に必要な要素をまとめたフィルターオブジェクト配列。表示有無、選択値、選択項目等を保持する。
       SearchFilter: {
-        target: {
-          visible: true, //ここがfalseになることはないが一応用意
-          value: '',
-          list: ['個別検索', 'イベント検索'],
-          placeholder: '検索対象',
-        },
         category: {
-          visible: false,
           value: '',
-          list: [],
+          list: [
+            'フレンズ',
+            'フォト',
+            '衣装(衣装名から)',
+            '衣装(フレンズ名から)',
+            '家具',
+            'インテリア',
+            'ピクニックアイテム',
+            'その他アイテム',
+          ],
           placeholder: 'カテゴリー',
         },
-        name: { visible: false, value: '', placeholder: '' },
+        name: { value: '', placeholder: '先にカテゴリーを選んで下さい' },
         tags: {
-          visible: true,
           valueOK: [],
           valueNG: ['恒常', '有料パック'], //NGタグ初期値
           placeholder: 'タグ',
         },
       },
-
-      //SearchFilterのcategoryにセットする値の元となるlist。mountedにて初期化。中身は('個別検索',[])という形式のMap。
-      //あくまでベースなので、実際に取得する場合は別途methodを利用する。
-      masterCategoryList: new Map(),
 
       //SearchFilterのnameにセットする値の元となるlist。mountedにて初期化。
       //全フレンズ、フォト名等のリスト（重複排除済）。SearchFilterの選択に応じてnameに入れる。
@@ -559,49 +638,49 @@ export default {
         {
           field: 'customData.フレンズ',
           label: 'フレンズ',
-          hidden: false,
+          hidden: true,
           sortable: false,
         },
         {
           field: 'customData.フォト',
           label: 'フォト',
-          hidden: false,
+          hidden: true,
           sortable: false,
         },
         {
           field: 'customData.衣装',
           label: '衣装',
-          hidden: false,
+          hidden: true,
           sortable: false,
         },
         {
           field: 'customData.家具',
           label: '家具',
-          hidden: false,
+          hidden: true,
           sortable: false,
         },
         {
           field: 'customData.インテリア',
           label: 'インテリア',
-          hidden: false,
+          hidden: true,
           sortable: false,
         },
         {
           field: 'customData.ピクニックアイテム',
           label: 'ピクニックアイテム',
-          hidden: false,
+          hidden: true,
           sortable: false,
         },
         {
           field: 'customData.その他アイテム',
           label: 'その他アイテム',
-          hidden: false,
+          hidden: true,
           sortable: false,
         },
         {
           field: 'customData.tags',
           label: 'タグ',
-          hidden: true,
+          hidden: false,
           sortable: false,
         },
         {
@@ -615,19 +694,16 @@ export default {
         enabled: true,
         initialSortBy: [{ field: 'customData.end', type: 'desc' }],
       },
+      //全文検索
+      globalSearchTerm: '',
     };
   },
   created() {
     //eventsJsonからevent情報全部入りのmasterAttributesを作る。
     //その過程で出現したカテゴリ、タグ、個別アイテム名（フレンズ、フォト、衣装、家具、インテリア等）のリストも生成する。
 
-    //SearchFilterの項目listとして使うための情報を集めるset定義。setなので重複を弾ける。後ほどこれらはarrayにして返す。
-    //カテゴリー
-    //カテゴリーについてはJsonを見るまでもなく想定される値がほぼ判っているのでここで初期値として定義しておく。
-    //並び順も考慮しているのでカテゴリーについては後でsortもしない。jsonを走査して知らないカテゴリー名が出てきた時は末尾に追加する。
-    //setCategoryImtesは動的に追加されるものはない。最後に一緒にMapにいれるだけだが一応変数として持っておく。
-    const setCategoryEvents = new Set(['イベント', 'しょうたい', 'けも級開放', 'メンテナンス']);
-    const setCategoryItems = new Set([
+    //以下で初期化等に利用する代表的なカテゴリーリスト。SearchFilter.category.listとは'衣装'の部分が異なる。
+    const tmpCategoryList = [
       'フレンズ',
       'フォト',
       '衣装',
@@ -635,16 +711,16 @@ export default {
       'インテリア',
       'ピクニックアイテム',
       'その他アイテム',
-    ]);
+    ];
 
     //originalColumns初期化。スプレッドシート上のカラム情報を再現できるデータを入れる。
-    //setCategoryItemsのアイテム名を利用する。
-    setCategoryItems.forEach(i => this.originalColumn.set(i, ['招待', '特効', '配布', '引換']));
+    //tmpCategoryListのアイテム名を利用する。
+    tmpCategoryList.forEach(i => this.originalColumn.set(i, ['招待', '特効', '配布', '引換']));
     this.originalColumn.set('フレンズ', ['招待', '特効', '配布', '引換', '対象']); //フレンズだけは'対象'があるのでvalueごと上書きする。
 
     //個別検索で初期値として使用するユニークなフレンズ、フォト等名を収集するSet()を保持するMap()
     const uniqueSetMap = new Map();
-    setCategoryItems.forEach(i => uniqueSetMap.set(i, new Set()));
+    tmpCategoryList.forEach(i => uniqueSetMap.set(i, new Set()));
     //'衣装'は２つにわけて管理するので、'衣装'を落として'衣装(衣装名から)','衣装フレンズ'の２つを追加する
     uniqueSetMap.delete('衣装');
     uniqueSetMap.set('衣装(衣装名から)', new Set());
@@ -652,7 +728,7 @@ export default {
 
     //各アイテムに'招待', '特効', '配布', '引換', '対象'といった分類が１つでも存在するかを記録するSetを保持するMap()
     const tmpOriginalColumnExist = new Map();
-    setCategoryItems.forEach(i => tmpOriginalColumnExist.set(i, new Set()));
+    tmpCategoryList.forEach(i => tmpOriginalColumnExist.set(i, new Set()));
 
     //eventsJson解析ループ関連変数
     let id = 1; //id。v-for等ループ用に振る。
@@ -660,12 +736,10 @@ export default {
 
     //eventsJson解析
     for (const row of eventsJson) {
-      //恒常を除外する場合ここで以下のようにすれば排除できる。排除するか別配列にいれるかは迷うところ。
-      //if (row.タグ.split(',').some(i => i == '恒常')) continue;
-
       //jsonの開始日時、終了日時をオブジェクト化
       const startDate = dayjs(row.開始, 'YYMMDDHHmm');
       const endDate = dayjs(row.終了, 'YYMMDDHHmm');
+
       //jsonの行からv-calendarに渡すオブジェクトを生成。まずは単純代入できるものをそのまま渡す。
       const tmpEvent = {
         id: id++,
@@ -680,7 +754,6 @@ export default {
           //vue-good-tableは日付を扱えるがDateではなく文字列として扱うのでここに置いておく。
           start: startDate.format('YYYY/MM/DD'),
           end: endDate.format('YYYY/MM/DD'),
-          category: row.カテゴリー,
           tags: row.タグ == '' ? [] : row.タグ.split(','),
           備考: '',
           フレンズ: new Map(),
@@ -693,8 +766,14 @@ export default {
         },
       };
 
-      //カテゴリーをsetに追加
-      setCategoryEvents.add(row.カテゴリー);
+      //カテゴリーをタグとして追加（イベントとその他は意味がなさそうなので除外）
+      if (
+        row.カテゴリー != 'イベント' &&
+        row.カテゴリー != 'その他' &&
+        row.カテゴリー != 'けも級開放'
+      ) {
+        tmpEvent.customData.tags.unshift(row.カテゴリー);
+      }
 
       //json中の出力カラムを走査し、スプレッドシート上のカラムを復元（分割）する。
       //出力カラムは;区切りなのでまずはそれでsplitする。
@@ -790,18 +869,6 @@ export default {
       }
     }
 
-    //収集したユニークセットを配列にしてmasterCategoryListに入れる
-    //並び順を考慮しているのでsortはしない。初期値以外のものは出現順になる。
-    this.masterCategoryList.set('イベント検索', Array.from(setCategoryEvents));
-    //個別検索で使うアイテム名一覧では'衣装'を２つに分割する。spliceで'衣装'を消しつつ２つ追加している。
-    let tmpClothArray = Array.from(setCategoryItems);
-    tmpClothArray.splice(
-      tmpClothArray.indexOf('衣装'),
-      1,
-      '衣装(衣装名から)',
-      '衣装(フレンズ名から)'
-    );
-    this.masterCategoryList.set('個別検索', tmpClothArray);
     //その他uniqueSetMapに登録したもの。sortして渡す。
     uniqueSetMap.forEach((v, k) => this.masterNameList.set(k, Array.from(v).sort()));
   },
@@ -830,82 +897,54 @@ export default {
         );
       }
 
-      //targetが選択されている場合は更に絞り込み処理をする
-      if (this.SearchFilter.target.value) {
-        if (this.SearchFilter.target.value == '個別検索') {
-          //個別検索の場合
-
-          //カテゴリーに応じて処理分岐
-          if (this.SearchFilter.category.value) {
-            if (this.SearchFilter.category.value == '衣装(衣装名から)') {
-              //カテゴリーは衣装(衣装名から)
-              if (this.SearchFilter.name.value) {
-                //衣装名指定がある場合
-                //note:Array.some()を使いたいのでMapはArray.fromで適宜配列に直している
-                tmpAttr = tmpAttr.filter(i =>
-                  Array.from(i.customData.衣装.values()).some(j =>
-                    Array.from(j.keys()).some(k => k == this.SearchFilter.name.value)
-                  )
-                );
-              } else {
-                //衣装名指定がない場合(衣装名がないものは除外)
-                tmpAttr = tmpAttr.filter(i => 0 < i.customData.衣装.size);
-              }
-            } else if (this.SearchFilter.category.value == '衣装(フレンズ名から)') {
-              //カテゴリーは衣装(フレンズ名から)
-              if (this.SearchFilter.name.value) {
-                //衣装(フレンズ名)がある場合
-                //note:Array.some()を使いたいのでMapはArray.fromで適宜配列に直している
-                tmpAttr = tmpAttr.filter(i =>
-                  Array.from(i.customData.衣装.values()).some(j =>
-                    Array.from(j.values()).some(k => k.some(l => l == this.SearchFilter.name.value))
-                  )
-                );
-              } else {
-                //衣装名指定がない場合(衣装名がないものは除外)
-                tmpAttr = tmpAttr.filter(i => 0 < i.customData.衣装.size);
-              }
-            } else {
-              //カテゴリーは衣裳以外。衣裳以外は処理は同一。
-              if (this.SearchFilter.name.value) {
-                //名前指定がある場合
-                tmpAttr = tmpAttr.filter(i =>
-                  Array.from(i.customData[this.SearchFilter.category.value].values())
-                    .flat(Infinity)
-                    .some(j => j == this.SearchFilter.name.value)
-                );
-              } else {
-                //名前指定がない場合(対象がないものは除外)
-                tmpAttr = tmpAttr.filter(
-                  i => 0 < i.customData[this.SearchFilter.category.value].size
-                );
-              }
-            }
-          }
-        } else if (this.SearchFilter.target.value == 'イベント検索') {
-          //イベント検索の場合
-          //カテゴリー
-          if (this.SearchFilter.category.value) {
-            tmpAttr = tmpAttr.filter(
-              i => i.customData.category == this.SearchFilter.category.value
+      //個別検索
+      //カテゴリーに応じて処理分岐
+      if (this.SearchFilter.category.value) {
+        if (this.SearchFilter.category.value == '衣装(衣装名から)') {
+          //カテゴリーは衣装(衣装名から)
+          if (this.SearchFilter.name.value) {
+            //衣装名指定がある場合
+            //note:Array.some()を使いたいのでMapはArray.fromで適宜配列に直している
+            tmpAttr = tmpAttr.filter(i =>
+              Array.from(i.customData.衣装.values()).some(j =>
+                Array.from(j.keys()).some(k => k == this.SearchFilter.name.value)
+              )
             );
+          } else {
+            //衣装名指定がない場合(衣装名がないものは除外)
+            tmpAttr = tmpAttr.filter(i => 0 < i.customData.衣装.size);
+          }
+        } else if (this.SearchFilter.category.value == '衣装(フレンズ名から)') {
+          //カテゴリーは衣装(フレンズ名から)
+          if (this.SearchFilter.name.value) {
+            //衣装(フレンズ名)がある場合
+            //note:Array.some()を使いたいのでMapはArray.fromで適宜配列に直している
+            tmpAttr = tmpAttr.filter(i =>
+              Array.from(i.customData.衣装.values()).some(j =>
+                Array.from(j.values()).some(k => k.some(l => l == this.SearchFilter.name.value))
+              )
+            );
+          } else {
+            //衣装名指定がない場合(衣装名がないものは除外)
+            tmpAttr = tmpAttr.filter(i => 0 < i.customData.衣装.size);
+          }
+        } else {
+          //カテゴリーは衣裳以外。衣裳以外は処理は同一。
+          if (this.SearchFilter.name.value) {
+            //名前指定がある場合
+            tmpAttr = tmpAttr.filter(i =>
+              Array.from(i.customData[this.SearchFilter.category.value].values())
+                .flat(Infinity)
+                .some(j => j == this.SearchFilter.name.value)
+            );
+          } else {
+            //名前指定がない場合(対象がないものは除外)
+            tmpAttr = tmpAttr.filter(i => 0 < i.customData[this.SearchFilter.category.value].size);
           }
         }
       }
       //絞り込み結果を返す
       return tmpAttr;
-    },
-    getCategoryList() {
-      //SearchFilterのcategoryにセットするlistを返す。検索対象(target)の選択内容に応じたものを返す。
-      if (
-        this.SearchFilter.target.value == '個別検索' ||
-        this.SearchFilter.target.value == 'イベント検索'
-      ) {
-        return this.masterCategoryList.get(this.SearchFilter.target.value);
-      } else {
-        //ここに入ることはないはずだが一応念の為
-        return [];
-      }
     },
     getNameList() {
       //SearchFilterのnameにセットするlistを返す。
@@ -914,28 +953,22 @@ export default {
         //tag指定がある場合、filteredAttributesは既にtagsで絞り込まれている。なのでfilteredAttributesを走査してnameを収集する。
         const tmpSet = new Set();
         const tmpCategory = this.SearchFilter.category.value;
-        if (tmpCategory == 'フレンズ' || tmpCategory == 'フォト') {
-          this.filteredAttributes.forEach(i =>
-            i.customData[tmpCategory].forEach(j => j.forEach(k => tmpSet.add(k)))
-          );
-        } else if (tmpCategory == '衣装(衣装名から)') {
-          // note:Map.keys()はIteratorなのでArray.from()にいれて配列化している
-          this.filteredAttributes.forEach(i =>
-            i.customData.衣装.forEach(j => Array.from(j.keys()).forEach(k => tmpSet.add(k)))
-          );
-        } else if (tmpCategory == '衣装(フレンズ名から)') {
-          this.filteredAttributes.forEach(i =>
-            i.customData.衣装.forEach(j => j.forEach(k => k.forEach(l => tmpSet.add(l))))
-          );
-        } else if (
-          tmpCategory == '家具' ||
-          tmpCategory == 'インテリア' ||
-          tmpCategory == 'ピクニックアイテム' ||
-          tmpCategory == 'その他アイテム'
-        ) {
-          this.filteredAttributes.forEach(i =>
-            i.customData[tmpCategory].forEach(j => tmpSet.add(j))
-          );
+        if (tmpCategory) {
+          if (tmpCategory == '衣装(衣装名から)') {
+            // note:Map.keys()はIteratorなのでArray.from()にいれて配列化している
+            this.filteredAttributes.forEach(i =>
+              i.customData.衣装.forEach(j => Array.from(j.keys()).forEach(k => tmpSet.add(k)))
+            );
+          } else if (tmpCategory == '衣装(フレンズ名から)') {
+            this.filteredAttributes.forEach(i =>
+              i.customData.衣装.forEach(j => j.forEach(k => k.forEach(l => tmpSet.add(l))))
+            );
+          } else {
+            //フレンズ、フォト、家具、インテリア、ピクニックアイテム、その他アイテム
+            this.filteredAttributes.forEach(i =>
+              i.customData[tmpCategory].forEach(j => j.forEach(k => tmpSet.add(k)))
+            );
+          }
         }
         //配列にしてsortした上で返す
         return Array.from(tmpSet).sort();
@@ -1098,45 +1131,54 @@ export default {
       //カレンダーの表示スタイルを返す。カレンダー非表示の時には薄くする。
       return this.inputCalendarVisible ? 'opacity: 1;margin:auto;' : 'opacity: 0.2;margin:auto;';
     },
+    //検索文字列を半角または全角スペースでsplitし、表内検索やvue-text-hightlight等で使いやすい形式（正規表現の配列）に直して返す。
+    //複数個所で利用しているのでキャッシュの効くcomputedとして提供する。
+    getGlobalSearchTermArray() {
+      //検索文字列配列を取得する。
+      //tirmで前後空白を除き、正規表現の特殊文字をエスケープ、半または全角スペースでsplitする。
+      //全角スペースをソースに直で書くとlintでエラーになるので文字コードで指定する。
+      let queries = this.globalSearchTerm
+        .trim()
+        .replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
+        .split(/[\x20\u3000]/);
+
+      //events限定処理
+      //指名検索が有効な場合は名前を検索文字列配列に追加する。
+      //なお表内検索入力欄が空かつ指名検索を指定した場合、配列の最初の要素は空文字要素となるが、下のfilterにて排除されるので問題ない。
+      if (this.SearchFilter.name.value) queries.push(this.SearchFilter.name.value);
+
+      //検索文字列配列から空文字要素を排除する（空文字要素があるとvue-text-hightlight内のロジックでフリーズする模様）。ページロード時などにそういう配列が生まれることがある。
+      queries = queries.filter(i => i != '');
+
+      //戻り値となる正規表現配列を定義する。
+      const regex = [];
+      //検索文字列が空（queriesの長さが１かつ空白）の場合は処理しない（vue-text-hightlight内のロジック絡みでフリーズする模様）
+      //RegExpのコンストラクタに不正な正規表現を入れると例外がおきるが、先にエスケープしているので例外はおきないものとする。今後正規表現検索に対応したりする場合は例外を考慮のこと。
+      //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。
+      if (queries.length) {
+        queries.forEach(i => regex.push(new RegExp(i, 'i')));
+      }
+      return regex;
+    },
   },
   methods: {
-    selectedTarget() {
-      //filterのtargetが選択された場合の処理
-      //note:既に選択されているtargetを削除した場合もこのfunctionは呼ばれる。その場合SearchFilter.target.valueはnullである。
-
-      //下位の入力をクリア
-      this.SearchFilter.category.value = '';
-      this.SearchFilter.name.value = '';
-      //下位の表示を切り替え
-      this.SearchFilter.category.visible = this.SearchFilter.target.value ? true : false;
-      this.SearchFilter.name.visible = false;
-
-      //table表示切替。全て表示。ただしタグのみ非表示。
-      for (const i of this.tableColumns) {
-        if (i.label != 'タグ') {
-          i.hidden = false;
-        } else {
-          i.hidden = true;
-        }
-      }
-    },
     selectedCategory() {
       //filterのcategoryが選択された場合の処理
       //下位の入力をクリア
       this.SearchFilter.name.value = '';
-      //下位の表示を切り替え
-      this.SearchFilter.name.visible = this.masterCategoryList
-        .get('個別検索')
-        .some(i => i == this.SearchFilter.category.value)
-        ? true
-        : false;
 
-      //nameのplaceholderをカテゴリ－に応じて変更する。初期値はカテゴリー+'名'で、変えたい場合は個別に上書きする。
-      this.SearchFilter.name.placeholder = this.SearchFilter.category.value + '名';
-      if (this.SearchFilter.category.value == '衣装(衣装名から)')
-        this.SearchFilter.name.placeholder = '衣装名';
-      if (this.SearchFilter.category.value == '衣装(フレンズ名から)')
-        this.SearchFilter.name.placeholder = 'フレンズ名';
+      //nameのplaceholderをカテゴリ－に応じて変更する。
+      if (this.SearchFilter.category.value) {
+        //初期値はカテゴリー+'名'で、変えたい場合は個別に上書きする。
+        this.SearchFilter.name.placeholder = this.SearchFilter.category.value + '名';
+        if (this.SearchFilter.category.value == '衣装(衣装名から)')
+          this.SearchFilter.name.placeholder = '衣装名';
+        if (this.SearchFilter.category.value == '衣装(フレンズ名から)')
+          this.SearchFilter.name.placeholder = 'フレンズ名';
+      } else {
+        //選択されていない場合
+        this.SearchFilter.name.placeholder = '先にカテゴリーを選んで下さい';
+      }
 
       //table表示切替。指定カテゴリーのみ表示。
       let tmpStr = this.SearchFilter.category.value;
@@ -1161,6 +1203,53 @@ export default {
       if (str == '引換') return 'custom-badge badge-exchange-color';
       if (str == '対象') return 'custom-badge badge-target-color';
       return '';
+    },
+    //表内検索。第4引数はglobalSearchTermだが使ってないので省略。
+    globalSearch(row, col, cellValue) {
+      //colがhiddenまたはタグの場合は探索しない
+      if (col['hidden'] || col.label == 'タグ') return false;
+
+      //検索対象文字列定義
+      let tmpCellString = '';
+
+      //カラムによってデータの格納方法が異なるので処理分岐
+      if (
+        col.label == '開始' ||
+        col.label == '終了' ||
+        col.label == 'イベント名' ||
+        col.label == '備考'
+      ) {
+        //単純にセル値を取得
+        tmpCellString = cellValue.toString();
+      } else if (
+        col.label == 'フレンズ' ||
+        col.label == 'フォト' ||
+        col.label == '家具' ||
+        col.label == 'インテリア' ||
+        col.label == 'ピクニックアイテム' ||
+        col.label == 'その他アイテム'
+      ) {
+        //対象データはMap。key値は無視し、valueにある配列を区切り文字改行で結合した文字列を取得する。
+        row.customData[col.label].forEach(v1 => (tmpCellString = tmpCellString + v1.join('\r\n')));
+      } else if (col.label == '衣装') {
+        //対象データはMapのMap。最初のMapのkey値は無視。次のMapのKeyは衣装名なので取得。そしてvalueにある配列は区切り文字改行で結合した文字列を取得する。
+        row.customData[col.label].forEach(v1 =>
+          v1.forEach(
+            (v2, k2) => (tmpCellString = tmpCellString + k2 + '\r\n' + v2.join('\r\n') + '\r\n')
+          )
+        );
+      }
+
+      //検索対象文字列が存在するか
+      if (tmpCellString) {
+        //検索条件（正規表現配列）で検索対象文字列をテストする。
+        //and条件としたいのでevery()を用いる。(every()は全要素がテストに合格するか判断する)
+        return this.getGlobalSearchTermArray.every(i => i.test(tmpCellString));
+      } else {
+        //検索対象文字列が存在しない場合はfalseを返す。
+        //（フレンズが無い、フォトが無い等のデータは多数存在するため、ここには頻繁に入ってくる。ロジック的には上の処理に一本化しても動くだろうが、処理負荷を考慮して分けている。）
+        return false;
+      }
     },
   },
 };

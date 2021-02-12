@@ -692,7 +692,7 @@ export default {
       ],
       tableSortOptions: {
         enabled: true,
-        initialSortBy: [{ field: 'customData.end', type: 'desc' }],
+        initialSortBy: [{ field: 'customData.start', type: 'desc' }],
       },
       //全文検索
       globalSearchTerm: '',

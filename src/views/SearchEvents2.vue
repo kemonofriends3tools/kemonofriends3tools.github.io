@@ -578,7 +578,7 @@ export default {
         name: { value: '', placeholder: '先にカテゴリーを選んで下さい' },
         tags: {
           valueOK: [],
-          valueNG: ['恒常', '有料パック'], //NGタグ初期値
+          valueNG: ['恒常', '有料パック', 'ちからくらべ', 'シーサーバル道場'], //NGタグ初期値
           placeholder: 'タグ',
         },
       },

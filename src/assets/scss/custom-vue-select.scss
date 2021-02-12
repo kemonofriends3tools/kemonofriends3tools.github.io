@@ -37,6 +37,9 @@ $vs-selected-bg: $color-green-0-5;
 .vs__search:focus {
   padding: 2px 7px;
 }
+.vs__search::placeholder {
+  opacity: 0.54; //ブラウザによって表示色に差異があるので吸収。Firefoxのデフォルトがこのくらいらしい。
+}
 
 .vs__dropdown-toggle {
   &:focus-within {

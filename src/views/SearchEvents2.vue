@@ -1180,16 +1180,11 @@ export default {
         this.SearchFilter.name.placeholder = '先にカテゴリーを選んで下さい';
       }
 
-      //table表示切替。指定カテゴリーのみ表示。
+      //table表示切替。選択されたカテゴリーの表示をONにする。それ以外は特に触らない（ユーザーの操作の邪魔になると予想される為）。
       let tmpStr = this.SearchFilter.category.value;
       if (tmpStr == '衣装(衣装名から)' || tmpStr == '衣装(フレンズ名から)') tmpStr = '衣装';
-      for (const i of this.tableColumns) {
-        if (['開始', '終了', 'イベント名', '備考', tmpStr].some(j => j == i.label)) {
-          i.hidden = false;
-        } else {
-          i.hidden = true;
-        }
-      }
+      //findで条件に一致する最初の要素を探し出し、表示処理を行う。
+      this.tableColumns.find(i => i.label == tmpStr).hidden = false;
     },
     //行class取得。classの定義はcustom-vue-good-table.scssに。
     getRowStyleClass(row) {

@@ -1065,65 +1065,27 @@ export default {
     //尚、この関数はpopoverイベントが発生したときに1回だけ呼ばれる。事前にカレンダーすべての日のpopoverを用意しておくわけではない。
     getPopoverColumns() {
       const outMap = new Map();
-      //タグ指定がなかった場合にデフォルトで表示させる項目。'対象'はフレンズ以外に存在しないが、表示時にMap.has()にて検査するので含まれていても問題ない。
-      const defaultColumns = ['招待', '配布', '引換', '対象'];
 
-      //SearchFilterの内容を調べて表示項目名を作る。
-      if (!this.SearchFilter.category.value) {
-        //カテゴリーが選択されていない場合(状況によりnullだったり空文字だったりするが、上の判定で問題なくここに入る)
-        //デフォルト表示（主要なフレンズ、フォトの招待、配布等を表示）
-        outMap.set('フレンズ', defaultColumns);
-        outMap.set('フォト', defaultColumns);
-      } else if (
-        [
-          'フレンズ',
-          'フォト',
-          '衣装(衣装名から)',
-          '衣装(フレンズ名から)',
-          '家具',
-          'インテリア',
-          'ピクニックアイテム',
-          'その他アイテム',
-        ].some(i => i == this.SearchFilter.category.value)
-      ) {
-        //個別選択カテゴリー
+      //表示させる区分配列。存在しない区分（例えば'対象'はフレンズ以外に存在しない）があっても、表示時にはMap.has()にて検査しているので問題ない。
+      const defaultColumns = ['招待', '特効', '配布', '引換', '対象'];
 
-        //カテゴリー名を取り出しておく（衣装のときは２パターンありえるのでまとめておく）
-        let tmpCategory = this.SearchFilter.category.value;
-        if (tmpCategory == '衣装(衣装名から)' || tmpCategory == '衣装(フレンズ名から)') {
-          tmpCategory = '衣装';
+      //各カラムの表示設定(hidden)を調べて表示すべきMap(カテゴリー：区分配列)を作る。
+      this.tableColumns.forEach(i => {
+        if (
+          //表示制御対象項目（これ以外はpopoverで表示させる対象ではない）
+          [
+            'フレンズ',
+            'フォト',
+            '衣装',
+            '家具',
+            'インテリア',
+            'ピクニックアイテム',
+            'その他アイテム',
+          ].some(j => j == i.label)
+        ) {
+          if (!i.hidden) outMap.set(i.label, defaultColumns);
         }
-
-        //tagが選択されいているか調べる。
-        //this.SearchFilter.tags.valueOKは配列が期待される変数だが、空文字にはなってもnullになることはない模様。なので単にサイズで比較する。
-        if (0 < this.SearchFilter.tags.valueOK.length) {
-          //tag指定有り
-          //指定されたtagに対象タグが存在するか調べるための正規表現パターンを作る。()内をキャプチャしたいので()を重ねている。
-          const tmpRegex = new RegExp('^' + tmpCategory + '\\((.*)\\)$');
-
-          //ユニーク文字列を集めるSetを作る。'フレンズ(招待または配布)','フレンズ(配布)'とあっても配布が重複しないようにする為。
-          const tmpUniqueStr = new Set();
-
-          //tagsを走査
-          for (const i of this.SearchFilter.tags.valueOK) {
-            //パターンにマッチするか調べる。戻り値は配列であり別途使いたいので、比較が１回で済むようif中ではなくここで調べる。
-            //マッチしない場合はnull,マッチする場合は配列で、0にマッチ全体、1以降にキャプチャが入る。
-            const tmpResult = i.match(tmpRegex);
-            if (tmpResult) {
-              //パターンにマッチ
-              //キャプチャされた[1]を'または'で分割し、その結果をtmpUniqueStrに入れる。
-              tmpResult[1].split('または').forEach(j => tmpUniqueStr.add(j));
-            }
-          }
-
-          //カテゴリー名と、tmpUniqueStrに集めた結果を配列にして返す。
-          outMap.set(tmpCategory, Array.from(tmpUniqueStr.values()));
-        } else {
-          //tag指定無し
-          //カテゴリー名と、そのデフォルト表示とする
-          outMap.set(tmpCategory, defaultColumns);
-        }
-      }
+      });
 
       return outMap;
     },

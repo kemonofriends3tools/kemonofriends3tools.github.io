@@ -911,7 +911,9 @@ export default {
       }
     },
     getTagList() {
-      //特殊タグ用一時配列を定義。必要タグ配列、不要タグ配列の２つを定義する。
+      //特殊タグ（アイテムの存在によって自動生成される『フレンズ(招待)』等のこと。このメソッド内では以下『特殊タグ』と呼称する）用一時配列を定義。
+      //リストに出すOKタグ配列、リストには含めないNGタグ配列の２つを定義する。
+      //このOK,NGはページ上検索欄の含むタグ/除くタグとは関係ない。それらの検索欄にはどちらも同じgetTagList()の戻り値が入る。
       const tmpSPOKTags = [];
       const tmpSPNGTags = [];
 
@@ -972,8 +974,8 @@ export default {
 
       //出力配列を用意
       const outputArray = [];
-      //出力配列への追加順は検索対象の指定によって変える。
-      if (this.originalColumn.has(tmpCategoryValue)) {
+      //出力配列への追加順はカテゴリー選択の有無によって変える。
+      if (tmpCategoryValue) {
         //カテゴリー選択済。特殊タグが先。
         //特殊タグを入れる
         tmpIndexArray.forEach(i => outputArray.push(tmpSPOKTags[i]));
@@ -990,7 +992,6 @@ export default {
         //最初に特殊タグを入れる
         tmpIndexArray.forEach(i => outputArray.push(tmpSPOKTags[i]));
       }
-      console.log(outputArray);
 
       return outputArray;
     },
@@ -1047,11 +1048,14 @@ export default {
         this.SearchFilter.name.placeholder = '先にカテゴリーを選んで下さい';
       }
 
-      //table表示切替。選択されたカテゴリーの表示をONにする。それ以外は特に触らない（ユーザーの操作の邪魔になると予想される為）。
-      let tmpStr = this.SearchFilter.category.value;
-      if (tmpStr == '衣装(衣装名から)' || tmpStr == '衣装(フレンズ名から)') tmpStr = '衣装';
-      //findで条件に一致する最初の要素を探し出し、表示処理を行う。
-      this.tableColumns.find(i => i.label == tmpStr).hidden = false;
+      //table表示切替。カテゴリーが選択されている場合、選択されたカテゴリーの列表示をONにする。
+      //尚、非選択カテゴリーの非表示化などは行わない（ユーザーの操作の邪魔になると予想される為）。
+      if (this.SearchFilter.category.value) {
+        let tmpStr = this.SearchFilter.category.value;
+        if (tmpStr == '衣装(衣装名から)' || tmpStr == '衣装(フレンズ名から)') tmpStr = '衣装';
+        //findで条件に一致する最初の要素を探し出し、表示処理を行う。
+        this.tableColumns.find(i => i.label == tmpStr).hidden = false;
+      }
     },
     //行class取得。classの定義はcustom-vue-good-table.scssに。
     getRowStyleClass(row) {

@@ -138,7 +138,7 @@
                   :options="getTagList"
                   :placeholder="SearchFilter.tags.placeholder"
                   class="background-white"
-                  :selectable="option => !option.startsWith('━')"
+                  :selectable="option => !option.startsWith('◆')"
                 >
                   <template v-slot:no-options="{ search, searching }">
                     <template v-if="searching">
@@ -163,7 +163,7 @@
                   :options="getTagList"
                   :placeholder="SearchFilter.tags.placeholder"
                   class="background-white"
-                  :selectable="option => !option.startsWith('━')"
+                  :selectable="option => !option.startsWith('◆')"
                 >
                   <template v-slot:no-options="{ search, searching }">
                     <template v-if="searching">
@@ -513,7 +513,7 @@ export default {
         name: { value: '', placeholder: '先にカテゴリーを選んで下さい' },
         tags: {
           valueOK: [],
-          valueNG: ['恒常', '有料パック'], //NGタグ初期値
+          valueNG: [], //NGタグ初期値
           placeholder: 'タグ',
         },
       },
@@ -911,9 +911,66 @@ export default {
       }
     },
     getTagList() {
-      //特殊タグ（アイテムの存在によって自動生成される『フレンズ(招待)』等のこと。このメソッド内では以下『特殊タグ』と呼称する）用一時配列を定義。
+      //一般タグリストの雛形。最終的に並び順はこのとおりとなる。データに存在しないタグはここから自動で抜かれる。
+      const commonTagsMap = new Map([
+        ['汎用タグ', new Set(['恒常', '有料パック', 'シナリオ', '配布'])],
+        [
+          'しょうたい',
+          new Set(['しょうたい', '週末ピックアップ', 'ドレスアップ', '無料ガチャ', 'フォトガチャ']),
+        ],
+        ['メンテナンス', new Set(['メンテナンス', 'データ更新', 'バージョンアップ'])],
+        ['主要シナリオ', new Set(['メインストーリー', 'アライさん隊長日誌', 'セーバルぶらり旅'])],
+        ['イベント(恒常)', new Set(['ちからくらべ', 'とくべつくんれん', 'シーサーバル道場'])],
+        [
+          'イベント(一般)',
+          new Set([
+            '〇〇のしずく',
+            'マップキー',
+            '体力測定',
+            '共闘',
+            '大掃除',
+            '野生大開放',
+            '期間限定○月しょうたい',
+          ]),
+        ],
+        [
+          'イベント(特殊)',
+          new Set(['ログインボーナス', 'すぺしゃるクエスト:期間限定クエスト', 'コラボイベント']),
+        ],
+        ['フレンズ(開放)', new Set(['けも級開放', 'キセキとくせい開放', 'フォトポケランク開放'])],
+        [
+          '支援',
+          new Set([
+            'ゴールドあつめ',
+            'スタミナ減少(主要ストーリー)',
+            '成功確率増加(フレンズ成長)',
+            '獲得増加(くんれんメダル)',
+            '獲得増加(けもけも弁当)',
+            '獲得増加(なかよしポイント)',
+            '獲得増加(ドロップアイテム)',
+          ]),
+        ],
+        [
+          '引換',
+          new Set([
+            '引換(おしゃれメダル)',
+            '引換(ちゅーばーのあかし)',
+            '引換(インテリアメダル)',
+            '引換(ラッキーメダル)',
+            '引換(リウキウおしゃれメダル)',
+            '引換(水着メダル)',
+          ]),
+        ],
+      ]);
+
+      //filteredAttributesを全走査して出現タグSetを生成する。
+      const tmpSet = new Set();
+      this.filteredAttributes.forEach(i => i.customData.tags.forEach(j => tmpSet.add(j)));
+
+      //先に特殊タグ（アイテムの存在によって自動生成される『フレンズ(招待)』等のこと。このメソッド内では以下『特殊タグ』と呼称する）のリストを作る。
+      //生の出現タグSetには一般タグに加えこれら特殊タグが含まれているので、これらを存在確認しながら抜いてゆく（のこりが一般タグとなる）。
       //リストに出すOKタグ配列、リストには含めないNGタグ配列の２つを定義する。
-      //このOK,NGはページ上検索欄の含むタグ/除くタグとは関係ない。それらの検索欄にはどちらも同じgetTagList()の戻り値が入る。
+      //これらはカテゴリー選択されている場合に関係ないタグを非表示にするためであって、ページ上検索欄の含むタグ/除くタグとは関係ない。それらの検索欄にはどちらも同じgetTagList()の戻り値が入る。
       const tmpSPOKTags = [];
       const tmpSPNGTags = [];
 
@@ -929,21 +986,21 @@ export default {
           if (iKey == tmpCategoryValue) {
             //対象カテゴリー
             //結合文字列 ex: フレンズ(招待または配布)
-            //選択カテゴリーがspecialTagMapに登録されているならその情報を必要タグ配列に追加
+            //選択カテゴリーがspecialTagMapに登録されているならその情報をOKタグ配列に追加
             if (this.specialTagMap.has(tmpCategoryValue)) {
               tmpSPOKTags.push(this.specialTagMap.get(tmpCategoryValue).combineString);
             }
             //その他文字列 ex:フレンズ(招待)
             iArray.forEach(j => tmpSPOKTags.push(iKey + '(' + j + ')'));
           } else {
-            //非対象カテゴリー。結合文字列、その他文字列共に全て不要タグ配列へ追加。(結合文字列の存在チェックはする。)
+            //非対象カテゴリー。結合文字列、その他文字列共に全てNGタグ配列へ追加。(結合文字列の存在チェックはする。)
             if (this.specialTagMap.has(iKey))
               tmpSPNGTags.push(this.specialTagMap.get(iKey).combineString);
             iArray.forEach(j => tmpSPNGTags.push(iKey + '(' + j + ')'));
           }
         }
       } else {
-        //カテゴリー未選択。この場合全ての特殊タグをセットする。
+        //カテゴリー未選択。この場合全ての特殊タグをOKタグ配列へセットする。
         for (const [iKey, iArray] of this.originalColumn) {
           //結合文字列が存在するなら入れる ex: フレンズ(招待または配布)
           if (this.specialTagMap.has(iKey)) {
@@ -954,46 +1011,61 @@ export default {
         }
       }
 
-      //filteredAttributesを全走査して出現タグSetを生成する。
-      const tmpSet = new Set();
-      this.filteredAttributes.forEach(i => i.customData.tags.forEach(j => tmpSet.add(j)));
-
-      //特殊タグを探し出す。もし特殊タグを発見した場合はtmpSPOKTagsの該当indexを仮配列に記録する。
-      const tmpIndexArray = []; //特殊タグの有無を記録する仮配列。
+      //出現タグSetから特殊タグを探し出す。もし特殊タグを発見した場合はOKタグ配列中のindexを仮配列に記録し、出現タグSetから抜く。
+      const tmpIndexArray = []; //特殊タグを見つけたときにOKタグ配列のindexを記録する仮配列。あとでsortしたいので、比較の容易なindex値として収集する。
       tmpSet.forEach(i => {
-        tmpSPOKTags.forEach((j, jIndex) => {
-          if (i == j) {
-            tmpIndexArray.push(jIndex); //見つけたindexを記録
-            tmpSet.delete(i); //見つけた特殊タグは削除する
+        const tmpIndex = tmpSPOKTags.indexOf(i); //tmpSPOKTagsから要素を探してindexを取得（存在しない場合は-1）
+        if (0 <= tmpIndex) tmpIndexArray.push(tmpIndex); //特殊タグがあるならindexを記録
+      });
+      tmpIndexArray.sort((a, b) => a - b); //収集したOKタグ配列indexを数値ソート
+      tmpIndexArray.forEach(i => tmpSet.delete(tmpSPOKTags[i])); //出現タグSetから見つけた特殊タグを削除する
+      tmpSPNGTags.forEach(i => tmpSet.delete(i)); //NGリストに入っているものは出現タグSetから削除する
+
+      //以上の情報を利用し、最終的な特殊タグリストを作る
+      const tmpSPTagsArray = [];
+      tmpSPTagsArray.push('◆表内絞り込み ━━━━━━━━');
+      tmpIndexArray.forEach(i => tmpSPTagsArray.push(tmpSPOKTags[i]));
+
+      //次に、一般タグリストを作る。
+      //初期値の入った一般タグリストを走査
+      commonTagsMap.forEach(v => {
+        const tmpDeleteList = []; //削除リスト。以下でforEachでループするがiteratorループ中にループ要素を操作（削除）すると具合が悪いので、この削除リストを用いてループ後に消す。
+        v.forEach(v2 => {
+          if (tmpSet.has(v2)) {
+            //雛形の要素が出現タグSetに存在する＞出現タグSetから削除
+            tmpSet.delete(v2);
+          } else {
+            //雛形の要素が出現タグSetに存在しない＞削除リストに追加
+            tmpDeleteList.push(v2);
           }
         });
-        if (tmpSPNGTags.some(j => i == j)) tmpSet.delete(i); //NGリストに入っているものは削除
+        tmpDeleteList.forEach(i => v.delete(i)); //削除リストを使って初期値として設定されている値を削除
       });
-      tmpIndexArray.sort((a, b) => a - b); //収集したindexを数値ソート
-      const tmpArray = Array.from(tmpSet).sort(); //その他タグを配列に変換し、ソート
-
-      //出力配列を用意
-      const outputArray = [];
-      //出力配列への追加順はカテゴリー選択の有無によって変える。
-      if (tmpCategoryValue) {
-        //カテゴリー選択済。特殊タグが先。
-        //特殊タグを入れる
-        tmpIndexArray.forEach(i => outputArray.push(tmpSPOKTags[i]));
-        //特殊タグ、その他タグ共にサイズがあるなら区切り文字列を入れる
-        if (outputArray.length && tmpArray.length) outputArray.push('━━━━━━━━━━');
-        //その他タグを入れる
-        tmpArray.forEach(i => outputArray.push(i));
-      } else {
-        //カテゴリー未選択。その他タグが先。
-        //その他タグを入れる
-        tmpArray.forEach(i => outputArray.push(i));
-        //特殊タグ、その他タグ共にサイズがあるなら区切り文字列を入れる
-        if (outputArray.length && tmpArray.length) outputArray.push('━━━━━━━━━━');
-        //最初に特殊タグを入れる
-        tmpIndexArray.forEach(i => outputArray.push(tmpSPOKTags[i]));
+      //この時点で一般タグリストには実在確認のとれた要素のみが残っており、tmpSetは原則空となる（ただしtmpSetには雛形になかったものが入っている可能性があるので、ちゃんと別途処理する）。
+      //一般タグリストを配列化
+      const tmpCommonTagsArray = [];
+      commonTagsMap.forEach((v, k) => {
+        if (v.size) {
+          //要素が存在するならKey名を表題にしてデータを追加。
+          tmpCommonTagsArray.push('◆' + k + ' ━━━━━━━━');
+          v.forEach(v2 => tmpCommonTagsArray.push(v2));
+        }
+      });
+      if (tmpSet.size) {
+        //こちらは雛形に無いデータが存在した場合。表題は『その他』としてデータに追加。
+        const tmpSetArray = Array.from(tmpSet).sort(); //その他タグを配列に変換し、ソートしておく
+        tmpCommonTagsArray.push('◆その他 ━━━━━━━━');
+        tmpSetArray.forEach(v2 => tmpCommonTagsArray.push(v2));
       }
 
-      return outputArray;
+      //戻り値を返すが、カテゴリー選択の有無によって特殊タグと一般タグの並び順を変える。
+      if (tmpCategoryValue) {
+        //カテゴリー選択時。特殊タグが先。
+        return tmpSPTagsArray.concat(tmpCommonTagsArray);
+      } else {
+        //カテゴリー未選択時。一般タグが先。
+        return tmpCommonTagsArray.concat(tmpSPTagsArray);
+      }
     },
     //SearchFilterの選択状態からカレンダーのpopoverに表示させるべき項目名を返す。
     //戻り値はMap()で、フレンズ:[招待,配布],フォト:[招待,配布]などとなる。

@@ -6,10 +6,7 @@
         使い方に少々クセがあります。詳しくは下の「使い方」を押してください。
       </b-alert>
       <div class="text-right">
-        <b-button
-          v-b-toggle.collapse0.collapse1.collapse2.collapse3.collapse4.collapse5
-          variant="info"
-        >
+        <b-button v-b-toggle.collapse0.collapse1.collapse2.collapse3.collapse4 variant="info">
           <b-icon
             class="align-text-bottom mx-1"
             icon="question-circle-fill"
@@ -56,66 +53,7 @@
               <b-col cols="12" class="px-1">
                 <b-collapse id="collapse1">
                   <b-alert show variant="info" class="small mb-1">
-                    １：含めたい／除外したいタグを指定します。<br />
-                    除外の方にデフォルトで『恒常』や『有料パック』等が含まれている点に注意して下さい。これらは一般的に邪魔になることが多いと思われるため指定していますが、恒常フレンズや家具等を探すときには外す必要があります。
-                  </b-alert>
-                </b-collapse>
-              </b-col>
-            </b-row>
-            <b-row class="w-100 mr-0 my-1">
-              <b-col cols="12" sm="auto" class="pr-0 align-self-center">次のタグを含む：</b-col>
-              <b-col cols="12" sm="auto" class="pr-1 flex-grow-1">
-                <v-select
-                  multiple
-                  v-model="SearchFilter.tags.valueOK"
-                  :options="getTagList"
-                  :placeholder="SearchFilter.tags.placeholder"
-                  class="background-white"
-                  :selectable="option => !option.startsWith('━')"
-                >
-                  <template v-slot:no-options="{ search, searching }">
-                    <template v-if="searching">
-                      <em>{{ search }}</em>
-                      に一致する項目は存在しません。
-                    </template>
-                    <template v-else>
-                      選択可能な{{ SearchFilter.tags.placeholder }}はありません。
-                    </template>
-                  </template>
-                </v-select>
-              </b-col>
-            </b-row>
-            <b-row class="w-100 mr-0 my-1">
-              <b-col cols="12" sm="auto" class="pr-0 align-self-center" style="width:9rem;"
-                >次のタグを除く：</b-col
-              >
-              <b-col cols="12" sm="auto" class="pr-1 flex-grow-1">
-                <v-select
-                  multiple
-                  v-model="SearchFilter.tags.valueNG"
-                  :options="getTagList"
-                  :placeholder="SearchFilter.tags.placeholder"
-                  class="background-white"
-                  :selectable="option => !option.startsWith('━')"
-                >
-                  <template v-slot:no-options="{ search, searching }">
-                    <template v-if="searching">
-                      <em>{{ search }}</em>
-                      に一致する項目は存在しません。
-                    </template>
-                    <template v-else>
-                      選択可能な{{ SearchFilter.tags.placeholder }}はありません。
-                    </template>
-                  </template>
-                </v-select>
-              </b-col>
-            </b-row>
-            <b-row class="w-100">
-              <b-col cols="12" class="px-1">
-                <b-collapse id="collapse2">
-                  <b-alert show variant="info" class="small mb-1">
-                    ２：検索したいもの（フレンズ名や家具名等）が判っている場合はここで指定して下さい。<br />
-                    下の表内検索でも似たようなことが出来ますが、こちらのほうがより確実です。<br />
+                    １：検索したいもの（フレンズ名や家具名等）が判っている場合はここで指定して下さい。<br />
                     衣装は衣装名からとフレンズからの２通りで検索出来ます。<br />
                     上の方でも書きましたがセレクトボックスは文字入力で項目を絞り込むことが出来ます。フレンズ名やフォト名などを指定する場合は一部（頭文字でなくても構いません）だけでも入力すると選ぶのが楽になります。
                   </b-alert>
@@ -181,6 +119,64 @@
                 </b-row>
               </b-col>
             </b-row>
+            <b-row class="w-100">
+              <b-col cols="12" class="px-1">
+                <b-collapse id="collapse2">
+                  <b-alert show variant="info" class="small mb-1">
+                    ２：含めたい／除外したいタグを指定します。<br />
+                    除外の方にデフォルトで『恒常』や『有料パック』が含まれている点に注意して下さい。これらは一般的に邪魔になることが多いと思われるため指定していますが、恒常フレンズや家具等を探すときには外す必要があります。
+                  </b-alert>
+                </b-collapse>
+              </b-col>
+            </b-row>
+            <b-row class="w-100 mr-0 my-1">
+              <b-col cols="12" sm="auto" class="pr-0 align-self-center">次のタグを含む：</b-col>
+              <b-col cols="12" sm="auto" class="pr-1 flex-grow-1">
+                <v-select
+                  multiple
+                  v-model="SearchFilter.tags.valueOK"
+                  :options="getTagList"
+                  :placeholder="SearchFilter.tags.placeholder"
+                  class="background-white"
+                  :selectable="option => !option.startsWith('◆')"
+                >
+                  <template v-slot:no-options="{ search, searching }">
+                    <template v-if="searching">
+                      <em>{{ search }}</em>
+                      に一致する項目は存在しません。
+                    </template>
+                    <template v-else>
+                      選択可能な{{ SearchFilter.tags.placeholder }}はありません。
+                    </template>
+                  </template>
+                </v-select>
+              </b-col>
+            </b-row>
+            <b-row class="w-100 mr-0 my-1">
+              <b-col cols="12" sm="auto" class="pr-0 align-self-center" style="width:9rem;"
+                >次のタグを除く：</b-col
+              >
+              <b-col cols="12" sm="auto" class="pr-1 flex-grow-1">
+                <v-select
+                  multiple
+                  v-model="SearchFilter.tags.valueNG"
+                  :options="getTagList"
+                  :placeholder="SearchFilter.tags.placeholder"
+                  class="background-white"
+                  :selectable="option => !option.startsWith('◆')"
+                >
+                  <template v-slot:no-options="{ search, searching }">
+                    <template v-if="searching">
+                      <em>{{ search }}</em>
+                      に一致する項目は存在しません。
+                    </template>
+                    <template v-else>
+                      選択可能な{{ SearchFilter.tags.placeholder }}はありません。
+                    </template>
+                  </template>
+                </v-select>
+              </b-col>
+            </b-row>
           </div>
         </div>
         <div class="table-attached-header">
@@ -226,61 +222,6 @@
             </template>
           </div>
         </div>
-        <div class="table-attached-header">
-          <div>
-            <b-icon
-              class="table-attached-header-icon"
-              icon="search"
-              variant="dark"
-              font-scale="1.5"
-            />
-          </div>
-          <div class="table-attached-header-contents w-100">
-            <b-row class="w-100">
-              <b-col cols="12">
-                <b-collapse id="collapse4">
-                  <b-alert show variant="info" class="small mb-1">
-                    ４：表内検索を行います。
-                    <ul class="pl-4 mb-0">
-                      <li>
-                        これは<span class="font-weight-bold"
-                          >現在表内に表示されている各項目を対象に</span
-                        >、入力された文字列でデータ行の絞り込みを行います。<br />
-                        注意してほしいのは検索対象は<span class="font-weight-bold"
-                          >現在表に表示されている項目だけ</span
-                        >という点です。例えばドールが特攻になっているイベントがあったとしても、３で”フレンズ”列を表示させていないとHITしません。つまり３の表示／非表示で検索対象列を指定することが出来ます。
-                      </li>
-                      <li>
-                        半角または全角スペースで区切るとAND条件で複数キーワードによる検索することが出来ます。
-                      </li>
-                      <li>
-                        検索は各データ行中の各項目単位で判定されます。つまりキーワード１が"フレンズ"に<span
-                          class="font-weight-bold"
-                          >のみ</span
-                        >、キーワード２が"フォト"に<span class="font-weight-bold">のみ</span
-                        >存在する場合、この行には両方のキーワード満たす項目が１つも存在しなかったと判定され、そのデータ行は非表示となります。
-                      </li>
-                      <li>
-                        例外として”タグ”列は検索対象とはなりません。また”フレンズ”や”フォト”等に出てくる”招待”や"配布"といった区分名も検索対象とはなりません。（どちらも意味がない為）
-                      </li>
-                    </ul>
-                  </b-alert>
-                </b-collapse>
-              </b-col>
-            </b-row>
-            <b-row class="w-100">
-              <b-col cols="12" class="pr-0">
-                <b-form-input
-                  class="vgt-input input-externalQuery my-1"
-                  v-model="globalSearchTerm"
-                  placeholder="表内検索"
-                  type="search"
-                  debounce="500"
-                />
-              </b-col>
-            </b-row>
-          </div>
-        </div>
       </div>
       <div class="table-attached-header" style="background: #fdfcf9 !important">
         <div class="d-none d-sm-block">
@@ -304,9 +245,9 @@
           </b-row>
           <b-row>
             <b-col cols="12" class="pl-1 pr-3 mr-2">
-              <b-collapse id="collapse5">
+              <b-collapse id="collapse4">
                 <b-alert show variant="info" class="small mb-1">
-                  ５：カレンダーを見たいのであればカレンダー表示をONにしてください。<br />
+                  ４：カレンダーを見たいのであればカレンダー表示をONにしてください。<br />
                   便利なのですが上で絞り込みが足りなかったりすると（データ量が多いと）表示時に重くなります。一旦表示してしまえばあとはそれ程重くはありません。<br />
                   カレンダーを表示した状態で上の検索条件を触ると動的に再表示しようとするので重くなります。色々と条件を変えて試したい場合はいったんカレンダー表示をOFFにすることをオススメします。
                 </b-alert>
@@ -412,12 +353,6 @@
         :rows="filteredAttributes"
         :columns="tableColumns"
         :row-style-class="getRowStyleClass"
-        :search-options="{
-          enabled: false,
-          skipDiacritics: true,
-          searchFn: globalSearch,
-          externalQuery: globalSearchTerm,
-        }"
         :sort-options="tableSortOptions"
         styleClass="vgt-table bordered condensed"
         :pagination-options="{
@@ -440,7 +375,7 @@
         </template>
         <template v-slot:table-row="props">
           <template v-if="props.column.label == 'イベント名'">
-            <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+            <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
               {{ props.formattedRow[props.column.field] }}
             </text-highlight>
             <a :href="props.row.customData.url" target="_blank" rel="noopener">
@@ -468,7 +403,7 @@
                 class="m-1"
               >
                 <span :class="getBadgeLikeClass(key)">{{ key }}</span>
-                <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
                   {{ value.join(',') }}
                 </text-highlight>
               </p>
@@ -485,12 +420,12 @@
                 <span :class="getBadgeLikeClass(ikey)">{{ ikey }}</span>
                 <div v-for="[jkey, jvalue] of ivalue" :key="jkey">
                   <p class="m-0 ml-2 font-weight-bold">
-                    <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                    <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
                       {{ jkey }}
                     </text-highlight>
                   </p>
                   <p class="m-0 ml-4">
-                    <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                    <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
                       {{ jvalue.join(',') }}
                     </text-highlight>
                   </p>
@@ -509,7 +444,7 @@
             </span>
           </div>
           <template v-else>
-            <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+            <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
               {{ props.formattedRow[props.column.field] }}
             </text-highlight>
           </template>
@@ -528,7 +463,7 @@ import dayjs from 'dayjs';
 import eventsJson from '../json/events.json';
 import resizableTable from '@/mixins/resizableTable.js';
 
-//v-calendarが利用可能な色リスト。mountedの他conputed等で利用しそうなのでここにいれておく。
+//v-calendarが利用可能な色リスト。createdの他computed等で利用しそうなのでここにいれておく。
 const color = [
   'red',
   'orange',
@@ -578,12 +513,12 @@ export default {
         name: { value: '', placeholder: '先にカテゴリーを選んで下さい' },
         tags: {
           valueOK: [],
-          valueNG: ['恒常', '有料パック', 'ちからくらべ', 'シーサーバル道場'], //NGタグ初期値
+          valueNG: [], //NGタグ初期値
           placeholder: 'タグ',
         },
       },
 
-      //SearchFilterのnameにセットする値の元となるlist。mountedにて初期化。
+      //SearchFilterのnameにセットする値の元となるlist。createdにて初期化。
       //全フレンズ、フォト名等のリスト（重複排除済）。SearchFilterの選択に応じてnameに入れる。
       //中身は('フレンズ',[])という形式のMap。
       //あくまでベースなので、実際に取得する場合は別途methodを利用する。
@@ -594,12 +529,12 @@ export default {
       //Valueはオブジェクトで、targetTagsにはフレンズ(招待) といった形式のタグ文字列で、
       //combineStringには"フレンズ(招待または配布)"のような結合文字列が入る。
       //特殊タグが存在しないアイテムの場合はKey自体存在しないので、使う際にはまずhasで存在確認すること。
-      //mounted内にて実際にjsonの内容を確認して作り出す。これはmounted内にてtagとして追加する他、
+      //created内にて実際にjsonの内容を確認して作り出す。これはcreated内にてtagとして追加する他、
       //SearchFilterのtagにセットするリストを作るときにも参照する。
       specialTagMap: new Map(),
 
-      //json元となるスプレッドシート上の分類とカラム名を定義(再現)するためのデータ色々。mountedにて初期化。
-      //主にmounted内でjsonを読み込む際に使用されるが、tagリスト生成等でもこの構造があると便利なのでここに持っておく。
+      //json元となるスプレッドシート上の分類とカラム名を定義(再現)するためのデータ色々。createdにて初期化。
+      //主にcreated内でjsonを読み込む際に使用されるが、tagリスト生成等でもこの構造があると便利なのでここに持っておく。
       //Mapなので順序が保証される。なのでforEach等でループすれば元のカラム順通りになる。
       //keyは'フレンズ','フォト'等文字列
       //valueは基本['招待', '特効', '配布', '引換']
@@ -694,15 +629,13 @@ export default {
         enabled: true,
         initialSortBy: [{ field: 'customData.start', type: 'desc' }],
       },
-      //全文検索
-      globalSearchTerm: '',
     };
   },
   created() {
     //eventsJsonからevent情報全部入りのmasterAttributesを作る。
-    //その過程で出現したカテゴリ、タグ、個別アイテム名（フレンズ、フォト、衣装、家具、インテリア等）のリストも生成する。
+    //その過程で出現したカテゴリ、タグ、アイテム名（フレンズ、フォト、衣装、家具、インテリア等）のリストも生成する。
 
-    //以下で初期化等に利用する代表的なカテゴリーリスト。SearchFilter.category.listとは'衣装'の部分が異なる。
+    //以下で初期化等に利用するカテゴリーリスト。SearchFilter.category.listとは'衣装'の部分が異なる。
     const tmpCategoryList = [
       'フレンズ',
       'フォト',
@@ -713,12 +646,11 @@ export default {
       'その他アイテム',
     ];
 
-    //originalColumns初期化。スプレッドシート上のカラム情報を再現できるデータを入れる。
-    //tmpCategoryListのアイテム名を利用する。
+    //originalColumns初期化。スプレッドシート上のカラム列情報を再現するためのデータを定義する。
     tmpCategoryList.forEach(i => this.originalColumn.set(i, ['招待', '特効', '配布', '引換']));
     this.originalColumn.set('フレンズ', ['招待', '特効', '配布', '引換', '対象']); //フレンズだけは'対象'があるのでvalueごと上書きする。
 
-    //個別検索で初期値として使用するユニークなフレンズ、フォト等名を収集するSet()を保持するMap()
+    //指名検索で初期値として使用するユニークなフレンズ、フォト等名を収集するSet()を保持するMap()
     const uniqueSetMap = new Map();
     tmpCategoryList.forEach(i => uniqueSetMap.set(i, new Set()));
     //'衣装'は２つにわけて管理するので、'衣装'を落として'衣装(衣装名から)','衣装フレンズ'の２つを追加する
@@ -842,7 +774,7 @@ export default {
       this.masterAttributes.push(tmpEvent);
     }
 
-    // 収集したユニーク分類名の存在を確認し、結合分類タグを作り出す。 ex:['招待', '特効', '配布', '引換', '対象']
+    // 収集したユニーク分類名の存在を確認し、結合特殊タグ（フレンズ(招待または配布)など）を作り出す。
     for (const [iKey, iSet] of tmpOriginalColumnExist) {
       const tmpTags = []; //フレンズ(招待) といった形式のタグ文字列(上にて既に追加したのと同じフォーマット)を格納する配列。後ほどArray.someでチェックするために用意する。
       const tmpPickup = []; //招待,配布,引換といった文字列が一度でも使われていれば一旦この配列に追加する。最後に１つの文字列に変換結合する。
@@ -852,6 +784,7 @@ export default {
           tmpPickup.push(i);
         }
       }
+      //結合特殊タグは要素が複数の場合のみ作る。（１つしかない場合は'または'でつなぐ結合特殊タグは必要ない。）
       if (1 < tmpPickup.length) {
         //specialTagMapにセットする
         this.specialTagMap.set(iKey, {
@@ -897,7 +830,7 @@ export default {
         );
       }
 
-      //個別検索
+      //指名検索
       //カテゴリーに応じて処理分岐
       if (this.SearchFilter.category.value) {
         if (this.SearchFilter.category.value == '衣装(衣装名から)') {
@@ -978,7 +911,66 @@ export default {
       }
     },
     getTagList() {
-      //特殊タグ用一時配列を定義。必要タグ配列、不要タグ配列の２つを定義する。
+      //一般タグリストの雛形。最終的に並び順はこのとおりとなる。データに存在しないタグはここから自動で抜かれる。
+      const commonTagsMap = new Map([
+        ['汎用タグ', new Set(['恒常', '有料パック', 'シナリオ', '配布'])],
+        [
+          'しょうたい',
+          new Set(['しょうたい', '週末ピックアップ', 'ドレスアップ', '無料ガチャ', 'フォトガチャ']),
+        ],
+        ['メンテナンス', new Set(['メンテナンス', 'データ更新', 'バージョンアップ'])],
+        ['主要シナリオ', new Set(['メインストーリー', 'アライさん隊長日誌', 'セーバルぶらり旅'])],
+        ['イベント(恒常)', new Set(['ちからくらべ', 'とくべつくんれん', 'シーサーバル道場'])],
+        [
+          'イベント(一般)',
+          new Set([
+            '〇〇のしずく',
+            'マップキー',
+            '体力測定',
+            '共闘',
+            '大掃除',
+            '野生大開放',
+            '期間限定○月しょうたい',
+          ]),
+        ],
+        [
+          'イベント(特殊)',
+          new Set(['ログインボーナス', 'すぺしゃるクエスト:期間限定クエスト', 'コラボイベント']),
+        ],
+        ['フレンズ(開放)', new Set(['けも級開放', 'キセキとくせい開放', 'フォトポケランク開放'])],
+        [
+          '支援',
+          new Set([
+            'ゴールドあつめ',
+            'スタミナ減少(主要ストーリー)',
+            '成功確率増加(フレンズ成長)',
+            '獲得増加(くんれんメダル)',
+            '獲得増加(けもけも弁当)',
+            '獲得増加(なかよしポイント)',
+            '獲得増加(ドロップアイテム)',
+          ]),
+        ],
+        [
+          '引換',
+          new Set([
+            '引換(おしゃれメダル)',
+            '引換(ちゅーばーのあかし)',
+            '引換(インテリアメダル)',
+            '引換(ラッキーメダル)',
+            '引換(リウキウおしゃれメダル)',
+            '引換(水着メダル)',
+          ]),
+        ],
+      ]);
+
+      //filteredAttributesを全走査して出現タグSetを生成する。
+      const tmpSet = new Set();
+      this.filteredAttributes.forEach(i => i.customData.tags.forEach(j => tmpSet.add(j)));
+
+      //先に特殊タグ（アイテムの存在によって自動生成される『フレンズ(招待)』等のこと。このメソッド内では以下『特殊タグ』と呼称する）のリストを作る。
+      //生の出現タグSetには一般タグに加えこれら特殊タグが含まれているので、これらを存在確認しながら抜いてゆく（のこりが一般タグとなる）。
+      //リストに出すOKタグ配列、リストには含めないNGタグ配列の２つを定義する。
+      //これらはカテゴリー選択されている場合に関係ないタグを非表示にするためであって、ページ上検索欄の含むタグ/除くタグとは関係ない。それらの検索欄にはどちらも同じgetTagList()の戻り値が入る。
       const tmpSPOKTags = [];
       const tmpSPNGTags = [];
 
@@ -987,28 +979,28 @@ export default {
       if (tmpCategoryValue == '衣装(衣装名から)') tmpCategoryValue = '衣装';
       if (tmpCategoryValue == '衣装(フレンズ名から)') tmpCategoryValue = '衣装';
 
-      //特殊タグ用一時配列を初期化する。カテゴリーの選択項目が個別アイテムかどうかで処理をわける。
+      //特殊タグ用一時配列を初期化する。指名検索のカテゴリーが選択されているかどうかで処理をわける。
       if (this.originalColumn.has(tmpCategoryValue)) {
-        //個別検索。カテゴリーにて指定された特定アイテムに関する特殊タグのみを取り出す。
+        //カテゴリー選択済。カテゴリーにて指定された特定アイテムに関する特殊タグのみを取り出す。
         for (const [iKey, iArray] of this.originalColumn) {
           if (iKey == tmpCategoryValue) {
             //対象カテゴリー
             //結合文字列 ex: フレンズ(招待または配布)
-            //選択カテゴリーがspecialTagMapに登録されているならその情報を必要タグ配列に追加
+            //選択カテゴリーがspecialTagMapに登録されているならその情報をOKタグ配列に追加
             if (this.specialTagMap.has(tmpCategoryValue)) {
               tmpSPOKTags.push(this.specialTagMap.get(tmpCategoryValue).combineString);
             }
             //その他文字列 ex:フレンズ(招待)
             iArray.forEach(j => tmpSPOKTags.push(iKey + '(' + j + ')'));
           } else {
-            //非対象カテゴリー。結合文字列、その他文字列共に全て不要タグ配列へ追加。(結合文字列の存在チェックはする。)
+            //非対象カテゴリー。結合文字列、その他文字列共に全てNGタグ配列へ追加。(結合文字列の存在チェックはする。)
             if (this.specialTagMap.has(iKey))
               tmpSPNGTags.push(this.specialTagMap.get(iKey).combineString);
             iArray.forEach(j => tmpSPNGTags.push(iKey + '(' + j + ')'));
           }
         }
       } else {
-        //イベント検索、もしくはカテゴリー未選択。この場合全ての特殊タグをセットする。
+        //カテゴリー未選択。この場合全ての特殊タグをOKタグ配列へセットする。
         for (const [iKey, iArray] of this.originalColumn) {
           //結合文字列が存在するなら入れる ex: フレンズ(招待または配布)
           if (this.specialTagMap.has(iKey)) {
@@ -1019,46 +1011,61 @@ export default {
         }
       }
 
-      //filteredAttributesを全走査して出現タグSetを生成する。
-      const tmpSet = new Set();
-      this.filteredAttributes.forEach(i => i.customData.tags.forEach(j => tmpSet.add(j)));
-
-      //特殊タグを探し出す。もし特殊タグを発見した場合はtmpSPOKTagsの該当indexを仮配列に記録する。
-      const tmpIndexArray = []; //特殊タグの有無を記録する仮配列。
+      //出現タグSetから特殊タグを探し出す。もし特殊タグを発見した場合はOKタグ配列中のindexを仮配列に記録し、出現タグSetから抜く。
+      const tmpIndexArray = []; //特殊タグを見つけたときにOKタグ配列のindexを記録する仮配列。あとでsortしたいので、比較の容易なindex値として収集する。
       tmpSet.forEach(i => {
-        tmpSPOKTags.forEach((j, jIndex) => {
-          if (i == j) {
-            tmpIndexArray.push(jIndex); //見つけたindexを記録
-            tmpSet.delete(i); //見つけた特殊タグは削除する
+        const tmpIndex = tmpSPOKTags.indexOf(i); //tmpSPOKTagsから要素を探してindexを取得（存在しない場合は-1）
+        if (0 <= tmpIndex) tmpIndexArray.push(tmpIndex); //特殊タグがあるならindexを記録
+      });
+      tmpIndexArray.sort((a, b) => a - b); //収集したOKタグ配列indexを数値ソート
+      tmpIndexArray.forEach(i => tmpSet.delete(tmpSPOKTags[i])); //出現タグSetから見つけた特殊タグを削除する
+      tmpSPNGTags.forEach(i => tmpSet.delete(i)); //NGリストに入っているものは出現タグSetから削除する
+
+      //以上の情報を利用し、最終的な特殊タグリストを作る
+      const tmpSPTagsArray = [];
+      tmpSPTagsArray.push('◆表内絞り込み ━━━━━━━━');
+      tmpIndexArray.forEach(i => tmpSPTagsArray.push(tmpSPOKTags[i]));
+
+      //次に、一般タグリストを作る。
+      //初期値の入った一般タグリストを走査
+      commonTagsMap.forEach(v => {
+        const tmpDeleteList = []; //削除リスト。以下でforEachでループするがiteratorループ中にループ要素を操作（削除）すると具合が悪いので、この削除リストを用いてループ後に消す。
+        v.forEach(v2 => {
+          if (tmpSet.has(v2)) {
+            //雛形の要素が出現タグSetに存在する＞出現タグSetから削除
+            tmpSet.delete(v2);
+          } else {
+            //雛形の要素が出現タグSetに存在しない＞削除リストに追加
+            tmpDeleteList.push(v2);
           }
         });
-        if (tmpSPNGTags.some(j => i == j)) tmpSet.delete(i); //NGリストに入っているものは削除
+        tmpDeleteList.forEach(i => v.delete(i)); //削除リストを使って初期値として設定されている値を削除
       });
-      tmpIndexArray.sort((a, b) => a - b); //収集したindexを数値ソート
-      const tmpArray = Array.from(tmpSet).sort(); //その他タグを配列に変換し、ソート
-
-      //出力配列を用意
-      const outputArray = [];
-      //出力配列への追加順は検索対象の指定によって変える。
-      if (this.originalColumn.has(tmpCategoryValue)) {
-        //個別検索。特殊タグが先。
-        //特殊タグを入れる
-        tmpIndexArray.forEach(i => outputArray.push(tmpSPOKTags[i]));
-        //特殊タグ、その他タグ共にサイズがあるなら区切り文字列を入れる
-        if (outputArray.length && tmpArray.length) outputArray.push('━━━━━━━━━━');
-        //その他タグを入れる
-        tmpArray.forEach(i => outputArray.push(i));
-      } else {
-        //イベント検索、もしくはカテゴリー未選択。その他タグが先。
-        //その他タグを入れる
-        tmpArray.forEach(i => outputArray.push(i));
-        //特殊タグ、その他タグ共にサイズがあるなら区切り文字列を入れる
-        if (outputArray.length && tmpArray.length) outputArray.push('━━━━━━━━━━');
-        //最初に特殊タグを入れる
-        tmpIndexArray.forEach(i => outputArray.push(tmpSPOKTags[i]));
+      //この時点で一般タグリストには実在確認のとれた要素のみが残っており、tmpSetは基本空となっているはずである（ただしtmpSetには雛形になかったものが入っている可能性があるので、ちゃんと別途処理する）。
+      //一般タグリストを配列化
+      const tmpCommonTagsArray = [];
+      commonTagsMap.forEach((v, k) => {
+        if (v.size) {
+          //要素が存在するならKey名を表題にしてデータを追加。
+          tmpCommonTagsArray.push('◆' + k + ' ━━━━━━━━');
+          v.forEach(v2 => tmpCommonTagsArray.push(v2));
+        }
+      });
+      if (tmpSet.size) {
+        //こちらは雛形に無いデータが存在した場合。表題は『その他』としてデータに追加。
+        const tmpSetArray = Array.from(tmpSet).sort(); //その他タグを配列に変換し、ソートしておく
+        tmpCommonTagsArray.push('◆その他 ━━━━━━━━');
+        tmpSetArray.forEach(v2 => tmpCommonTagsArray.push(v2));
       }
 
-      return outputArray;
+      //戻り値を返すが、カテゴリー選択の有無によって特殊タグと一般タグの並び順を変える。
+      if (tmpCategoryValue) {
+        //カテゴリー選択時。特殊タグが先。
+        return tmpSPTagsArray.concat(tmpCommonTagsArray);
+      } else {
+        //カテゴリー未選択時。一般タグが先。
+        return tmpCommonTagsArray.concat(tmpSPTagsArray);
+      }
     },
     //SearchFilterの選択状態からカレンダーのpopoverに表示させるべき項目名を返す。
     //戻り値はMap()で、フレンズ:[招待,配布],フォト:[招待,配布]などとなる。
@@ -1093,35 +1100,6 @@ export default {
       //カレンダーの表示スタイルを返す。カレンダー非表示の時には薄くする。
       return this.inputCalendarVisible ? 'opacity: 1;margin:auto;' : 'opacity: 0.2;margin:auto;';
     },
-    //検索文字列を半角または全角スペースでsplitし、表内検索やvue-text-hightlight等で使いやすい形式（正規表現の配列）に直して返す。
-    //複数個所で利用しているのでキャッシュの効くcomputedとして提供する。
-    getGlobalSearchTermArray() {
-      //検索文字列配列を取得する。
-      //tirmで前後空白を除き、正規表現の特殊文字をエスケープ、半または全角スペースでsplitする。
-      //全角スペースをソースに直で書くとlintでエラーになるので文字コードで指定する。
-      let queries = this.globalSearchTerm
-        .trim()
-        .replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
-        .split(/[\x20\u3000]/);
-
-      //events限定処理
-      //指名検索が有効な場合は名前を検索文字列配列に追加する。
-      //なお表内検索入力欄が空かつ指名検索を指定した場合、配列の最初の要素は空文字要素となるが、下のfilterにて排除されるので問題ない。
-      if (this.SearchFilter.name.value) queries.push(this.SearchFilter.name.value);
-
-      //検索文字列配列から空文字要素を排除する（空文字要素があるとvue-text-hightlight内のロジックでフリーズする模様）。ページロード時などにそういう配列が生まれることがある。
-      queries = queries.filter(i => i != '');
-
-      //戻り値となる正規表現配列を定義する。
-      const regex = [];
-      //検索文字列が空（queriesの長さが１かつ空白）の場合は処理しない（vue-text-hightlight内のロジック絡みでフリーズする模様）
-      //RegExpのコンストラクタに不正な正規表現を入れると例外がおきるが、先にエスケープしているので例外はおきないものとする。今後正規表現検索に対応したりする場合は例外を考慮のこと。
-      //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。
-      if (queries.length) {
-        queries.forEach(i => regex.push(new RegExp(i, 'i')));
-      }
-      return regex;
-    },
   },
   methods: {
     selectedCategory() {
@@ -1142,11 +1120,14 @@ export default {
         this.SearchFilter.name.placeholder = '先にカテゴリーを選んで下さい';
       }
 
-      //table表示切替。選択されたカテゴリーの表示をONにする。それ以外は特に触らない（ユーザーの操作の邪魔になると予想される為）。
-      let tmpStr = this.SearchFilter.category.value;
-      if (tmpStr == '衣装(衣装名から)' || tmpStr == '衣装(フレンズ名から)') tmpStr = '衣装';
-      //findで条件に一致する最初の要素を探し出し、表示処理を行う。
-      this.tableColumns.find(i => i.label == tmpStr).hidden = false;
+      //table表示切替。カテゴリーが選択されている場合、選択されたカテゴリーの列表示をONにする。
+      //尚、非選択カテゴリーの非表示化などは行わない（ユーザーの操作の邪魔になると予想される為）。
+      if (this.SearchFilter.category.value) {
+        let tmpStr = this.SearchFilter.category.value;
+        if (tmpStr == '衣装(衣装名から)' || tmpStr == '衣装(フレンズ名から)') tmpStr = '衣装';
+        //findで条件に一致する最初の要素を探し出し、表示処理を行う。
+        this.tableColumns.find(i => i.label == tmpStr).hidden = false;
+      }
     },
     //行class取得。classの定義はcustom-vue-good-table.scssに。
     getRowStyleClass(row) {
@@ -1160,53 +1141,6 @@ export default {
       if (str == '引換') return 'custom-badge badge-exchange-color';
       if (str == '対象') return 'custom-badge badge-target-color';
       return '';
-    },
-    //表内検索。第4引数はglobalSearchTermだが使ってないので省略。
-    globalSearch(row, col, cellValue) {
-      //colがhiddenまたはタグの場合は探索しない
-      if (col['hidden'] || col.label == 'タグ') return false;
-
-      //検索対象文字列定義
-      let tmpCellString = '';
-
-      //カラムによってデータの格納方法が異なるので処理分岐
-      if (
-        col.label == '開始' ||
-        col.label == '終了' ||
-        col.label == 'イベント名' ||
-        col.label == '備考'
-      ) {
-        //単純にセル値を取得
-        tmpCellString = cellValue.toString();
-      } else if (
-        col.label == 'フレンズ' ||
-        col.label == 'フォト' ||
-        col.label == '家具' ||
-        col.label == 'インテリア' ||
-        col.label == 'ピクニックアイテム' ||
-        col.label == 'その他アイテム'
-      ) {
-        //対象データはMap。key値は無視し、valueにある配列を区切り文字改行で結合した文字列を取得する。
-        row.customData[col.label].forEach(v1 => (tmpCellString = tmpCellString + v1.join('\r\n')));
-      } else if (col.label == '衣装') {
-        //対象データはMapのMap。最初のMapのkey値は無視。次のMapのKeyは衣装名なので取得。そしてvalueにある配列は区切り文字改行で結合した文字列を取得する。
-        row.customData[col.label].forEach(v1 =>
-          v1.forEach(
-            (v2, k2) => (tmpCellString = tmpCellString + k2 + '\r\n' + v2.join('\r\n') + '\r\n')
-          )
-        );
-      }
-
-      //検索対象文字列が存在するか
-      if (tmpCellString) {
-        //検索条件（正規表現配列）で検索対象文字列をテストする。
-        //and条件としたいのでevery()を用いる。(every()は全要素がテストに合格するか判断する)
-        return this.getGlobalSearchTermArray.every(i => i.test(tmpCellString));
-      } else {
-        //検索対象文字列が存在しない場合はfalseを返す。
-        //（フレンズが無い、フォトが無い等のデータは多数存在するため、ここには頻繁に入ってくる。ロジック的には上の処理に一本化しても動くだろうが、処理負荷を考慮して分けている。）
-        return false;
-      }
     },
   },
 };

@@ -463,7 +463,7 @@ import dayjs from 'dayjs';
 import eventsJson from '../json/events.json';
 import resizableTable from '@/mixins/resizableTable.js';
 
-//v-calendarが利用可能な色リスト。mountedの他conputed等で利用しそうなのでここにいれておく。
+//v-calendarが利用可能な色リスト。createdの他computed等で利用しそうなのでここにいれておく。
 const color = [
   'red',
   'orange',
@@ -518,7 +518,7 @@ export default {
         },
       },
 
-      //SearchFilterのnameにセットする値の元となるlist。mountedにて初期化。
+      //SearchFilterのnameにセットする値の元となるlist。createdにて初期化。
       //全フレンズ、フォト名等のリスト（重複排除済）。SearchFilterの選択に応じてnameに入れる。
       //中身は('フレンズ',[])という形式のMap。
       //あくまでベースなので、実際に取得する場合は別途methodを利用する。
@@ -529,12 +529,12 @@ export default {
       //Valueはオブジェクトで、targetTagsにはフレンズ(招待) といった形式のタグ文字列で、
       //combineStringには"フレンズ(招待または配布)"のような結合文字列が入る。
       //特殊タグが存在しないアイテムの場合はKey自体存在しないので、使う際にはまずhasで存在確認すること。
-      //mounted内にて実際にjsonの内容を確認して作り出す。これはmounted内にてtagとして追加する他、
+      //created内にて実際にjsonの内容を確認して作り出す。これはcreated内にてtagとして追加する他、
       //SearchFilterのtagにセットするリストを作るときにも参照する。
       specialTagMap: new Map(),
 
-      //json元となるスプレッドシート上の分類とカラム名を定義(再現)するためのデータ色々。mountedにて初期化。
-      //主にmounted内でjsonを読み込む際に使用されるが、tagリスト生成等でもこの構造があると便利なのでここに持っておく。
+      //json元となるスプレッドシート上の分類とカラム名を定義(再現)するためのデータ色々。createdにて初期化。
+      //主にcreated内でjsonを読み込む際に使用されるが、tagリスト生成等でもこの構造があると便利なのでここに持っておく。
       //Mapなので順序が保証される。なのでforEach等でループすれば元のカラム順通りになる。
       //keyは'フレンズ','フォト'等文字列
       //valueは基本['招待', '特効', '配布', '引換']
@@ -635,7 +635,7 @@ export default {
     //eventsJsonからevent情報全部入りのmasterAttributesを作る。
     //その過程で出現したカテゴリ、タグ、アイテム名（フレンズ、フォト、衣装、家具、インテリア等）のリストも生成する。
 
-    //以下で初期化等に利用する代表的なカテゴリーリスト。SearchFilter.category.listとは'衣装'の部分が異なる。
+    //以下で初期化等に利用するカテゴリーリスト。SearchFilter.category.listとは'衣装'の部分が異なる。
     const tmpCategoryList = [
       'フレンズ',
       'フォト',
@@ -646,8 +646,7 @@ export default {
       'その他アイテム',
     ];
 
-    //originalColumns初期化。スプレッドシート上のカラム情報を再現できるデータを入れる。
-    //tmpCategoryListのアイテム名を利用する。
+    //originalColumns初期化。スプレッドシート上のカラム列情報を再現するためのデータを定義する。
     tmpCategoryList.forEach(i => this.originalColumn.set(i, ['招待', '特効', '配布', '引換']));
     this.originalColumn.set('フレンズ', ['招待', '特効', '配布', '引換', '対象']); //フレンズだけは'対象'があるのでvalueごと上書きする。
 
@@ -775,7 +774,7 @@ export default {
       this.masterAttributes.push(tmpEvent);
     }
 
-    // 収集したユニーク分類名の存在を確認し、結合分類タグを作り出す。 ex:['招待', '特効', '配布', '引換', '対象']
+    // 収集したユニーク分類名の存在を確認し、結合特殊タグ（フレンズ(招待または配布)など）を作り出す。
     for (const [iKey, iSet] of tmpOriginalColumnExist) {
       const tmpTags = []; //フレンズ(招待) といった形式のタグ文字列(上にて既に追加したのと同じフォーマット)を格納する配列。後ほどArray.someでチェックするために用意する。
       const tmpPickup = []; //招待,配布,引換といった文字列が一度でも使われていれば一旦この配列に追加する。最後に１つの文字列に変換結合する。
@@ -785,6 +784,7 @@ export default {
           tmpPickup.push(i);
         }
       }
+      //結合特殊タグは要素が複数の場合のみ作る。（１つしかない場合は'または'でつなぐ結合特殊タグは必要ない。）
       if (1 < tmpPickup.length) {
         //specialTagMapにセットする
         this.specialTagMap.set(iKey, {
@@ -1041,7 +1041,7 @@ export default {
         });
         tmpDeleteList.forEach(i => v.delete(i)); //削除リストを使って初期値として設定されている値を削除
       });
-      //この時点で一般タグリストには実在確認のとれた要素のみが残っており、tmpSetは原則空となる（ただしtmpSetには雛形になかったものが入っている可能性があるので、ちゃんと別途処理する）。
+      //この時点で一般タグリストには実在確認のとれた要素のみが残っており、tmpSetは基本空となっているはずである（ただしtmpSetには雛形になかったものが入っている可能性があるので、ちゃんと別途処理する）。
       //一般タグリストを配列化
       const tmpCommonTagsArray = [];
       commonTagsMap.forEach((v, k) => {

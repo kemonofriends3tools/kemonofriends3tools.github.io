@@ -513,7 +513,7 @@ export default {
         name: { value: '', placeholder: '先にカテゴリーを選んで下さい' },
         tags: {
           valueOK: [],
-          valueNG: [], //NGタグ初期値
+          valueNG: ['恒常', '有料パック'], //NGタグ初期値
           placeholder: 'タグ',
         },
       },
@@ -1023,7 +1023,7 @@ export default {
 
       //以上の情報を利用し、最終的な特殊タグリストを作る
       const tmpSPTagsArray = [];
-      tmpSPTagsArray.push('◆表内絞り込み ━━━━━━━━');
+      tmpSPTagsArray.push('◆アイテム区分 ━━━━━━━━');
       tmpIndexArray.forEach(i => tmpSPTagsArray.push(tmpSPOKTags[i]));
 
       //次に、一般タグリストを作る。

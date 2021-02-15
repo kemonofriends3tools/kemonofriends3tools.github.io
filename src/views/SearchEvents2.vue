@@ -904,34 +904,33 @@ export default {
     },
     getNameList() {
       //SearchFilterのnameにセットするlistを返す。
-      //tags選択の有無によって処理を切り替える。(単純にfilteredAttributesからlistを作り出すとnameを再選択しようとしても既に絞り込み済のため同じ条件のものしか出てこず、意味をなさない為)
-      if (0 < this.SearchFilter.tags.valueNG.length || 0 < this.SearchFilter.tags.valueOK.length) {
-        //tag指定がある場合、filteredAttributesは既にtagsで絞り込まれている。なのでfilteredAttributesを走査してnameを収集する。
-        const tmpSet = new Set();
-        const tmpCategory = this.SearchFilter.category.value;
-        if (tmpCategory) {
-          if (tmpCategory == '衣装(衣装名から)') {
-            // note:Map.keys()はIteratorなのでArray.from()にいれて配列化している
-            this.filteredAttributes.forEach(i =>
-              i.customData.衣装.forEach(j => Array.from(j.keys()).forEach(k => tmpSet.add(k)))
-            );
-          } else if (tmpCategory == '衣装(フレンズ名から)') {
-            this.filteredAttributes.forEach(i =>
-              i.customData.衣装.forEach(j => j.forEach(k => k.forEach(l => tmpSet.add(l))))
-            );
-          } else {
-            //フレンズ、フォト、家具、インテリア、ピクニックアイテム、その他アイテム
-            this.filteredAttributes.forEach(i =>
-              i.customData[tmpCategory].forEach(j => j.forEach(k => tmpSet.add(k)))
-            );
-          }
+      //単純にfilteredAttributesからnameを収集するのは上手く行かない点に注意。
+      //nameが既に選択済で再選択する場合、filteredAttributesは既に絞り込み済であり、そこから収集しても同じ条件のものしか出てこず、都合が悪い。
+      //回避方法としてはmasterから再度収集する方法もあるが、現在はv-selectのほうに
+      //@search:focus="SearchFilter.name.value = ''"
+      //などとしてnameを選択時（フォーカス時）にnameをクリアし、filteredAttributesの内容を指名前に戻すことにしている。これによりfilteredAttributesを普通に収集すれば目的を果たせる。
+      const tmpSet = new Set();
+      const tmpCategory = this.SearchFilter.category.value;
+      //カテゴリー選択時のみ処理（選択されていない場合は空のSetが渡り、v-selectのほうで要素なしメッセージを出してくれる）
+      if (tmpCategory) {
+        if (tmpCategory == '衣装(衣装名から)') {
+          // note:Map.keys()はIteratorなのでArray.from()にいれて配列化している
+          this.filteredAttributes.forEach(i =>
+            i.customData.衣装.forEach(j => Array.from(j.keys()).forEach(k => tmpSet.add(k)))
+          );
+        } else if (tmpCategory == '衣装(フレンズ名から)') {
+          this.filteredAttributes.forEach(i =>
+            i.customData.衣装.forEach(j => j.forEach(k => k.forEach(l => tmpSet.add(l))))
+          );
+        } else {
+          //フレンズ、フォト、家具、インテリア、ピクニックアイテム、その他アイテム
+          this.filteredAttributes.forEach(i =>
+            i.customData[tmpCategory].forEach(j => j.forEach(k => tmpSet.add(k)))
+          );
         }
-        //配列にしてsortした上で返す
-        return Array.from(tmpSet).sort();
-      } else {
-        //tag指定が無い場合はmasterNameListから初期リストを取り出す。
-        return this.masterNameList.get(this.SearchFilter.category.value);
       }
+      //配列にしてsortした上で返す
+      return Array.from(tmpSet).sort();
     },
     getTagList() {
       //一般タグリストの雛形。最終的に並び順はこのとおりとなる。データに存在しないタグはここから自動で抜かれる。
@@ -1118,7 +1117,8 @@ export default {
     //vue-text-hightlightに渡すqueriesを作る。キャッシュの効くcomputedとして提供する。
     getHighlightQueries() {
       //指名検索の名前があるなら単にそれを返す。そうでない場合は空文字を返す(これをチェックしないとvue-text-hightlightにundefinedが渡ってエラーとなる)。
-      return this.SearchFilter.name.values ? this.SearchFilter.name.values : '';
+      console.log(this.SearchFilter.name.value);
+      return this.SearchFilter.name.value ? this.SearchFilter.name.value : '';
     },
   },
   methods: {

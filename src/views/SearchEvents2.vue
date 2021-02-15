@@ -469,7 +469,7 @@ import eventsJson from '../json/events.json';
 import resizableTable from '@/mixins/resizableTable.js';
 
 //v-calendarが利用可能な色リスト。createdの他computed等で利用しそうなのでここにいれておく。
-const color = [
+const calendarColor = [
   'red',
   'orange',
   'yellow',
@@ -674,7 +674,6 @@ export default {
 
     //eventsJson解析ループ関連変数
     let id = 1; //id。v-for等ループ用に振る。
-    let colorIndex = 0; //色リストの何番目を使用するかのインデックス
 
     //eventsJson解析
     for (const row of eventsJson) {
@@ -685,7 +684,7 @@ export default {
       //jsonの行からv-calendarに渡すオブジェクトを生成。まずは単純代入できるものをそのまま渡す。
       const tmpEvent = {
         id: id++,
-        highlight: color[colorIndex++], //色は１つずつずらす
+        highlight: '', //色は後ほどfilteredAttributes()にて正しいものを入れる
         popover: {
           label: row.イベント名,
         },
@@ -776,9 +775,6 @@ export default {
           }
         }
       }
-
-      //色配列を指すインデックスが最後まで行ってたら最初に戻す。
-      if (color.length <= colorIndex) colorIndex = 0;
 
       //masterAttributesに追加
       this.masterAttributes.push(tmpEvent);
@@ -886,6 +882,14 @@ export default {
           }
         }
       }
+
+      //色(highlight)を付けて回る。
+      let colorIndex = 0; //色リストの何番目を使用するかのインデックス
+      tmpAttr.forEach(i => {
+        if (calendarColor.length <= colorIndex) colorIndex = 0; //色配列を指すインデックスが最後まで行ってたら最初に戻す。
+        i.highlight = calendarColor[colorIndex++]; //色は１つずつずらす。
+      });
+
       //絞り込み結果を返す
       return tmpAttr;
     },
@@ -990,7 +994,7 @@ export default {
       if (tmpCategoryValue == '衣装(フレンズ名から)') tmpCategoryValue = '衣装';
 
       //特殊タグ用一時配列を初期化する。指名検索のカテゴリーが選択されているかどうかで処理をわける。
-      if (this.originalColumn.has(tmpCategoryValue)) {
+      if (tmpCategoryValue) {
         //カテゴリー選択済。カテゴリーにて指定された特定アイテムに関する特殊タグのみを取り出す。
         for (const [iKey, iArray] of this.originalColumn) {
           if (iKey == tmpCategoryValue) {

@@ -551,12 +551,6 @@ export default {
         },
       },
 
-      //SearchFilterのnameにセットする値の元となるlist。createdにて初期化。
-      //全フレンズ、フォト名等のリスト（重複排除済）。SearchFilterの選択に応じてnameに入れる。
-      //中身は('フレンズ',[])という形式のMap。
-      //あくまでベースなので、実際に取得する場合は別途methodを利用する。
-      masterNameList: new Map(),
-
       //"フレンズ(招待または配布)","フレンズ(招待)"といった特殊タグを保存するMap。
       //keyは'フレンズ','フォト'等のアイテム名文字列
       //Valueは特殊タグ文字列の配列で、結合特殊タグふくめ最終的な表示順で入っている。
@@ -669,14 +663,6 @@ export default {
     //eventsJsonからevent情報全部入りのmasterAttributesを作る。
     //その過程で出現したカテゴリ、タグ、アイテム名（フレンズ、フォト、衣装、家具、インテリア等）のリストも生成する。
 
-    //指名検索で初期値として使用するユニークなフレンズ、フォト等名を収集するSet()を保持するMap()
-    const uniqueSetMap = new Map();
-    originalCategoryItems.forEach(i => uniqueSetMap.set(i, new Set()));
-    //'衣装'は２つにわけて管理するので、'衣装'を落として'衣装(衣装名から)','衣装フレンズ'の２つを追加する
-    uniqueSetMap.delete('衣装');
-    uniqueSetMap.set('衣装(衣装名から)', new Set());
-    uniqueSetMap.set('衣装(フレンズ名から)', new Set());
-
     //各アイテムに'招待', '特効', '配布', '引換', '対象'といった分類が１つでも存在するかを記録するSetを保持するMap()
     const tmpOriginalColumnExist = new Map();
     originalCategoryItems.forEach(i => tmpOriginalColumnExist.set(i, new Set()));
@@ -755,10 +741,6 @@ export default {
                 const tmpName = l.split(':')[0];
                 const tmpList = l.split(':')[1].split('/');
                 tmpClothMap.set(tmpName, tmpList);
-                const tmpSet1 = uniqueSetMap.get('衣装(衣装名から)'); //衣装名ユニークセットを取得
-                tmpSet1.add(tmpName); //衣装名をユニークセットに追加
-                const tmpSet2 = uniqueSetMap.get('衣装(フレンズ名から)'); //衣装フレンズ名ユニークセットを取得
-                tmpList.forEach(k => tmpSet2.add(k)); //衣装対象フレンズをユニークセットに追加
               }
               tmpEvent.customData[iKey].set(j, tmpClothMap); //配列をMapに格納
               tmpEvent.customData.tags.push(iKey + '(' + j + ')'); //この分類名が存在することをtagに追加
@@ -774,8 +756,6 @@ export default {
             if (tmpOutput[tmpOutputIndex].startsWith(tmpId + ':')) {
               const tmpArray = tmpOutput[tmpOutputIndex].substring((tmpId + ':').length).split(','); //配列切り出し(先頭は元カラムを示すidなのでそこを削り、残りをカンマでsplitする。)
               tmpEvent.customData[iKey].set(j, tmpArray); //配列をMapに格納
-              const tmpSet = uniqueSetMap.get(iKey); //ユニークセットを取得
-              tmpArray.forEach(k => tmpSet.add(k)); //今回出現した配列要素をユニークセットへ追加
               tmpEvent.customData.tags.push(iKey + '(' + j + ')'); //この分類名が存在することをtagに追加
               tmpColumnExistSet.add(j); //この分類名が存在することを記録
               tmpOutputIndex++; //処理したらindexを次にずらす
@@ -816,9 +796,6 @@ export default {
         }
       }
     }
-
-    //その他uniqueSetMapに登録したもの。sortして渡す。
-    uniqueSetMap.forEach((v, k) => this.masterNameList.set(k, Array.from(v).sort()));
   },
   mounted() {
     //カレンダーの初期表示列数を設定する。
@@ -1117,7 +1094,6 @@ export default {
     //vue-text-hightlightに渡すqueriesを作る。キャッシュの効くcomputedとして提供する。
     getHighlightQueries() {
       //指名検索の名前があるなら単にそれを返す。そうでない場合は空文字を返す(これをチェックしないとvue-text-hightlightにundefinedが渡ってエラーとなる)。
-      console.log(this.SearchFilter.name.value);
       return this.SearchFilter.name.value ? this.SearchFilter.name.value : '';
     },
   },

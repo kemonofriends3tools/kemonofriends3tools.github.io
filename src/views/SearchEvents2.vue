@@ -1122,15 +1122,13 @@ export default {
         this.SearchFilter.name.placeholder = '先にカテゴリーを選んで下さい';
       }
 
-      //table表示切替。カテゴリーが選択されている場合、選択されたカテゴリーの列表示をONに、それ以外はoffにする。
-      if (this.SearchFilter.category.value) {
-        let tmpStr = this.SearchFilter.category.value;
-        if (tmpStr == '衣装(衣装名から)' || tmpStr == '衣装(フレンズ名から)') tmpStr = '衣装';
-        this.tableColumns.forEach(i => {
-          //tmpStrがラベルに一致してるなら表示に。それ以外なら非表示に。
-          if (originalCategoryItems.includes(i.label)) i.hidden = i.label == tmpStr ? false : true;
-        });
-      }
+      //table表示切替。選択されたカテゴリーの列表示をONに、それ以外はoffにする。（非選択の場合全てoffになる。）
+      let tmpStr = this.SearchFilter.category.value;
+      if (tmpStr == '衣装(衣装名から)' || tmpStr == '衣装(フレンズ名から)') tmpStr = '衣装';
+      this.tableColumns.forEach(i => {
+        //tmpStrがラベルに一致してるなら表示に。それ以外なら非表示に。
+        if (originalCategoryItems.includes(i.label)) i.hidden = i.label == tmpStr ? false : true;
+      });
     },
     //行class取得。classの定義はcustom-vue-good-table.scssに。
     getRowStyleClass(row) {

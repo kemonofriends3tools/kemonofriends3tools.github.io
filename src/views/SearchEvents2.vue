@@ -396,16 +396,20 @@
             "
           >
             <template v-if="props.row.customData[props.column.label].size">
-              <p
+              <div
                 v-for="[key, value] of props.row.customData[props.column.label]"
                 :key="key"
                 class="m-1"
               >
                 <span :class="getBadgeLikeClass(key)">{{ key }}</span>
-                <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
-                  {{ value.join(',') }}
-                </text-highlight>
-              </p>
+                <ul class="list-unstyled pl-2">
+                  <li v-for="i of value" :key="i">
+                    <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
+                      {{ i }}
+                    </text-highlight>
+                  </li>
+                </ul>
+              </div>
             </template>
             <template v-else>-</template>
           </template>
@@ -418,16 +422,18 @@
               >
                 <span :class="getBadgeLikeClass(ikey)">{{ ikey }}</span>
                 <div v-for="[jkey, jvalue] of ivalue" :key="jkey">
-                  <p class="m-0 ml-2 font-weight-bold">
+                  <p class="m-0 pl-2 font-weight-bold">
                     <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
                       {{ jkey }}
                     </text-highlight>
                   </p>
-                  <p class="m-0 ml-4">
-                    <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
-                      {{ jvalue.join(',') }}
-                    </text-highlight>
-                  </p>
+                  <ul class="list-unstyled pl-4">
+                    <li v-for="i of jvalue" :key="i">
+                      <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
+                        {{ i }}
+                      </text-highlight>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </template>

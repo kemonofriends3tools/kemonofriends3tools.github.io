@@ -477,6 +477,20 @@ const color = [
   'gray',
 ];
 
+//カテゴリーリストのアイテム（大本）。
+//スプレッドシートのアイテム定義と同一であり、衣装を分割していないオリジナル。
+//表の表示切り替え可能項目のうち、アイテムに関するボタン名でもある。
+//様々な処理でよく利用するので、ここに定数として定義しておく。
+const originalCategoryItems = [
+  'フレンズ',
+  'フォト',
+  '衣装',
+  '家具',
+  'インテリア',
+  'ピクニックアイテム',
+  'その他アイテム',
+];
+
 export default {
   mixins: [resizableTable],
   name: 'SearchEvents2',
@@ -635,24 +649,15 @@ export default {
     //eventsJsonからevent情報全部入りのmasterAttributesを作る。
     //その過程で出現したカテゴリ、タグ、アイテム名（フレンズ、フォト、衣装、家具、インテリア等）のリストも生成する。
 
-    //以下で初期化等に利用するカテゴリーリスト。SearchFilter.category.listとは'衣装'の部分が異なる。
-    const tmpCategoryList = [
-      'フレンズ',
-      'フォト',
-      '衣装',
-      '家具',
-      'インテリア',
-      'ピクニックアイテム',
-      'その他アイテム',
-    ];
-
     //originalColumns初期化。スプレッドシート上のカラム列情報を再現するためのデータを定義する。
-    tmpCategoryList.forEach(i => this.originalColumn.set(i, ['招待', '特効', '配布', '引換']));
+    originalCategoryItems.forEach(i =>
+      this.originalColumn.set(i, ['招待', '特効', '配布', '引換'])
+    );
     this.originalColumn.set('フレンズ', ['招待', '特効', '配布', '引換', '対象']); //フレンズだけは'対象'があるのでvalueごと上書きする。
 
     //指名検索で初期値として使用するユニークなフレンズ、フォト等名を収集するSet()を保持するMap()
     const uniqueSetMap = new Map();
-    tmpCategoryList.forEach(i => uniqueSetMap.set(i, new Set()));
+    originalCategoryItems.forEach(i => uniqueSetMap.set(i, new Set()));
     //'衣装'は２つにわけて管理するので、'衣装'を落として'衣装(衣装名から)','衣装フレンズ'の２つを追加する
     uniqueSetMap.delete('衣装');
     uniqueSetMap.set('衣装(衣装名から)', new Set());
@@ -660,7 +665,7 @@ export default {
 
     //各アイテムに'招待', '特効', '配布', '引換', '対象'といった分類が１つでも存在するかを記録するSetを保持するMap()
     const tmpOriginalColumnExist = new Map();
-    tmpCategoryList.forEach(i => tmpOriginalColumnExist.set(i, new Set()));
+    originalCategoryItems.forEach(i => tmpOriginalColumnExist.set(i, new Set()));
 
     //eventsJson解析ループ関連変数
     let id = 1; //id。v-for等ループ用に振る。
@@ -1080,15 +1085,7 @@ export default {
       this.tableColumns.forEach(i => {
         if (
           //表示制御対象項目（これ以外はpopoverで表示させる対象ではない）
-          [
-            'フレンズ',
-            'フォト',
-            '衣装',
-            '家具',
-            'インテリア',
-            'ピクニックアイテム',
-            'その他アイテム',
-          ].some(j => j == i.label)
+          originalCategoryItems.some(j => j == i.label)
         ) {
           if (!i.hidden) outMap.set(i.label, defaultColumns);
         }
@@ -1120,13 +1117,14 @@ export default {
         this.SearchFilter.name.placeholder = '先にカテゴリーを選んで下さい';
       }
 
-      //table表示切替。カテゴリーが選択されている場合、選択されたカテゴリーの列表示をONにする。
-      //尚、非選択カテゴリーの非表示化などは行わない（ユーザーの操作の邪魔になると予想される為）。
+      //table表示切替。カテゴリーが選択されている場合、選択されたカテゴリーの列表示をONに、それ以外はoffにする。
       if (this.SearchFilter.category.value) {
         let tmpStr = this.SearchFilter.category.value;
         if (tmpStr == '衣装(衣装名から)' || tmpStr == '衣装(フレンズ名から)') tmpStr = '衣装';
-        //findで条件に一致する最初の要素を探し出し、表示処理を行う。
-        this.tableColumns.find(i => i.label == tmpStr).hidden = false;
+        this.tableColumns.forEach(i => {
+          //tmpStrがラベルに一致してるなら表示に。それ以外なら非表示に。
+          if (originalCategoryItems.includes(i.label)) i.hidden = i.label == tmpStr ? false : true;
+        });
       }
     },
     //行class取得。classの定義はcustom-vue-good-table.scssに。

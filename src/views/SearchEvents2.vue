@@ -374,7 +374,7 @@
         </template>
         <template v-slot:table-row="props">
           <template v-if="props.column.label == 'イベント名'">
-            <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
+            <text-highlight :queries="getHighlightQueries" :caseSensitive="false">
               {{ props.formattedRow[props.column.field] }}
             </text-highlight>
             <a :href="props.row.customData.url" target="_blank" rel="noopener">
@@ -404,7 +404,7 @@
                 <span :class="getBadgeLikeClass(key)">{{ key }}</span>
                 <ul class="list-unstyled pl-2">
                   <li v-for="i of value" :key="i">
-                    <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
+                    <text-highlight :queries="getHighlightQueries" :caseSensitive="false">
                       {{ i }}
                     </text-highlight>
                   </li>
@@ -423,13 +423,13 @@
                 <span :class="getBadgeLikeClass(ikey)">{{ ikey }}</span>
                 <div v-for="[jkey, jvalue] of ivalue" :key="jkey">
                   <p class="m-0 pl-2 font-weight-bold">
-                    <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
+                    <text-highlight :queries="getHighlightQueries" :caseSensitive="false">
                       {{ jkey }}
                     </text-highlight>
                   </p>
                   <ul class="list-unstyled pl-4">
                     <li v-for="i of jvalue" :key="i">
-                      <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
+                      <text-highlight :queries="getHighlightQueries" :caseSensitive="false">
                         {{ i }}
                       </text-highlight>
                     </li>
@@ -449,7 +449,7 @@
             </span>
           </div>
           <template v-else>
-            <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
+            <text-highlight :queries="getHighlightQueries" :caseSensitive="false">
               {{ props.formattedRow[props.column.field] }}
             </text-highlight>
           </template>
@@ -1114,6 +1114,11 @@ export default {
     getCalendarStyle() {
       //カレンダーの表示スタイルを返す。カレンダー非表示の時には薄くする。
       return this.inputCalendarVisible ? 'opacity: 1;margin:auto;' : 'opacity: 0.2;margin:auto;';
+    },
+    //vue-text-hightlightに渡すqueriesを作る。キャッシュの効くcomputedとして提供する。
+    getHighlightQueries() {
+      //指名検索の名前があるなら単にそれを返す。そうでない場合は空文字を返す(これをチェックしないとvue-text-hightlightにundefinedが渡ってエラーとなる)。
+      return this.SearchFilter.name.values ? this.SearchFilter.name.values : '';
     },
   },
   methods: {

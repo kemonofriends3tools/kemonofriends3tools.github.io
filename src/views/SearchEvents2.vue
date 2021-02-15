@@ -496,6 +496,20 @@ const originalCategoryItems = [
   'その他アイテム',
 ];
 
+//スプレッドシート上の列定義
+//主にcreated内でjsonを読み込む際に元の列を再現するために使用されるが、tagリスト生成等でもこの構造があると便利なのでここに定義する。
+//Mapなので順序が保証される。なのでforEach等でループすれば元のカラム順通りになる。
+//元はcreated内でループで初期化していたが処理等を考慮し定数化した。
+const originalColumn = new Map([
+  ['フレンズ', ['招待', '特効', '配布', '引換', '対象']], //フレンズだけは'対象'がある
+  ['フォト', ['招待', '特効', '配布', '引換']],
+  ['衣装', ['招待', '特効', '配布', '引換']],
+  ['家具', ['招待', '特効', '配布', '引換']],
+  ['インテリア', ['招待', '特効', '配布', '引換']],
+  ['ピクニックアイテム', ['招待', '特効', '配布', '引換']],
+  ['その他アイテム', ['招待', '特効', '配布', '引換']],
+]);
+
 export default {
   mixins: [resizableTable],
   name: 'SearchEvents2',
@@ -543,6 +557,14 @@ export default {
       //あくまでベースなので、実際に取得する場合は別途methodを利用する。
       masterNameList: new Map(),
 
+      //"フレンズ(招待または配布)","フレンズ(招待)"といった特殊タグを保存するMap。
+      //keyは'フレンズ','フォト'等のアイテム名文字列
+      //Valueは特殊タグ文字列の配列で、結合特殊タグふくめ最終的な表示順で入っている。
+      //特殊タグが存在しないカテゴリーの場合はKey自体存在しない（指名で使う際にはhasで存在確認すること）。
+      //初期化はcreated内にてjsonの内容を確認し、特殊タグを作って保存している。つまり収録されている特殊タグは全て実存するタグである。
+      //主にgetTagList()にて使い回すことを目的としている。
+      masterSPTagMap: new Map(),
+
       //"フレンズ(招待または配布)"といった結合特殊タグを保存するMap。
       //keyは'フレンズ','フォト'等文字列
       //Valueはオブジェクトで、targetTagsにはフレンズ(招待) といった形式のタグ文字列で、
@@ -551,13 +573,6 @@ export default {
       //created内にて実際にjsonの内容を確認して作り出す。これはcreated内にてtagとして追加する他、
       //SearchFilterのtagにセットするリストを作るときにも参照する。
       specialTagMap: new Map(),
-
-      //json元となるスプレッドシート上の分類とカラム名を定義(再現)するためのデータ色々。createdにて初期化。
-      //主にcreated内でjsonを読み込む際に使用されるが、tagリスト生成等でもこの構造があると便利なのでここに持っておく。
-      //Mapなので順序が保証される。なのでforEach等でループすれば元のカラム順通りになる。
-      //keyは'フレンズ','フォト'等文字列
-      //valueは基本['招待', '特効', '配布', '引換']
-      originalColumn: new Map(),
 
       //calendarの初期表示数
       inputCalendarVisible: false,
@@ -654,12 +669,6 @@ export default {
     //eventsJsonからevent情報全部入りのmasterAttributesを作る。
     //その過程で出現したカテゴリ、タグ、アイテム名（フレンズ、フォト、衣装、家具、インテリア等）のリストも生成する。
 
-    //originalColumns初期化。スプレッドシート上のカラム列情報を再現するためのデータを定義する。
-    originalCategoryItems.forEach(i =>
-      this.originalColumn.set(i, ['招待', '特効', '配布', '引換'])
-    );
-    this.originalColumn.set('フレンズ', ['招待', '特効', '配布', '引換', '対象']); //フレンズだけは'対象'があるのでvalueごと上書きする。
-
     //指名検索で初期値として使用するユニークなフレンズ、フォト等名を収集するSet()を保持するMap()
     const uniqueSetMap = new Map();
     originalCategoryItems.forEach(i => uniqueSetMap.set(i, new Set()));
@@ -730,7 +739,7 @@ export default {
       tmpId++; //処理したらidを次にずらす
 
       //上で作ったMap中の配列でループ処理
-      for (const [iKey, iArray] of this.originalColumn) {
+      for (const [iKey, iArray] of originalColumn) {
         const tmpColumnExistSet = tmpOriginalColumnExist.get(iKey); //現在のアイテムに対する存在確認Setを取り出す
         if (iKey == '衣装') {
           //衣装の場合はMapへの格納方法が異なるので処理を分ける
@@ -996,7 +1005,7 @@ export default {
       //特殊タグ用一時配列を初期化する。指名検索のカテゴリーが選択されているかどうかで処理をわける。
       if (tmpCategoryValue) {
         //カテゴリー選択済。カテゴリーにて指定された特定アイテムに関する特殊タグのみを取り出す。
-        for (const [iKey, iArray] of this.originalColumn) {
+        for (const [iKey, iArray] of originalColumn) {
           if (iKey == tmpCategoryValue) {
             //対象カテゴリー
             //結合文字列 ex: フレンズ(招待または配布)
@@ -1015,7 +1024,7 @@ export default {
         }
       } else {
         //カテゴリー未選択。この場合全ての特殊タグをOKタグ配列へセットする。
-        for (const [iKey, iArray] of this.originalColumn) {
+        for (const [iKey, iArray] of originalColumn) {
           //結合文字列が存在するなら入れる ex: フレンズ(招待または配布)
           if (this.specialTagMap.has(iKey)) {
             tmpSPOKTags.push(this.specialTagMap.get(iKey).combineString);

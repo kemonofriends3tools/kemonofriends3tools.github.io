@@ -30,15 +30,15 @@
             <b-row class="w-100">
               <b-col cols="12" class="px-1">
                 <b-alert show variant="warning" class="small mb-1">
-                  この欄にあるタグ検索と指名検索はand条件で連動しており、選択できる項目が動的に絞り込まれます。<br />
-                  なにかおかしいなと思ったら他の検索条件を見直してみてください（詳しくは「使い方」を押して下さい）。
+                  この欄にある指名検索とタグ検索はAND条件で連動しており、選択できる項目が動的に絞り込まれます。<br />
+                  なにかおかしいなと思ったら他の検索条件を見直してみてください（詳しくは「使い方」を参照）。
                 </b-alert>
               </b-col>
               <b-col cols="12" class="px-1">
                 <b-collapse id="collapse0">
                   <b-alert show variant="info" class="small mb-1">
                     <p>
-                      上にある通り、各入力欄で選択出来る項目は他の検索条件の影響を受けます。<br />
+                      上にある通り、各入力欄で選択出来る項目は、他の検索条件の影響を受けます。<br />
                       例えば除外タグに『有料パック』があると、指名検索でピクニックを選んでも項目はほとんど出てきません（ピクニックアイテムはほぼ全てが有料パックの為）。<br />
                       逆に指名検索で『フレンズ＞ドール』と選ぶと、タグではドールが関係したイベントに関連したものしか出てきません。<br />
                       なにかおかしいな？足りないな？と思ったらこの欄の条件全体を見直してみてください。一般的にはタグの指定に問題があることが多いので、なにか変だなとおもったらタグの指定を外してみて下さい。
@@ -124,7 +124,7 @@
                 <b-collapse id="collapse2">
                   <b-alert show variant="info" class="small mb-1">
                     ２：含めたい／除外したいタグを指定します。<br />
-                    除外の方にデフォルトで『恒常』や『有料パック』が含まれている点に注意して下さい。これらは一般的に邪魔になることが多いと思われるため指定していますが、恒常フレンズや家具等を探すときには外す必要があります。
+                    除外の方にデフォルトで『恒常』や『有料パック』が含まれている点に注意して下さい。これらは一般的に邪魔になることが多いと思われるため指定していますが、恒常フレンズや家具等を探している場合は外す必要があるかもしれません。
                   </b-alert>
                 </b-collapse>
               </b-col>
@@ -190,8 +190,7 @@
                   <b-collapse id="collapse3">
                     <b-alert show variant="info" class="small mb-1">
                       ３：一番下の表の表示列、及びカレンダーのポップアップ内の表示項目を切り替えます。<br />
-                      表示列・項目を切り替えるだけなので、ここを触ってもデータ行数が変化することはありません。<br />
-                      ただしここの選択は４の『表内検索』と深く関係しています。４の『表内検索』はここで表示させたものが検索対象となります。
+                      表示列・項目を切り替えるだけなので、ここを触ってもデータ行数が変化することはありません。
                     </b-alert>
                   </b-collapse>
                 </b-col>
@@ -375,7 +374,7 @@
         </template>
         <template v-slot:table-row="props">
           <template v-if="props.column.label == 'イベント名'">
-            <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
+            <text-highlight :queries="getHighlightQueries" :caseSensitive="false">
               {{ props.formattedRow[props.column.field] }}
             </text-highlight>
             <a :href="props.row.customData.url" target="_blank" rel="noopener">
@@ -397,16 +396,20 @@
             "
           >
             <template v-if="props.row.customData[props.column.label].size">
-              <p
+              <div
                 v-for="[key, value] of props.row.customData[props.column.label]"
                 :key="key"
                 class="m-1"
               >
                 <span :class="getBadgeLikeClass(key)">{{ key }}</span>
-                <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
-                  {{ value.join(',') }}
-                </text-highlight>
-              </p>
+                <ul class="list-unstyled pl-2">
+                  <li v-for="i of value" :key="i">
+                    <text-highlight :queries="getHighlightQueries" :caseSensitive="false">
+                      {{ i }}
+                    </text-highlight>
+                  </li>
+                </ul>
+              </div>
             </template>
             <template v-else>-</template>
           </template>
@@ -419,16 +422,18 @@
               >
                 <span :class="getBadgeLikeClass(ikey)">{{ ikey }}</span>
                 <div v-for="[jkey, jvalue] of ivalue" :key="jkey">
-                  <p class="m-0 ml-2 font-weight-bold">
-                    <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
+                  <p class="m-0 pl-2 font-weight-bold">
+                    <text-highlight :queries="getHighlightQueries" :caseSensitive="false">
                       {{ jkey }}
                     </text-highlight>
                   </p>
-                  <p class="m-0 ml-4">
-                    <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
-                      {{ jvalue.join(',') }}
-                    </text-highlight>
-                  </p>
+                  <ul class="list-unstyled pl-4">
+                    <li v-for="i of jvalue" :key="i">
+                      <text-highlight :queries="getHighlightQueries" :caseSensitive="false">
+                        {{ i }}
+                      </text-highlight>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </template>
@@ -444,7 +449,7 @@
             </span>
           </div>
           <template v-else>
-            <text-highlight :queries="SearchFilter.name.value" :caseSensitive="false">
+            <text-highlight :queries="getHighlightQueries" :caseSensitive="false">
               {{ props.formattedRow[props.column.field] }}
             </text-highlight>
           </template>
@@ -464,7 +469,7 @@ import eventsJson from '../json/events.json';
 import resizableTable from '@/mixins/resizableTable.js';
 
 //v-calendarが利用可能な色リスト。createdの他computed等で利用しそうなのでここにいれておく。
-const color = [
+const calendarColor = [
   'red',
   'orange',
   'yellow',
@@ -476,6 +481,34 @@ const color = [
   'pink',
   'gray',
 ];
+
+//カテゴリーリストのアイテム（大本）。
+//スプレッドシートのアイテム定義と同一であり、衣装を分割していないオリジナル。
+//表の表示切り替え可能項目のうち、アイテムに関するボタン名でもある。
+//様々な処理でよく利用するので、ここに定数として定義しておく。
+const originalCategoryItems = [
+  'フレンズ',
+  'フォト',
+  '衣装',
+  '家具',
+  'インテリア',
+  'ピクニックアイテム',
+  'その他アイテム',
+];
+
+//スプレッドシート上の列定義
+//主にcreated内でjsonを読み込む際に元の列を再現するために使用されるが、tagリスト生成等でもこの構造があると便利なのでここに定義する。
+//Mapなので順序が保証される。なのでforEach等でループすれば元のカラム順通りになる。
+//元はcreated内でループで初期化していたが処理等を考慮し定数化した。
+const originalColumn = new Map([
+  ['フレンズ', ['招待', '特効', '配布', '引換', '対象']], //フレンズだけは'対象'がある
+  ['フォト', ['招待', '特効', '配布', '引換']],
+  ['衣装', ['招待', '特効', '配布', '引換']],
+  ['家具', ['招待', '特効', '配布', '引換']],
+  ['インテリア', ['招待', '特効', '配布', '引換']],
+  ['ピクニックアイテム', ['招待', '特効', '配布', '引換']],
+  ['その他アイテム', ['招待', '特効', '配布', '引換']],
+]);
 
 export default {
   mixins: [resizableTable],
@@ -513,16 +546,10 @@ export default {
         name: { value: '', placeholder: '先にカテゴリーを選んで下さい' },
         tags: {
           valueOK: [],
-          valueNG: [], //NGタグ初期値
+          valueNG: ['恒常', '有料パック'], //NGタグ初期値
           placeholder: 'タグ',
         },
       },
-
-      //SearchFilterのnameにセットする値の元となるlist。createdにて初期化。
-      //全フレンズ、フォト名等のリスト（重複排除済）。SearchFilterの選択に応じてnameに入れる。
-      //中身は('フレンズ',[])という形式のMap。
-      //あくまでベースなので、実際に取得する場合は別途methodを利用する。
-      masterNameList: new Map(),
 
       //"フレンズ(招待または配布)"といった結合特殊タグを保存するMap。
       //keyは'フレンズ','フォト'等文字列
@@ -532,13 +559,6 @@ export default {
       //created内にて実際にjsonの内容を確認して作り出す。これはcreated内にてtagとして追加する他、
       //SearchFilterのtagにセットするリストを作るときにも参照する。
       specialTagMap: new Map(),
-
-      //json元となるスプレッドシート上の分類とカラム名を定義(再現)するためのデータ色々。createdにて初期化。
-      //主にcreated内でjsonを読み込む際に使用されるが、tagリスト生成等でもこの構造があると便利なのでここに持っておく。
-      //Mapなので順序が保証される。なのでforEach等でループすれば元のカラム順通りになる。
-      //keyは'フレンズ','フォト'等文字列
-      //valueは基本['招待', '特効', '配布', '引換']
-      originalColumn: new Map(),
 
       //calendarの初期表示数
       inputCalendarVisible: false,
@@ -635,36 +655,12 @@ export default {
     //eventsJsonからevent情報全部入りのmasterAttributesを作る。
     //その過程で出現したカテゴリ、タグ、アイテム名（フレンズ、フォト、衣装、家具、インテリア等）のリストも生成する。
 
-    //以下で初期化等に利用するカテゴリーリスト。SearchFilter.category.listとは'衣装'の部分が異なる。
-    const tmpCategoryList = [
-      'フレンズ',
-      'フォト',
-      '衣装',
-      '家具',
-      'インテリア',
-      'ピクニックアイテム',
-      'その他アイテム',
-    ];
-
-    //originalColumns初期化。スプレッドシート上のカラム列情報を再現するためのデータを定義する。
-    tmpCategoryList.forEach(i => this.originalColumn.set(i, ['招待', '特効', '配布', '引換']));
-    this.originalColumn.set('フレンズ', ['招待', '特効', '配布', '引換', '対象']); //フレンズだけは'対象'があるのでvalueごと上書きする。
-
-    //指名検索で初期値として使用するユニークなフレンズ、フォト等名を収集するSet()を保持するMap()
-    const uniqueSetMap = new Map();
-    tmpCategoryList.forEach(i => uniqueSetMap.set(i, new Set()));
-    //'衣装'は２つにわけて管理するので、'衣装'を落として'衣装(衣装名から)','衣装フレンズ'の２つを追加する
-    uniqueSetMap.delete('衣装');
-    uniqueSetMap.set('衣装(衣装名から)', new Set());
-    uniqueSetMap.set('衣装(フレンズ名から)', new Set());
-
     //各アイテムに'招待', '特効', '配布', '引換', '対象'といった分類が１つでも存在するかを記録するSetを保持するMap()
     const tmpOriginalColumnExist = new Map();
-    tmpCategoryList.forEach(i => tmpOriginalColumnExist.set(i, new Set()));
+    originalCategoryItems.forEach(i => tmpOriginalColumnExist.set(i, new Set()));
 
     //eventsJson解析ループ関連変数
     let id = 1; //id。v-for等ループ用に振る。
-    let colorIndex = 0; //色リストの何番目を使用するかのインデックス
 
     //eventsJson解析
     for (const row of eventsJson) {
@@ -675,7 +671,7 @@ export default {
       //jsonの行からv-calendarに渡すオブジェクトを生成。まずは単純代入できるものをそのまま渡す。
       const tmpEvent = {
         id: id++,
-        highlight: color[colorIndex++], //色は１つずつずらす
+        highlight: '', //色は後ほどfilteredAttributes()にて正しいものを入れる
         popover: {
           label: row.イベント名,
         },
@@ -721,7 +717,7 @@ export default {
       tmpId++; //処理したらidを次にずらす
 
       //上で作ったMap中の配列でループ処理
-      for (const [iKey, iArray] of this.originalColumn) {
+      for (const [iKey, iArray] of originalColumn) {
         const tmpColumnExistSet = tmpOriginalColumnExist.get(iKey); //現在のアイテムに対する存在確認Setを取り出す
         if (iKey == '衣装') {
           //衣装の場合はMapへの格納方法が異なるので処理を分ける
@@ -737,10 +733,6 @@ export default {
                 const tmpName = l.split(':')[0];
                 const tmpList = l.split(':')[1].split('/');
                 tmpClothMap.set(tmpName, tmpList);
-                const tmpSet1 = uniqueSetMap.get('衣装(衣装名から)'); //衣装名ユニークセットを取得
-                tmpSet1.add(tmpName); //衣装名をユニークセットに追加
-                const tmpSet2 = uniqueSetMap.get('衣装(フレンズ名から)'); //衣装フレンズ名ユニークセットを取得
-                tmpList.forEach(k => tmpSet2.add(k)); //衣装対象フレンズをユニークセットに追加
               }
               tmpEvent.customData[iKey].set(j, tmpClothMap); //配列をMapに格納
               tmpEvent.customData.tags.push(iKey + '(' + j + ')'); //この分類名が存在することをtagに追加
@@ -756,8 +748,6 @@ export default {
             if (tmpOutput[tmpOutputIndex].startsWith(tmpId + ':')) {
               const tmpArray = tmpOutput[tmpOutputIndex].substring((tmpId + ':').length).split(','); //配列切り出し(先頭は元カラムを示すidなのでそこを削り、残りをカンマでsplitする。)
               tmpEvent.customData[iKey].set(j, tmpArray); //配列をMapに格納
-              const tmpSet = uniqueSetMap.get(iKey); //ユニークセットを取得
-              tmpArray.forEach(k => tmpSet.add(k)); //今回出現した配列要素をユニークセットへ追加
               tmpEvent.customData.tags.push(iKey + '(' + j + ')'); //この分類名が存在することをtagに追加
               tmpColumnExistSet.add(j); //この分類名が存在することを記録
               tmpOutputIndex++; //処理したらindexを次にずらす
@@ -766,9 +756,6 @@ export default {
           }
         }
       }
-
-      //色配列を指すインデックスが最後まで行ってたら最初に戻す。
-      if (color.length <= colorIndex) colorIndex = 0;
 
       //masterAttributesに追加
       this.masterAttributes.push(tmpEvent);
@@ -801,9 +788,6 @@ export default {
         }
       }
     }
-
-    //その他uniqueSetMapに登録したもの。sortして渡す。
-    uniqueSetMap.forEach((v, k) => this.masterNameList.set(k, Array.from(v).sort()));
   },
   mounted() {
     //カレンダーの初期表示列数を設定する。
@@ -876,39 +860,46 @@ export default {
           }
         }
       }
+
+      //色(highlight)を付けて回る。
+      let colorIndex = 0; //色リストの何番目を使用するかのインデックス
+      tmpAttr.forEach(i => {
+        if (calendarColor.length <= colorIndex) colorIndex = 0; //色配列を指すインデックスが最後まで行ってたら最初に戻す。
+        i.highlight = calendarColor[colorIndex++]; //色は１つずつずらす。
+      });
+
       //絞り込み結果を返す
       return tmpAttr;
     },
     getNameList() {
       //SearchFilterのnameにセットするlistを返す。
-      //tags選択の有無によって処理を切り替える。(単純にfilteredAttributesからlistを作り出すとnameを再選択しようとしても既に絞り込み済のため同じ条件のものしか出てこず、意味をなさない為)
-      if (0 < this.SearchFilter.tags.valueNG.length || 0 < this.SearchFilter.tags.valueOK.length) {
-        //tag指定がある場合、filteredAttributesは既にtagsで絞り込まれている。なのでfilteredAttributesを走査してnameを収集する。
-        const tmpSet = new Set();
-        const tmpCategory = this.SearchFilter.category.value;
-        if (tmpCategory) {
-          if (tmpCategory == '衣装(衣装名から)') {
-            // note:Map.keys()はIteratorなのでArray.from()にいれて配列化している
-            this.filteredAttributes.forEach(i =>
-              i.customData.衣装.forEach(j => Array.from(j.keys()).forEach(k => tmpSet.add(k)))
-            );
-          } else if (tmpCategory == '衣装(フレンズ名から)') {
-            this.filteredAttributes.forEach(i =>
-              i.customData.衣装.forEach(j => j.forEach(k => k.forEach(l => tmpSet.add(l))))
-            );
-          } else {
-            //フレンズ、フォト、家具、インテリア、ピクニックアイテム、その他アイテム
-            this.filteredAttributes.forEach(i =>
-              i.customData[tmpCategory].forEach(j => j.forEach(k => tmpSet.add(k)))
-            );
-          }
+      //単純にfilteredAttributesからnameを収集するのは上手く行かない点に注意。
+      //nameが既に選択済で再選択する場合、filteredAttributesは既に絞り込み済であり、そこから収集しても同じ条件のものしか出てこず、都合が悪い。
+      //回避方法としてはmasterから再度収集する方法もあるが、現在はv-selectのほうに
+      //@search:focus="SearchFilter.name.value = ''"
+      //などとしてnameを選択時（フォーカス時）にnameをクリアし、filteredAttributesの内容を指名前に戻すことにしている。これによりfilteredAttributesを普通に収集すれば目的を果たせる。
+      const tmpSet = new Set();
+      const tmpCategory = this.SearchFilter.category.value;
+      //カテゴリー選択時のみ処理（選択されていない場合は空のSetが渡り、v-selectのほうで要素なしメッセージを出してくれる）
+      if (tmpCategory) {
+        if (tmpCategory == '衣装(衣装名から)') {
+          // note:Map.keys()はIteratorなのでArray.from()にいれて配列化している
+          this.filteredAttributes.forEach(i =>
+            i.customData.衣装.forEach(j => Array.from(j.keys()).forEach(k => tmpSet.add(k)))
+          );
+        } else if (tmpCategory == '衣装(フレンズ名から)') {
+          this.filteredAttributes.forEach(i =>
+            i.customData.衣装.forEach(j => j.forEach(k => k.forEach(l => tmpSet.add(l))))
+          );
+        } else {
+          //フレンズ、フォト、家具、インテリア、ピクニックアイテム、その他アイテム
+          this.filteredAttributes.forEach(i =>
+            i.customData[tmpCategory].forEach(j => j.forEach(k => tmpSet.add(k)))
+          );
         }
-        //配列にしてsortした上で返す
-        return Array.from(tmpSet).sort();
-      } else {
-        //tag指定が無い場合はmasterNameListから初期リストを取り出す。
-        return this.masterNameList.get(this.SearchFilter.category.value);
       }
+      //配列にしてsortした上で返す
+      return Array.from(tmpSet).sort();
     },
     getTagList() {
       //一般タグリストの雛形。最終的に並び順はこのとおりとなる。データに存在しないタグはここから自動で抜かれる。
@@ -980,9 +971,9 @@ export default {
       if (tmpCategoryValue == '衣装(フレンズ名から)') tmpCategoryValue = '衣装';
 
       //特殊タグ用一時配列を初期化する。指名検索のカテゴリーが選択されているかどうかで処理をわける。
-      if (this.originalColumn.has(tmpCategoryValue)) {
+      if (tmpCategoryValue) {
         //カテゴリー選択済。カテゴリーにて指定された特定アイテムに関する特殊タグのみを取り出す。
-        for (const [iKey, iArray] of this.originalColumn) {
+        for (const [iKey, iArray] of originalColumn) {
           if (iKey == tmpCategoryValue) {
             //対象カテゴリー
             //結合文字列 ex: フレンズ(招待または配布)
@@ -1001,7 +992,7 @@ export default {
         }
       } else {
         //カテゴリー未選択。この場合全ての特殊タグをOKタグ配列へセットする。
-        for (const [iKey, iArray] of this.originalColumn) {
+        for (const [iKey, iArray] of originalColumn) {
           //結合文字列が存在するなら入れる ex: フレンズ(招待または配布)
           if (this.specialTagMap.has(iKey)) {
             tmpSPOKTags.push(this.specialTagMap.get(iKey).combineString);
@@ -1023,7 +1014,7 @@ export default {
 
       //以上の情報を利用し、最終的な特殊タグリストを作る
       const tmpSPTagsArray = [];
-      tmpSPTagsArray.push('◆表内絞り込み ━━━━━━━━');
+      tmpSPTagsArray.push('◆アイテム区分 ━━━━━━━━');
       tmpIndexArray.forEach(i => tmpSPTagsArray.push(tmpSPOKTags[i]));
 
       //次に、一般タグリストを作る。
@@ -1080,15 +1071,7 @@ export default {
       this.tableColumns.forEach(i => {
         if (
           //表示制御対象項目（これ以外はpopoverで表示させる対象ではない）
-          [
-            'フレンズ',
-            'フォト',
-            '衣装',
-            '家具',
-            'インテリア',
-            'ピクニックアイテム',
-            'その他アイテム',
-          ].some(j => j == i.label)
+          originalCategoryItems.some(j => j == i.label)
         ) {
           if (!i.hidden) outMap.set(i.label, defaultColumns);
         }
@@ -1099,6 +1082,11 @@ export default {
     getCalendarStyle() {
       //カレンダーの表示スタイルを返す。カレンダー非表示の時には薄くする。
       return this.inputCalendarVisible ? 'opacity: 1;margin:auto;' : 'opacity: 0.2;margin:auto;';
+    },
+    //vue-text-hightlightに渡すqueriesを作る。キャッシュの効くcomputedとして提供する。
+    getHighlightQueries() {
+      //指名検索の名前があるなら単にそれを返す。そうでない場合は空文字を返す(これをチェックしないとvue-text-hightlightにundefinedが渡ってエラーとなる)。
+      return this.SearchFilter.name.value ? this.SearchFilter.name.value : '';
     },
   },
   methods: {
@@ -1120,14 +1108,13 @@ export default {
         this.SearchFilter.name.placeholder = '先にカテゴリーを選んで下さい';
       }
 
-      //table表示切替。カテゴリーが選択されている場合、選択されたカテゴリーの列表示をONにする。
-      //尚、非選択カテゴリーの非表示化などは行わない（ユーザーの操作の邪魔になると予想される為）。
-      if (this.SearchFilter.category.value) {
-        let tmpStr = this.SearchFilter.category.value;
-        if (tmpStr == '衣装(衣装名から)' || tmpStr == '衣装(フレンズ名から)') tmpStr = '衣装';
-        //findで条件に一致する最初の要素を探し出し、表示処理を行う。
-        this.tableColumns.find(i => i.label == tmpStr).hidden = false;
-      }
+      //table表示切替。選択されたカテゴリーの列表示をONに、それ以外はoffにする。（非選択の場合全てoffになる。）
+      let tmpStr = this.SearchFilter.category.value;
+      if (tmpStr == '衣装(衣装名から)' || tmpStr == '衣装(フレンズ名から)') tmpStr = '衣装';
+      this.tableColumns.forEach(i => {
+        //tmpStrがラベルに一致してるなら表示に。それ以外なら非表示に。
+        if (originalCategoryItems.includes(i.label)) i.hidden = i.label == tmpStr ? false : true;
+      });
     },
     //行class取得。classの定義はcustom-vue-good-table.scssに。
     getRowStyleClass(row) {

@@ -195,30 +195,41 @@
                   </b-collapse>
                 </b-col>
               </b-row>
+              <b-row>
+                <b-col cols="12">
+                  <!-- 名前以外のカラムを列挙。hiddenの値にあわせてボタンを切替。 -->
+                  <template v-for="column of tableColumns">
+                    <template v-if="!['開始', '終了', 'イベント名'].some(i => i == column.label)">
+                      <b-button
+                        v-show="!column.hidden"
+                        variant="secondary"
+                        :key="column.label"
+                        @click="$set(column, 'hidden', !column.hidden)"
+                        class="table-attached-header-view-button"
+                      >
+                        {{ column.label }}
+                      </b-button>
+                      <b-button
+                        v-show="column.hidden"
+                        variant="outline-secondary"
+                        :key="column.label + '-outline'"
+                        @click="$set(column, 'hidden', !column.hidden)"
+                        class="table-attached-header-view-button"
+                      >
+                        {{ column.label }}
+                      </b-button>
+                    </template>
+                  </template>
+                </b-col>
+              </b-row>
+              <b-row>
+                <b-col cols="12">
+                  <b-checkbox v-model="isShowTime" @change="setDateOutputFormat">
+                    開始・終了時間を表示
+                  </b-checkbox>
+                </b-col>
+              </b-row>
             </b-container>
-            <!-- 名前以外のカラムを列挙。hiddenの値にあわせてボタンを切替。 -->
-            <template v-for="column of tableColumns">
-              <template v-if="!['開始', '終了', 'イベント名'].some(i => i == column.label)">
-                <b-button
-                  v-show="!column.hidden"
-                  variant="secondary"
-                  :key="column.label"
-                  @click="$set(column, 'hidden', !column.hidden)"
-                  class="table-attached-header-view-button"
-                >
-                  {{ column.label }}
-                </b-button>
-                <b-button
-                  v-show="column.hidden"
-                  variant="outline-secondary"
-                  :key="column.label + '-outline'"
-                  @click="$set(column, 'hidden', !column.hidden)"
-                  class="table-attached-header-view-button"
-                >
-                  {{ column.label }}
-                </b-button>
-              </template>
-            </template>
           </div>
         </div>
       </div>
@@ -551,6 +562,9 @@ export default {
         },
       },
 
+      //表の開始・終了欄にて、日付だけでなく時間も合わせて表示するかどうかの変数。デフォルトでは非表示。
+      isShowTime: false,
+
       //"フレンズ(招待または配布)"といった結合特殊タグを保存するMap。
       //keyは'フレンズ','フォト'等文字列
       //Valueはオブジェクトで、targetTagsにはフレンズ(招待) といった形式のタグ文字列で、
@@ -571,7 +585,7 @@ export default {
           field: 'customData.start',
           label: '開始',
           type: 'date',
-          dateInputFormat: 'yyyy/MM/dd',
+          dateInputFormat: 'yyyy/MM/dd HH:mm',
           dateOutputFormat: 'yyyy/MM/dd',
           firstSortType: 'desc',
           hidden: false,
@@ -580,7 +594,7 @@ export default {
           field: 'customData.end',
           label: '終了',
           type: 'date',
-          dateInputFormat: 'yyyy/MM/dd',
+          dateInputFormat: 'yyyy/MM/dd HH:mm',
           dateOutputFormat: 'yyyy/MM/dd',
           firstSortType: 'desc',
           hidden: false,
@@ -680,8 +694,8 @@ export default {
           labelDate: startDate.format('MM/DD') + '～' + endDate.format('MM/DD'),
           url: row.url,
           //vue-good-tableは日付を扱えるがDateではなく文字列として扱うのでここに置いておく。
-          start: startDate.format('YYYY/MM/DD'),
-          end: endDate.format('YYYY/MM/DD'),
+          start: startDate.format('YYYY/MM/DD HH:mm'),
+          end: endDate.format('YYYY/MM/DD HH:mm'),
           tags: row.タグ == '' ? [] : row.タグ.split(','),
           備考: '',
           フレンズ: new Map(),
@@ -1106,6 +1120,13 @@ export default {
         //tmpStrがラベルに一致してるなら表示に。それ以外なら非表示に。
         if (originalCategoryItems.includes(i.label)) i.hidden = i.label == tmpStr ? false : true;
       });
+    },
+    //tableColumnsの開始/終了日時表示フォーマットに適切なフォーマット文字列をセットする。
+    //これはチェックボックスの@changeから呼ばれ、チェックボックスの値（isShowTime）に応じて出力フォーマットに時間を含めたり削除したりする。
+    setDateOutputFormat() {
+      const tmpStr = this.isShowTime ? 'yyyy/MM/dd HH:mm' : 'yyyy/MM/dd';
+      this.$set(this.tableColumns[0], 'dateOutputFormat', tmpStr);
+      this.$set(this.tableColumns[1], 'dateOutputFormat', tmpStr);
     },
     //行class取得。classの定義はcustom-vue-good-table.scssに。
     getRowStyleClass(row) {

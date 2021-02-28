@@ -33,7 +33,7 @@
 // $extra-light: #f2f6fc !default; //不明
 
 // $text-color: $color-text; //テキスト色。オリジナルも悪くない。
-// $secondary-text-color: #909399 !default; //場所不明
+// $secondary-text-color: #909399 !default; //pagenation右件数表示に使われているのを確認
 // $input-border-color: $color-green-4; //入力フォーム枠
 // $border-color: $base-grey !default; //内側罫線 見た目への影響が大きい
 // $highlight-color: #f1f5fd !default; //場所不明
@@ -48,6 +48,12 @@
 // $notify-fg-color: #b38d28; //場所不明
 
 //上書きここから
+//_utils
+.vgt-pull-right {
+  //pagenationのfooterにおいて右側部分（件数表示と前後リンク）を右寄せにする。特にモバイルで見たときに表示がこのほうが落ち着く。
+  text-align: right;
+}
+
 //_table.scss
 table.vgt-table {
   border: 3px solid $color-primary-3;
@@ -128,9 +134,58 @@ thead th {
 }
 
 //_table-footer.scss
+$my-footer-font-size: 0.85rem;
 .vgt-wrap__footer {
   border: 3px solid $color-primary-3;
-  // border-right: 3px solid $color-primary-3 !important;
+  padding: 0.8rem 0.5rem;
+  .footer__row-count {
+    margin: 0.1rem 0;
+    &__label,
+    &__select {
+      font-size: $my-footer-font-size;
+      margin-bottom: 0;
+      color: #495057;
+      //bootstrapの$input-colorであり、$gray-700の色
+    }
+    &__select {
+      //基本的にbootstrapのselectから持ってきている。
+      display: inline;
+      width: 5rem;
+      height: 2rem;
+      padding: 0.25rem 1.75rem 0.25rem 0.8rem;
+      font-size: 0.8rem;
+
+      vertical-align: middle;
+      background: #fff
+        url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E")
+        no-repeat right 0.75rem center/8px 10px;
+      border: 3px solid $color-green-2;
+      border-radius: 0.75rem;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      &:focus {
+        border-color: $color-green-4;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem $color-green-1;
+      }
+    }
+  }
+  .footer__navigation {
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    margin: 0.1rem 0;
+    &__page-btn,
+    &__info,
+    &__page-info {
+      font-size: $my-footer-font-size;
+      margin: 0;
+      line-height: 1.2rem;
+      color: #495057;
+      //bootstrapの$input-colorであり、$gray-700の色
+    }
+  }
   &:first-child {
     border-top-width: 0px !important;
     border-bottom-width: 0px !important;
@@ -140,7 +195,6 @@ thead th {
   }
 }
 
-//独自定義。テーブル付随関連
 .table-attached-header {
   padding: 5px 0;
   border-width: 0 3px 8px 3px;

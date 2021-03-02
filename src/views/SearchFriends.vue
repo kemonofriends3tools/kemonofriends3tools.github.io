@@ -289,6 +289,8 @@
           rowsPerPageLabel: 'ページあたりの表示件数',
           ofLabel: '/',
           allLabel: '全て',
+          infoFn: params =>
+            `全${params.totalRecords}件中 ${params.firstRecordOnPage}件～${params.lastRecordOnPage}件目を表示`,
         }"
       >
         <template v-slot:table-column="props">

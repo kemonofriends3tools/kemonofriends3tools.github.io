@@ -103,14 +103,9 @@ export default {
       tabIndex: 0, //この値はmounted内で再度初期化される。null初期化は不可。詳細はそちら参照。
     };
   },
-  mounted() {
-    //mountedよりもcounputedのほうが先に走る(Vue仕様っぽい)。結果getDojoData()は空配列を返し、道場部分が空白になる。
-    //もし今日が月曜でなければ下のnull代入行がなくともtabIndexが変わることによりそれをwatchしているgetDojoData()が再び走り正常な配列を返す。
-    //しかし日が月曜の場合tabIndexは初期値と同じ0なので変化せず、getDojoData()が再び走ることはない。結果ページが空白になる。
-    //回避のためtabIndexの初期値をnullとするとgetDojoData()は解決するが、getDayOfTheWeek()のほうでindex参照エラーとなる。
-    //ワークアラウンドとしてtabIndexの初期値は0とし、tabIndexに一旦nullを入れる。これで値が必ず変化するようになる。
-    //その後正式な曜日を再代入することでgetDojoData()が正しい値を返すようになる。
-    this.tabIndex = null;
+  beforeMount() {
+    //ここのtabIndex初期化をmounted()で行うと、mountedよりもcounputedのほうが先に走る関係(Vue仕様っぽい)でgetDojoData()は空配列を返し、道場部分が空白になってしまう。
+    //beforeMount()ならそれより前にtabIndex初期化が行えるので、正常に動作する。
     //曜日タブ初期値設定。Date().getDay()は日曜スタート。しかしタブは月曜が頭なので１つずらす。日曜は-1になるので6に回す。
     this.tabIndex = new Date().getDay() - 1;
     if (this.tabIndex < 0) this.tabIndex = 6;

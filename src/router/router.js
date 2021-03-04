@@ -7,6 +7,7 @@ import SearchFriends from '@/views/SearchFriends.vue';
 import SearchPhoto from '@/views/SearchPhoto.vue';
 import SearchEvents from '@/views/SearchEvents.vue';
 import Calc from '@/views/Calc.vue';
+import Analysis from '@/views/Analysis.vue';
 import dev from '@/views/Dev.vue';
 
 Vue.use(VueRouter);
@@ -57,6 +58,15 @@ const routes = [
     meta: {
       title: '各種計算',
       description: 'アプリ版「けものフレンズ３」のプレイに役立つ各種計算などが行えます。',
+    },
+  },
+  {
+    path: '/analysis',
+    name: 'analysis',
+    component: Analysis,
+    meta: {
+      title: '各種分析(β)',
+      description: '各種分析(β)のdescription',
     },
   },
   {

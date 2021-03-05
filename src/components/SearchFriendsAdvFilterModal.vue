@@ -15,7 +15,7 @@
                 advFilterSelected(
                   '地形/時間特効(サバンナ)',
                   ['とくせい詳細', 'キセキとくせい詳細'],
-                  '(地形|ステージ)がサバンナの(場合|とき)'
+                  'サバンナの(場合|とき)'
                 )
               "
               class="table-attached-header-view-button"
@@ -27,7 +27,7 @@
                 advFilterSelected(
                   '地形/時間特効(さばく)',
                   ['とくせい詳細', 'キセキとくせい詳細'],
-                  '(地形|ステージ)がさばくの(場合|とき)'
+                  'さばくの(場合|とき)'
                 )
               "
               class="table-attached-header-view-button"
@@ -39,7 +39,7 @@
                 advFilterSelected(
                   '地形/時間特効(みずべ)',
                   ['とくせい詳細', 'キセキとくせい詳細'],
-                  '(地形|ステージ)がみずべの(場合|とき)'
+                  'みずべの(場合|とき)'
                 )
               "
               class="table-attached-header-view-button"
@@ -51,7 +51,7 @@
                 advFilterSelected(
                   '地形/時間特効(寒冷地)',
                   ['とくせい詳細', 'キセキとくせい詳細'],
-                  '(地形|ステージ)が寒冷地の(場合|とき)'
+                  '寒冷地の(場合|とき)'
                 )
               "
               class="table-attached-header-view-button"
@@ -63,7 +63,7 @@
                 advFilterSelected(
                   '地形/時間特効(どうくつ)',
                   ['とくせい詳細', 'キセキとくせい詳細'],
-                  '(地形|ステージ)がどうくつの(場合|とき)'
+                  'どうくつの(場合|とき)'
                 )
               "
               class="table-attached-header-view-button"
@@ -75,7 +75,7 @@
                 advFilterSelected(
                   '地形/時間特効(ジャングル)',
                   ['とくせい詳細', 'キセキとくせい詳細'],
-                  '(地形|ステージ)がジャングルの(場合|とき)'
+                  'ジャングルの(場合|とき)'
                 )
               "
               class="table-attached-header-view-button"
@@ -87,7 +87,7 @@
                 advFilterSelected(
                   '地形/時間特効(やま)',
                   ['とくせい詳細', 'キセキとくせい詳細'],
-                  '(地形|ステージ)がやまの(場合|とき)'
+                  'やまの(場合|とき)'
                 )
               "
               class="table-attached-header-view-button"

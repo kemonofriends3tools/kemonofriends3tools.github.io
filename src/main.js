@@ -25,6 +25,11 @@ dayjs.extend(LocalizedFormat);
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
+//vue-cookies
+import VueCookies from 'vue-cookies';
+Vue.use(VueCookies);
+Vue.$cookies.config('10y'); //有効期限10年
+
 //vue-good-table
 import VueGoodTablePlugin from 'vue-good-table';
 Vue.use(VueGoodTablePlugin);

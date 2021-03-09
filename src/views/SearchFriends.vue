@@ -282,7 +282,9 @@
         styleClass="vgt-table bordered condensed"
         :pagination-options="{
           enabled: true,
-          perPage: 10,
+          perPage: $cookies.isKey('SearchFriends_perPage')
+            ? +$cookies.get('SearchFriends_perPage')
+            : 10,
           position: 'both',
           nextLabel: '次',
           prevLabel: '前',
@@ -292,6 +294,7 @@
           infoFn: params =>
             `全${params.totalRecords}件中 ${params.firstRecordOnPage}件～${params.lastRecordOnPage}件目を表示`,
         }"
+        @on-per-page-change="params => $cookies.set('SearchFriends_perPage', params.currentPerPage)"
       >
         <template v-slot:table-column="props">
           {{ props.column.label }}

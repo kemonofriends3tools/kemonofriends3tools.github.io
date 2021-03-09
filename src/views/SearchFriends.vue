@@ -286,11 +286,12 @@
             ? +$cookies.get('SearchFriends_perPage')
             : 10,
           position: 'both',
+          perPageDropdown: [10, 20, 30, 40, 50, 999],
+          dropdownAllowAll: false,
           nextLabel: '次',
           prevLabel: '前',
           rowsPerPageLabel: 'ページあたりの表示件数',
           ofLabel: '/',
-          allLabel: '全て',
           infoFn: params =>
             `全${params.totalRecords}件中 ${params.firstRecordOnPage}件～${params.lastRecordOnPage}件目を表示`,
         }"

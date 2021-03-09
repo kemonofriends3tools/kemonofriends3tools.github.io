@@ -262,16 +262,20 @@
         styleClass="vgt-table bordered condensed"
         :pagination-options="{
           enabled: true,
-          perPage: 10,
+          perPage: $cookies.isKey('SearchPhoto_perPage')
+            ? +$cookies.get('SearchPhoto_perPage')
+            : 10,
           position: 'both',
+          perPageDropdown: [10, 20, 30, 40, 50, 999],
+          dropdownAllowAll: false,
           nextLabel: '次',
           prevLabel: '前',
           rowsPerPageLabel: 'ページあたりの表示件数',
           ofLabel: '/',
-          allLabel: '全て',
           infoFn: params =>
             `全${params.totalRecords}件中 ${params.firstRecordOnPage}件～${params.lastRecordOnPage}件目を表示`,
         }"
+        @on-per-page-change="params => $cookies.set('SearchPhoto_perPage', params.currentPerPage)"
       >
         <template v-slot:table-column="props">
           {{ props.column.label }}

@@ -681,25 +681,25 @@ export default {
     //eventsJson解析
     for (const row of eventsJson) {
       //jsonの開始日時、終了日時をオブジェクト化
-      const startDate = dayjs(row.開始, 'YYMMDDHHmm');
-      const endDate = dayjs(row.終了, 'YYMMDDHHmm');
+      const startDate = dayjs(row['2'], 'YYMMDDHHmm');
+      const endDate = dayjs(row['3'], 'YYMMDDHHmm');
 
       //jsonの行からv-calendarに渡すオブジェクトを生成。まずは単純代入できるものをそのまま渡す。
       const tmpEvent = {
         id: id++,
         highlight: '', //色は後ほどfilteredAttributes()にて正しいものを入れる
         popover: {
-          label: row.イベント名,
+          label: row['1'],
         },
         dates: [{ start: startDate.toDate(), end: endDate.toDate() }],
         customData: {
           labelDate: startDate.format('MM/DD') + '～' + endDate.format('MM/DD'),
-          url: row.url,
+          url: row['0'] ? row['0'] : '',
           //vue-good-tableは日付を扱えるがDateではなく文字列として扱うのでここに置いておく。
           start: startDate.format('YYYY/MM/DD HH:mm'),
           end: endDate.format('YYYY/MM/DD HH:mm'),
-          tags: row.タグ == '' ? [] : row.タグ.split(','),
-          備考: '',
+          tags: row['4'] ? row['4'].split(',') : [],
+          備考: row['5'] ? row['5'] : '',
           フレンズ: new Map(),
           フォト: new Map(),
           衣装: new Map(),
@@ -710,32 +710,18 @@ export default {
         },
       };
 
-      //json中の出力カラムを走査し、スプレッドシート上のカラムを復元（分割）する。
-      //出力カラムは;区切りなのでまずはそれでsplitする。
-      const tmpOutput = row.出力.split(';');
-      let tmpOutputIndex = 0; //tmpOutputのindex。tmpOutputをどこまで読んだか示すもの。
-      let tmpId = 1; //現在処理対象となる出力カラムid。1から始まってスプレッドシート上終端カラム数までカウントアップする。
-
-      //id:1 備考
-      if (tmpOutput[tmpOutputIndex].startsWith(tmpId + ':')) {
-        tmpEvent.customData.備考 = tmpOutput[tmpOutputIndex].substring((tmpId + ':').length); //切り出し(先頭は元カラムを示すidなのでそこを削る。)
-        tmpOutputIndex++; //処理したらindexを次にずらす
-      }
-      tmpId++; //処理したらidを次にずらす
-
-      //上で作ったMap中の配列でループ処理
+      //備考以後のカラムを処理
+      let tmpColId = 6; //これをループ変数にする方法も考えられるが、ループとしてはoriginalColumnを利用したいので各ループの最後にインクリメントして利用している。
       for (const [iKey, iArray] of originalColumn) {
         const tmpColumnExistSet = tmpOriginalColumnExist.get(iKey); //現在のアイテムに対する存在確認Setを取り出す
         if (iKey == '衣装') {
           //衣装の場合はMapへの格納方法が異なるので処理を分ける
           for (const j of iArray) {
             //id検査
-            if (tmpOutput[tmpOutputIndex].startsWith(tmpId + ':')) {
+            if (row[tmpColId]) {
               const tmpClothMap = new Map(); //衣装を格納用Map()
               //配列切り出し(先頭は元カラムを示すidなのでそこを削り、残りをカンマでsplitする。)
-              for (const l of tmpOutput[tmpOutputIndex]
-                .substring((tmpId + ':').length)
-                .split(',')) {
+              for (const l of row[tmpColId].split(',')) {
                 //:で分割。前は衣装名、後ろは/区切りのフレンズ名配列
                 const tmpName = l.split(':')[0];
                 const tmpList = l.split(':')[1].split('/');
@@ -744,22 +730,20 @@ export default {
               tmpEvent.customData[iKey].set(j, tmpClothMap); //配列をMapに格納
               tmpEvent.customData.tags.push(iKey + '(' + j + ')'); //この分類名が存在することをtagに追加
               tmpColumnExistSet.add(j); //この分類名が存在することを記録
-              tmpOutputIndex++; //処理したらindexを次にずらす
             }
-            tmpId++; //処理したらidを次にずらす
+            tmpColId++; //次のidへ
           }
         } else {
           //衣装以外
           for (const j of iArray) {
             //id検査
-            if (tmpOutput[tmpOutputIndex].startsWith(tmpId + ':')) {
-              const tmpArray = tmpOutput[tmpOutputIndex].substring((tmpId + ':').length).split(','); //配列切り出し(先頭は元カラムを示すidなのでそこを削り、残りをカンマでsplitする。)
+            if (row[tmpColId]) {
+              const tmpArray = row[tmpColId].split(',');
               tmpEvent.customData[iKey].set(j, tmpArray); //配列をMapに格納
               tmpEvent.customData.tags.push(iKey + '(' + j + ')'); //この分類名が存在することをtagに追加
               tmpColumnExistSet.add(j); //この分類名が存在することを記録
-              tmpOutputIndex++; //処理したらindexを次にずらす
             }
-            tmpId++; //処理したらidを次にずらす
+            tmpColId++; //次のidへ
           }
         }
       }

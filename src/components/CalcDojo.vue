@@ -101,7 +101,7 @@ export default {
       ],
     };
   },
-  mounted() {
+  beforeMount() {
     //道場の情報をロード、敵属性を読み出し保存し、同時にスタイルにも保存する。
     let counter = 0;
     for (let dayOfWeek of ['月', '火', '水', '木', '金', '土', '日']) {

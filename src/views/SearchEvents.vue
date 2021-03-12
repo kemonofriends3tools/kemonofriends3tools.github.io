@@ -394,7 +394,12 @@
             <text-highlight :queries="getHighlightQueries" :caseSensitive="false">
               {{ props.formattedRow[props.column.field] }}
             </text-highlight>
-            <a :href="props.row.customData.url" target="_blank" rel="noopener">
+            <a
+              v-if="props.row.customData.url"
+              :href="props.row.customData.url"
+              target="_blank"
+              rel="noopener"
+            >
               <i class="fas fa-external-link-alt" />
             </a>
           </template>

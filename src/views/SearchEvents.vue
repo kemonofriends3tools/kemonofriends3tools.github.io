@@ -408,6 +408,7 @@
                 '家具',
                 'インテリア',
                 'ピクニックアイテム',
+                'おしゃれアクセ',
                 'その他アイテム',
               ].some(i => i == props.column.label)
             "
@@ -510,6 +511,7 @@ const originalCategoryItems = [
   '家具',
   'インテリア',
   'ピクニックアイテム',
+  'おしゃれアクセ',
   'その他アイテム',
 ];
 
@@ -524,6 +526,7 @@ const originalColumn = new Map([
   ['家具', ['招待', '特効', '配布', '引換']],
   ['インテリア', ['招待', '特効', '配布', '引換']],
   ['ピクニックアイテム', ['招待', '特効', '配布', '引換']],
+  ['おしゃれアクセ', ['招待', '特効', '配布', '引換']],
   ['その他アイテム', ['招待', '特効', '配布', '引換']],
 ]);
 
@@ -556,6 +559,7 @@ export default {
             '家具',
             'インテリア',
             'ピクニックアイテム',
+            'おしゃれアクセ',
             'その他アイテム',
           ],
           placeholder: 'カテゴリー',
@@ -647,6 +651,12 @@ export default {
           sortable: false,
         },
         {
+          field: 'customData.おしゃれアクセ',
+          label: 'おしゃれアクセ',
+          hidden: true,
+          sortable: false,
+        },
+        {
           field: 'customData.その他アイテム',
           label: 'その他アイテム',
           hidden: true,
@@ -710,6 +720,7 @@ export default {
           家具: new Map(),
           インテリア: new Map(),
           ピクニックアイテム: new Map(),
+          おしゃれアクセ: new Map(),
           その他アイテム: new Map(),
         },
       };
@@ -887,7 +898,7 @@ export default {
             i.customData.衣装.forEach(j => j.forEach(k => k.forEach(l => tmpSet.add(l))))
           );
         } else {
-          //フレンズ、フォト、家具、インテリア、ピクニックアイテム、その他アイテム
+          //フレンズ、フォト、家具、インテリア、ピクニックアイテム、おしゃれアクセ、その他アイテム
           this.filteredAttributes.forEach(i =>
             i.customData[tmpCategory].forEach(j => j.forEach(k => tmpSet.add(k)))
           );

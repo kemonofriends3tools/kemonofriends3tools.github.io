@@ -21,7 +21,7 @@
         <b-tab title="日" title-link-class="px-2" />
       </b-tabs>
       <b-row class="justify-content-around">
-        <b-col cols="12" lg="7">
+        <b-col cols="12" lg="6">
           <h4>シーサーバル道場β</h4>
           <template v-if="masterDojoData.has(getDayOfTheWeek)">
             <template
@@ -61,7 +61,15 @@
             <b-table-lite small striped hover :items="getDojoData" />
           </template>
         </b-col>
-        <b-col cols="12" lg="5">
+        <b-col cols="12" lg="6">
+          <div class="text-right mb-2">
+            <b-button v-b-toggle.flagManagerCollapse variant="info" class="debugButton">
+              フラッグマネージャー(β)
+            </b-button>
+          </div>
+          <b-collapse visible id="flagManagerCollapse">
+            <FlagManager :cookieKey="'DojoFriends_' + tabIndex" />
+          </b-collapse>
           <h4>成長クエスト</h4>
           <b-table-simple small striped hover class="mb-0">
             <b-tbody>
@@ -91,11 +99,13 @@ import dayjs from 'dayjs';
 import dojoJson from '../json/dojo.json';
 import trainingJson from '../json/training.json';
 import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
+import FlagManager from '@/components/FlagManager.vue';
 
 export default {
   name: 'HomeWeeklySchedule',
   components: {
     TypeNameToIcon,
+    FlagManager,
   },
   data() {
     return {

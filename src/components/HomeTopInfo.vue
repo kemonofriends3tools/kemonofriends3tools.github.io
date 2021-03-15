@@ -67,7 +67,7 @@
               フラッグマネージャー(β)
             </b-button>
           </div>
-          <b-collapse visible id="flagManagerCollapse">
+          <b-collapse id="flagManagerCollapse">
             <FlagManager :cookieKey="'DojoFriends_' + tabIndex" />
           </b-collapse>
           <h4>成長クエスト</h4>

@@ -62,14 +62,14 @@
           </template>
         </b-col>
         <b-col cols="12" lg="6">
-          <div class="text-right mb-2">
+          <!-- div class="text-right mb-2">
             <b-button v-b-toggle.flagManagerCollapse variant="info" class="debugButton">
               フラッグマネージャー(β)
             </b-button>
           </div>
           <b-collapse id="flagManagerCollapse">
             <FlagManager :cookieKey="'DojoFriends_' + tabIndex" />
-          </b-collapse>
+          </b-collapse -->
           <h4>成長クエスト</h4>
           <b-table-simple small striped hover class="mb-0">
             <b-tbody>
@@ -99,13 +99,13 @@ import dayjs from 'dayjs';
 import dojoJson from '../json/dojo.json';
 import trainingJson from '../json/training.json';
 import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
-import FlagManager from '@/components/FlagManager.vue';
+// import FlagManager from '@/components/FlagManager.vue';
 
 export default {
   name: 'HomeWeeklySchedule',
   components: {
     TypeNameToIcon,
-    FlagManager,
+    // FlagManager,
   },
   data() {
     return {

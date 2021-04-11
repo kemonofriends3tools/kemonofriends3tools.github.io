@@ -7,8 +7,8 @@
         これにより不利益が発生しても当方では何ら責任は負えません。自己責任でご利用下さい。
       </b-alert>
     </b-container>
-    <CalcEventGeneral />
     <CalcContestOfStrength />
+    <CalcEventGeneral />
     <CalcDojo />
     <CalcPicnic />
   </b-container>

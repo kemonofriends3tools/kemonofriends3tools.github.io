@@ -97,6 +97,18 @@
             <b-button
               @click="
                 advFilterSelected(
+                  '地形/時間特効(まち)',
+                  ['とくせい(変化前)', 'とくせい(変化後)'],
+                  '(地形|ステージ)がまちの(場合|とき)'
+                )
+              "
+              class="table-attached-header-view-button"
+            >
+              まち
+            </b-button>
+            <b-button
+              @click="
+                advFilterSelected(
                   '地形/時間特効(夜)',
                   ['とくせい(変化前)', 'とくせい(変化後)'],
                   'ステージ(|の時間)が夜の(場合|とき)'

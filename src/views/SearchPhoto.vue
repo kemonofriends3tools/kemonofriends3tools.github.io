@@ -20,6 +20,23 @@
         <div class="table-attached-header">
           <b-container fluid>
             <b-row class="align-items-baseline">
+              <b-col class="pl-0">
+                <b-icon
+                  class="table-attached-header-icon align-middle"
+                  icon="arrowCounterclockwise"
+                  variant="dark"
+                  font-scale="1.5"
+                />
+                <b-button @click="resetQuery()" class="table-attached-header-view-button">
+                  以下の検索条件をリセット
+                </b-button>
+              </b-col>
+            </b-row>
+          </b-container>
+        </div>
+        <div class="table-attached-header">
+          <b-container fluid>
+            <b-row class="align-items-baseline">
               <b-col cols="12">
                 <b-collapse id="collapse1">
                   <b-alert show variant="info" class="small mb-1">
@@ -37,8 +54,8 @@
                 検索対象
               </b-col>
               <b-col cols="12" sm="auto" class="pl-4 flex-grow-0">
-                <b-form-checkbox-group v-model="searchTargetFlag">
-                  <b-checkbox value="normal" checked>
+                <b-form-checkbox-group v-model="searchTargetFlag" @change="setQuery()">
+                  <b-checkbox value="normal">
                     通常フォト
                   </b-checkbox>
                   <b-checkbox value="wild">
@@ -58,7 +75,7 @@
               <b-col cols="12">
                 <b-collapse id="collapse2">
                   <b-alert show variant="info" class="small mb-1">
-                    ２：特殊条件による絞り込みをしたい場合はここで指定してデータを絞り込みます。尚、ここで条件を選択するとデータ量が減るので後の動作が軽くなります。
+                    ２：特殊条件による絞り込みをしたい場合はここで指定してデータを絞り込みます。
                   </b-alert>
                 </b-collapse>
               </b-col>
@@ -80,7 +97,14 @@
                 </template>
               </b-col>
               <b-col class="pl-4 flex-grow-0">
-                <SearchPhotoAdvFilterModal @advFilterSelected="setAdvFilter">
+                <SearchPhotoAdvFilterModal
+                  @advFilterSelected="
+                    (i1, i2) => {
+                      setAdvFilter(i1, i2);
+                      setQuery();
+                    }
+                  "
+                >
                   特殊条件選択
                 </SearchPhotoAdvFilterModal>
               </b-col>
@@ -107,7 +131,8 @@
                 <b-collapse id="collapse3">
                   <b-alert show variant="info" class="small mb-1">
                     ３：下の表の表示列を切り替えます。<br />
-                    表示列を切り替えるだけなので、ここを触ってもデータ行数が変化することはありません。ただしここの選択は４の『表内検索』と深く関係しています。４の『表内検索』はここで表示させたものが検索対象となります。
+                    変化するのは列の表示のみで、行数が変化することはありません。ただしここの選択は４の『表内検索』と深く関係しています。<br />
+                    ４の『表内検索』はここで表示させたものが検索対象となります。
                   </b-alert>
                 </b-collapse>
                 <b-alert show variant="warning" class="mt-2 mb-0 px-2 small">
@@ -131,7 +156,10 @@
                   <b-select
                     v-model.number="selectedLevel"
                     :options="selectLevelOptions"
-                    @change="selectLevelSelected"
+                    @change="
+                      selectLevelSelected();
+                      setQuery();
+                    "
                     style="width:4rem"
                     required
                   />
@@ -139,7 +167,10 @@
                     <b-button
                       v-show="!i.hidden"
                       variant="secondary"
-                      @click="setLevelStatusColumnHidden(i.name, index)"
+                      @click="
+                        setLevelStatusColumnHidden(i.name, index);
+                        setQuery();
+                      "
                       class="table-attached-header-view-button"
                     >
                       {{ i.name }}
@@ -147,7 +178,10 @@
                     <b-button
                       v-show="i.hidden"
                       variant="outline-secondary"
-                      @click="setLevelStatusColumnHidden(i.name, index)"
+                      @click="
+                        setLevelStatusColumnHidden(i.name, index);
+                        setQuery();
+                      "
                       class="table-attached-header-view-button"
                     >
                       {{ i.name }}
@@ -164,7 +198,8 @@
                           columns[columnsIndex.get(i)],
                           'hidden',
                           !columns[columnsIndex.get(i)].hidden
-                        )
+                        );
+                        setQuery();
                       "
                       class="table-attached-header-view-button"
                     >
@@ -178,7 +213,8 @@
                           columns[columnsIndex.get(i)],
                           'hidden',
                           !columns[columnsIndex.get(i)].hidden
-                        )
+                        );
+                        setQuery();
                       "
                       class="table-attached-header-view-button"
                     >
@@ -225,6 +261,9 @@
                           >のみ</span
                         >存在する場合、この行には両方のキーワード満たす項目が１つも存在しなかったと判定され、そのデータ行は非表示となります。
                       </li>
+                      <li>
+                        ここで指定したキーワードは表内でハイライト(強調表示)されます。
+                      </li>
                     </ul>
                   </b-alert>
                 </b-collapse>
@@ -238,6 +277,7 @@
                   placeholder="表内検索"
                   type="search"
                   debounce="500"
+                  @change="setQuery()"
                 />
               </b-col>
             </b-row>
@@ -245,6 +285,7 @@
         </div>
       </div>
       <vue-good-table
+        ref="vgt"
         compactMode
         :rows="filterdPhoto"
         :columns="columns"
@@ -285,17 +326,54 @@
           </div>
         </template>
         <template v-slot:column-filter="{ column, updateFilters }">
-          <template v-if="column.label == '属性'">
-            <TypeSelectModalPhoto
-              @typePhotoSelected="
-                value => {
-                  typeFilter = value;
-                  updateFilters(column, value);
-                }
-              "
-            >
-              <TypeNameToIcon :type="typeFilter" :imgRemSize="1.8" />
-            </TypeSelectModalPhoto>
+          <template
+            v-if="
+              Object.prototype.hasOwnProperty.call(column, 'filterOptions') &&
+                Object.prototype.hasOwnProperty.call(column.filterOptions, 'type')
+            "
+          >
+            <template v-if="column.filterOptions.type == 'type'">
+              <TypeSelectModalPhoto
+                @typePhotoSelected="
+                  value => {
+                    //バグなのか、同一ページ遷移後($router.replace等)、updateFiltersを実行するだけでは値が変わらなくなる。
+                    //どうもfilterValueの値に引きずられているようなので、ここで毎回setする。
+                    $set(column.filterOptions, 'filterValue', value);
+                    updateFilters(column, value);
+                    setQuery();
+                  }
+                "
+              >
+                <TypeNameToIcon :type="column.filterOptions.filterValue" :imgRemSize="1.8" />
+              </TypeSelectModalPhoto>
+            </template>
+            <template v-else-if="column.filterOptions.type == 'input'">
+              <b-input
+                class="vgt-custom-filter"
+                v-model="column.filterOptions.filterValue"
+                :placeholder="column.filterOptions.placeholder"
+                @change="
+                  value => {
+                    updateFilters(column, value);
+                    setQuery();
+                  }
+                "
+              />
+            </template>
+            <template v-else-if="column.filterOptions.type == 'select'">
+              <b-select
+                class="vgt-custom-filter"
+                v-model.number="column.filterOptions.filterValue"
+                :options="column.filterOptions.options"
+                :placeholder="column.filterOptions.placeholder"
+                @change="
+                  value => {
+                    updateFilters(column, value);
+                    setQuery();
+                  }
+                "
+              />
+            </template>
           </template>
         </template>
         <template v-slot:table-row="props">
@@ -337,13 +415,16 @@
 import photoNormalJson from '../json/photo_normal.json';
 import photoWildJson from '../json/photo_wild.json';
 import photoMaterialJson from '../json/photo_material.json';
+
 import SearchPhotoAdvFilterModal from '@/components/SearchPhotoAdvFilterModal.vue';
+import advFilterPhoto from '@/mixins/advFilterPhoto.js';
+
 import TypeSelectModalPhoto from '@/components/TypeSelectModalPhoto.vue';
 import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
 import resizableTable from '@/mixins/resizableTable.js';
 
 export default {
-  mixins: [resizableTable],
+  mixins: [resizableTable, advFilterPhoto],
   name: 'SearchPhoto',
   components: {
     SearchPhotoAdvFilterModal,
@@ -357,9 +438,13 @@ export default {
           field: '名前',
           label: '名前',
           sortable: true,
+          hidden: false,
+          hidden_default: false,
           filterOptions: {
             enabled: true,
             placeholder: 'フォト名',
+            filterValue: '', //本来初期値用だがvalueとしても使用
+            type: 'input', //独自。templateの分岐用。
           },
         },
         {
@@ -367,11 +452,12 @@ export default {
           label: '属性',
           sortable: true,
           hidden: false,
+          hidden_default: false,
           tdClass: 'text-center',
           filterOptions: {
-            //何故かfilterOptionsが無いとcustom filterが動作しなかったので空作成
-            //customFilterは特に何も使ってない。
-            customFilter: true,
+            enabled: true,
+            filterValue: '', //本来初期値用だがvalueとしても使用。（特に属性についてはバグ？回避に必須。詳細はtypePhotoSelectedあたり参照。）
+            type: 'type', //独自
           },
         },
         {
@@ -381,10 +467,19 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: false,
+          hidden_default: false,
           filterOptions: {
             enabled: true,
-            placeholder: '☆',
-            filterDropdownItems: [1, 2, 3, 4],
+            // placeholder: '☆',
+            // filterDropdownItems: [1, 2, 3, 4],
+            type: 'select', //独自
+            options: [
+              { value: '', text: '☆' },
+              { value: '1', text: '1' },
+              { value: '2', text: '2' },
+              { value: '3', text: '3' },
+              { value: '4', text: '4' },
+            ], //独自。b-selectを使う場合の選択肢。
           },
         },
         {
@@ -394,6 +489,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -403,6 +499,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -412,6 +509,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -421,6 +519,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -430,6 +529,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -439,6 +539,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -446,28 +547,34 @@ export default {
           label: 'とくせい(変化前)',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'とくせい(変化後)',
           label: 'とくせい(変化後)',
           sortable: false,
           hidden: false,
+          hidden_default: false,
         },
         {
           field: 'イラストレータ名',
           label: 'イラストレータ名',
           sortable: true,
+          hidden: true,
+          hidden_default: true,
           filterOptions: {
             enabled: true,
+            filterValue: '',
             placeholder: 'イラストレータ名',
+            type: 'input', //独自
           },
-          hidden: true,
         },
         {
           label: '実装日',
           field: '実装日',
           sortable: true,
           hidden: false,
+          hidden_default: false,
           type: 'date',
           dateInputFormat: 'yyyyMMdd',
           dateOutputFormat: 'yyyy/MM/dd',
@@ -480,9 +587,13 @@ export default {
           field: '備考',
           label: '備考',
           sortable: true,
+          hidden: false,
+          hidden_default: false,
           filterOptions: {
             enabled: true,
+            filterValue: '',
             placeholder: '備考',
+            type: 'input', //独自
           },
         },
       ],
@@ -490,6 +601,7 @@ export default {
       columnsIndex: new Map(),
       //ステータス表示関係
       selectedLevel: 0,
+      selectedLevel_default: 0,
       selectLevelOptions: [
         { value: 0, text: '0' },
         { value: 4, text: '4' },
@@ -499,16 +611,17 @@ export default {
         { name: '攻撃', hidden: true },
         { name: '守り', hidden: true },
       ],
-      //検索対象を管理する配列
+      //検索対象を管理する配列。チェック順で順番が入れ替わる可能性があるので_defaultは用意していない。
       searchTargetFlag: ['normal', 'wild'],
+      searchTargetFlag_default: ['normal', 'wild'],
       //その他ページ内で使用している変数。不要かもしれないが初期値絡みの面倒を避けるため一応定義しておく。
       globalSearchTerm: '',
       advFilter: {
         label: '',
         columns: '',
         regex: '',
+        query: '',
       },
-      typeFilter: '',
     };
   },
   computed: {
@@ -587,14 +700,33 @@ export default {
       return this.getGlobalSearchTermArray.every(i => i.test(tmpCellString));
     },
 
-    //advFilterボタンが押された時にこれを通してadvFilterに値をセットする。
+    //advFilterに値をセットする。
+    //引数として指定された2つのindexを利用し、mixinにて定義された配列を参照して値を渡す。indexを経由させているのはクエリーにて利用したい為。
     //regexは前後の/は不要。^や$などは使用可。
-    setAdvFilter(label, columns, regex) {
-      this.advFilter.label = label;
-      this.advFilter.columns = columns;
-      this.advFilter.regex = regex;
+    setAdvFilter(index1, index2) {
+      //引数チェック。queryで来る可能性があるので厳密にチェックする。指定なし(undefined)が選ばれた場合もここで判別する。
+      if (
+        !isNaN(index1) &&
+        !isNaN(index2) &&
+        0 <= index1 &&
+        0 <= index2 &&
+        index1 < this.advFilterPhoto.length &&
+        index2 < this.advFilterPhoto[index1].dataList.length
+      ) {
+        //指定有
+        const data = this.advFilterPhoto[index1].dataList[index2];
+        this.advFilter.label = data.labelFull;
+        this.advFilter.columns = data.columns;
+        this.advFilter.regex = data.regex;
+        this.advFilter.query = index1 + ',' + index2;
+      } else {
+        //引数エラーもしくは指定なし
+        this.advFilter.label = '';
+        this.advFilter.columns = '';
+        this.advFilter.regex = '';
+        this.advFilter.query = '';
+      }
     },
-
     //行class生成
     rowStyleClassFn(row) {
       if (row.属性 === 'photoType1') return 'row-photoType1';
@@ -630,12 +762,159 @@ export default {
         this.$set(this.columns[this.columnsIndex.get(i.value + columnLabel)], 'hidden', tmpValue);
       }
     },
+
+    //現在の検索条件からクエリーURLを作り出し、セットする。
+    setQuery() {
+      const query = {}; //空のクエリーオブジェクトを生成。これに追加してゆく。
+
+      //検索対象
+      //クリック順によって要素の順番が入れ替わっている可能性があるのでsort()してから文字列化して比較する。sort()は破壊的だが特に問題ない。
+      if (
+        this.searchTargetFlag.sort().toString() != this.searchTargetFlag_default.sort().toString()
+      ) {
+        query.j = this.searchTargetFlag.join(',');
+      }
+
+      //特殊条件
+      if (this.advFilter.query) query.adv = this.advFilter.query;
+
+      //表示列（ボタン）
+      const visible = [];
+      this.columns.forEach((c, index) => {
+        if (c.hidden != c.hidden_default) {
+          visible.push(index);
+        }
+      });
+      if (0 < visible.length) query.v = visible.join(',');
+
+      //表示列（レベル）
+      if (this.selectedLevel != this.selectedLevel_default) query.lv = this.selectedLevel;
+
+      //表内検索
+      if (this.globalSearchTerm) query.s = this.globalSearchTerm;
+
+      //vgtカラムフィルター。vgt内のcolumnFiltersオブジェクトを参照してフィルター値を取り出す。
+      //クエリパラメータ名はcolumnsIndexを利用する。
+      Object.keys(this.$refs.vgt.columnFilters).forEach(k => {
+        if (this.$refs.vgt.columnFilters[k]) {
+          query['t' + this.columnsIndex.get(k)] = this.$refs.vgt.columnFilters[k];
+        }
+      });
+
+      //クエリーにセット
+      //router.replaceは同じURLに遷移しようとするとNavigationDuplicatedエラーを起こす。
+      //router.replaceはPromiseを返すので、それをcatchして処理している。catch内では特に処理は行わない。
+      this.$router.replace({ query: query }).catch(() => {});
+    },
+    //検索条件及び表示列をリセットする
+    reset() {
+      //検索対象
+      this.searchTargetFlag = this.searchTargetFlag_default.slice();
+      //特殊条件
+      this.setAdvFilter(undefined, undefined);
+      //表示列（ボタン）
+      this.columns.forEach(i => this.$set(i, 'hidden', i.hidden_default));
+      //表示列（レベル）
+      this.selectedLevel = this.selectedLevel_default;
+      //表示列（ボタン：ステータス）
+      this.levelStatusColumns.forEach(i => this.$set(i, 'hidden', true));
+      //表内検索
+      this.globalSearchTerm = '';
+      //vgtカラムフィルター
+      //クエリー文字列から確認すると面倒なのでcolumnsから走査する
+      this.columns.forEach(c => {
+        //filterOptionsがあるもののみ処理
+        if (Object.prototype.hasOwnProperty.call(c, 'filterOptions')) {
+          //filterValueをセットする。本来の目的であるvgtの初期値の他、見た目（入力欄）上の初期値も兼ねている。
+          this.$set(c.filterOptions, 'filterValue', '');
+        }
+      });
+    },
+    //クエリ文字列を消去する。実際にはこれによりbeforeRouteUpdate()が走りそこでreset()が呼ばれるため、検索欄もあわせてリセットされる。
+    resetQuery() {
+      this.$router.replace({ query: {} }).catch(() => {});
+    },
   },
   beforeMount() {
     //columnsIndexを初期化。
     //columnsIndexはtemplateにてcolumns[columnsIndex.get(i)].labelなどと参照されているが、columnsIndexの初期化が遅いと空であり、参照エラーになってしまう。
     //そのためpage描画が始まる前（elementがマウントされる前）であるここbeforeMountにて初期化を行う。
     this.columns.forEach((i, j) => this.columnsIndex.set(i.field, j));
+
+    //クエリー処理ここから ========================================
+
+    //検索対象
+    if (this.$route.query.j != undefined) {
+      //クエリ文字列を,で分離してそのままセット
+      this.searchTargetFlag = this.$route.query.j.split(',');
+    }
+
+    //特殊条件
+    if (this.$route.query.adv != undefined) {
+      //クエリ文字列を,で分離し、2分割できたならsetAdvFilterに送る。値が正しいかはsetAdvFilterでチェックしている。
+      const tmpAdvQuery = this.$route.query.adv.split(',');
+      if (tmpAdvQuery.length == 2) this.setAdvFilter(tmpAdvQuery[0], tmpAdvQuery[1]);
+    }
+
+    //表示列（ボタン）
+    if (this.$route.query.v != undefined) {
+      //クエリ文字列を,で分離
+      const tmpVQuery = this.$route.query.v.split(',');
+      tmpVQuery.forEach(v => {
+        //有効な数値の場合のみ処理
+        if (!isNaN(v) && 0 <= v && v < this.columns.length) {
+          //hiddenにhidden_defaultの逆をセットする
+          this.$set(this.columns[v], 'hidden', !this.columns[v].hidden_default);
+        }
+      });
+    }
+
+    //表示列（レベル）
+    //ステータス関連ボタンの表示に関わってくる為、ボタンよりも先にレベルを処理する。
+    if (this.$route.query.lv != undefined) {
+      //選択肢としてありえる数値の配列を作る
+      const tmpLv = [];
+      this.selectLevelOptions.forEach(i => tmpLv.push(i.value));
+      //クエリから来た数値が有効ならセット
+      if (tmpLv.includes(Number(this.$route.query.lv))) this.selectedLevel = this.$route.query.lv;
+    }
+
+    //表示列（ボタン：ステータス）
+    //['体力', '攻撃', '守り']ボタン(levelStatusColumns)は特別な処理をしているのでここでセットする。
+    //現在選択されているレベルの各表示状態を調べ、それをlevelStatusColumnsに反映させる。
+    this.levelStatusColumns.forEach(
+      i => (i.hidden = this.columns[this.columnsIndex.get(this.selectedLevel + i.name)].hidden)
+    );
+
+    //表内検索
+    if (this.$route.query.s != undefined) this.globalSearchTerm = this.$route.query.s;
+
+    //vgtカラムフィルター
+    //クエリー文字列から確認すると面倒なのでcolumnsから走査する
+    this.columns.forEach((c, index) => {
+      //filterOptionsがあるもののみ処理
+      if (Object.prototype.hasOwnProperty.call(c, 'filterOptions')) {
+        //クエリに現在のカラムに関する指定があるかチェック
+        if (this.$route.query['t' + index] != undefined) {
+          //filterValueをセットする。本来の目的であるvgtの初期値の他、見た目（入力欄）上の初期値も兼ねている。
+          this.$set(
+            this.columns[index].filterOptions,
+            'filterValue',
+            this.$route.query['t' + index]
+          );
+        }
+      }
+    });
+
+    //クエリー処理ここまで ========================================
+  },
+  //vue-routerによる遷移の間に実行される。初回（create等が走るとき）は実行されない。$router.pushや$router.replaceが走るたびに呼ばれる。
+  //主にヘッダメニューでこのページを再選択したとき（同ページ、クエリー無し）に検索条件をリセットするために用いている（そうしないと検索後の状態が残ったままとなる）。
+  beforeRouteUpdate(to, from, next) {
+    //クエリが存在しない場合は検索条件をリセット
+    if (Object.keys(to.query).length == 0) this.reset();
+    //仕様によりnext()は必ず呼ぶ
+    next();
   },
 };
 </script>
@@ -646,6 +925,15 @@ export default {
 .multiLine_hr {
   margin: 0.25rem;
   border-style: dashed;
+}
+
+//vue-good-tableのカスタムフィルター用。
+//実際にはこれに加えてvue-bootstrapのclassが自動挿入されるので、importantで優先順位を上げている。
+.vgt-custom-filter {
+  padding: 0.375rem 1.75rem 0.375rem 0.5rem !important;
+  font-size: 0.9rem !important;
+  height: 2.2rem !important;
+  line-height: 1 !important;
 }
 
 .search-option-grid {

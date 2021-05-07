@@ -79,6 +79,7 @@ import {
   BIconSearch,
   BIconQuestionCircleFill,
   BIconServer,
+  BIconArrowCounterclockwise,
 } from 'bootstrap-vue';
 Vue.use(BootstrapVue);
 import '@/assets/scss/custom-honoka.scss'; //bootstrapのカスタムテーマ
@@ -89,6 +90,7 @@ Vue.component('BIconEye', BIconEye);
 Vue.component('BIconSearch', BIconSearch);
 Vue.component('BIconQuestionCircleFill', BIconQuestionCircleFill);
 Vue.component('BIconServer', BIconServer);
+Vue.component('BIconArrowCounterclockwise', BIconArrowCounterclockwise);
 
 //vue-text-highlight
 import TextHighlight from 'vue-text-highlight/dist/component';

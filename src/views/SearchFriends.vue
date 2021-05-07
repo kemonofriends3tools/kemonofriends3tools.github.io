@@ -20,10 +20,27 @@
         <div class="table-attached-header">
           <b-container fluid>
             <b-row class="align-items-baseline">
+              <b-col class="pl-0">
+                <b-icon
+                  class="table-attached-header-icon align-middle"
+                  icon="arrowCounterclockwise"
+                  variant="dark"
+                  font-scale="1.5"
+                />
+                <b-button @click="resetQuery()" class="table-attached-header-view-button">
+                  以下の検索条件をリセット
+                </b-button>
+              </b-col>
+            </b-row>
+          </b-container>
+        </div>
+        <div class="table-attached-header">
+          <b-container fluid>
+            <b-row class="align-items-baseline">
               <b-col cols="12">
                 <b-collapse id="collapse1">
                   <b-alert show variant="info" class="small mb-1">
-                    １：特殊条件による絞り込みをしたい場合はここで指定してデータを絞り込みます。尚、ここで条件を選択するとデータ量が減るので後の動作が軽くなります。
+                    １：特殊条件による絞り込みをしたい場合はここで指定してデータを絞り込みます。
                   </b-alert>
                 </b-collapse>
               </b-col>
@@ -45,7 +62,14 @@
                 </template>
               </b-col>
               <b-col class="pl-4 flex-grow-0">
-                <SearchFriendsAdvFilterModal @advFilterSelected="setAdvFilter">
+                <SearchFriendsAdvFilterModal
+                  @advFilterSelected="
+                    (i1, i2) => {
+                      setAdvFilter(i1, i2);
+                      setQuery();
+                    }
+                  "
+                >
                   特殊条件選択
                 </SearchFriendsAdvFilterModal>
               </b-col>
@@ -72,7 +96,7 @@
                 <b-collapse id="collapse2">
                   <b-alert show variant="info" class="small mb-1">
                     ２：下の表の表示列を切り替えます。<br />
-                    表示列を切り替えるだけなので、ここを触ってもデータ行数が変化することはありません。ただしここの選択は３の『表内検索』と深く関係しています。<br />
+                    変化するのは列の表示のみで、行数が変化することはありません。ただしここの選択は３の『表内検索』と深く関係しています。<br />
                     ３の『表内検索』はここで表示させたものが検索対象となります。なので”とくいわざ”や”たいきスキル”の中身だけを厳密に検索したい場合は『その他詳細・個別カラム表示』から”とくいわざ詳細”や”たいきスキル詳細”を利用して下さい。
                   </b-alert>
                 </b-collapse>
@@ -98,7 +122,10 @@
                   <b-select
                     v-model.number="selectedLevel"
                     :options="selectLevelOptions"
-                    @change="selectLevelSelected"
+                    @change="
+                      selectLevelSelected();
+                      setQuery();
+                    "
                     style="width:5.5rem"
                     required
                   />
@@ -106,7 +133,10 @@
                     <b-button
                       v-show="!i.hidden"
                       variant="secondary"
-                      @click="setLevelStatusColumnHidden(i.name, index)"
+                      @click="
+                        setLevelStatusColumnHidden(i.name, index);
+                        setQuery();
+                      "
                       class="table-attached-header-view-button"
                     >
                       {{ i.name }}
@@ -114,7 +144,10 @@
                     <b-button
                       v-show="i.hidden"
                       variant="outline-secondary"
-                      @click="setLevelStatusColumnHidden(i.name, index)"
+                      @click="
+                        setLevelStatusColumnHidden(i.name, index);
+                        setQuery();
+                      "
                       class="table-attached-header-view-button"
                     >
                       {{ i.name }}
@@ -131,7 +164,8 @@
                           columns[columnsIndex.get(i)],
                           'hidden',
                           !columns[columnsIndex.get(i)].hidden
-                        )
+                        );
+                        setQuery();
                       "
                       class="table-attached-header-view-button"
                     >
@@ -145,7 +179,8 @@
                           columns[columnsIndex.get(i)],
                           'hidden',
                           !columns[columnsIndex.get(i)].hidden
-                        )
+                        );
+                        setQuery();
                       "
                       class="table-attached-header-view-button"
                     >
@@ -184,7 +219,8 @@
                           columns[columnsIndex.get(j)],
                           'hidden',
                           !columns[columnsIndex.get(j)].hidden
-                        )
+                        );
+                        setQuery();
                       "
                       class="table-attached-header-view-button"
                     >
@@ -198,7 +234,8 @@
                           columns[columnsIndex.get(j)],
                           'hidden',
                           !columns[columnsIndex.get(j)].hidden
-                        )
+                        );
+                        setQuery();
                       "
                       class="table-attached-header-view-button"
                     >
@@ -245,6 +282,9 @@
                         >存在する場合、この行には両方のキーワード満たす項目が１つも存在しなかったと判定され、そのデータ行は非表示となります。<br />
                         "とくせい/キセキとくせい"のように1項目に複数の項目がまとまっている場合は"とくせい"と"キセキとくせい"を同時に検索することが出来ます。
                       </li>
+                      <li>
+                        ここで指定したキーワードは表内でハイライト(強調表示)されます。
+                      </li>
                     </ul>
                   </b-alert>
                 </b-collapse>
@@ -258,6 +298,7 @@
                   placeholder="表内検索"
                   type="search"
                   debounce="500"
+                  @change="setQuery()"
                 />
               </b-col>
             </b-row>
@@ -265,6 +306,7 @@
         </div>
       </div>
       <vue-good-table
+        ref="vgt"
         compactMode
         :rows="filterdFriends"
         :columns="columns"
@@ -305,17 +347,54 @@
           </div>
         </template>
         <template v-slot:column-filter="{ column, updateFilters }">
-          <template v-if="column.label == '属性'">
-            <TypeSelectModalFriends
-              @typeFriendsSelected="
-                value => {
-                  typeFilter = value;
-                  updateFilters(column, value);
-                }
-              "
-            >
-              <TypeNameToIcon :type="typeFilter" :imgRemSize="1.8" />
-            </TypeSelectModalFriends>
+          <template
+            v-if="
+              Object.prototype.hasOwnProperty.call(column, 'filterOptions') &&
+                Object.prototype.hasOwnProperty.call(column.filterOptions, 'type')
+            "
+          >
+            <template v-if="column.filterOptions.type == 'type'">
+              <TypeSelectModalFriends
+                @typeFriendsSelected="
+                  value => {
+                    //バグなのか、同一ページ遷移後($router.replace等)、updateFiltersを実行するだけでは値が変わらなくなる。
+                    //どうもfilterValueの値に引きずられているようなので、ここで毎回setする。
+                    $set(column.filterOptions, 'filterValue', value);
+                    updateFilters(column, value);
+                    setQuery();
+                  }
+                "
+              >
+                <TypeNameToIcon :type="column.filterOptions.filterValue" :imgRemSize="1.8" />
+              </TypeSelectModalFriends>
+            </template>
+            <template v-else-if="column.filterOptions.type == 'input'">
+              <b-input
+                class="vgt-custom-filter"
+                v-model="column.filterOptions.filterValue"
+                :placeholder="column.filterOptions.placeholder"
+                @change="
+                  value => {
+                    updateFilters(column, value);
+                    setQuery();
+                  }
+                "
+              />
+            </template>
+            <template v-else-if="column.filterOptions.type == 'select'">
+              <b-select
+                class="vgt-custom-filter"
+                v-model.number="column.filterOptions.filterValue"
+                :options="column.filterOptions.options"
+                :placeholder="column.filterOptions.placeholder"
+                @change="
+                  value => {
+                    updateFilters(column, value);
+                    setQuery();
+                  }
+                "
+              />
+            </template>
           </template>
         </template>
         <template v-slot:table-row="props">
@@ -483,13 +562,16 @@
 
 <script>
 import friendsJson from '../json/friends.json';
+
 import SearchFriendsAdvFilterModal from '@/components/SearchFriendsAdvFilterModal.vue';
+import advFilterFriends from '@/mixins/advFilterFriends.js';
+
 import TypeSelectModalFriends from '@/components/TypeSelectModalFriends.vue';
 import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
 import resizableTable from '@/mixins/resizableTable.js';
 
 export default {
-  mixins: [resizableTable],
+  mixins: [resizableTable, advFilterFriends],
   name: 'SearchFriends',
   components: {
     SearchFriendsAdvFilterModal,
@@ -503,9 +585,13 @@ export default {
           field: '名前',
           label: '名前',
           sortable: true,
+          hidden: false,
+          hidden_default: false,
           filterOptions: {
             enabled: true,
             placeholder: 'フレンズ名',
+            filterValue: '', //本来初期値用だがvalueとしても使用
+            type: 'input', //独自。templateの分岐用。
           },
         },
         {
@@ -513,11 +599,12 @@ export default {
           label: '属性',
           sortable: true,
           hidden: false,
+          hidden_default: false,
           tdClass: 'text-center',
           filterOptions: {
-            //何故かfilterOptionsが無いとcustom filterが動作しなかったので空作成
-            //customFilterは特に何も使ってない。
-            customFilter: true,
+            enabled: true,
+            filterValue: '', //本来初期値用だがvalueとしても使用。（特に属性についてはバグ？回避に必須。詳細はtypeFriendsSelectedあたり参照。）
+            type: 'type', //独自
           },
         },
         {
@@ -527,10 +614,19 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: false,
+          hidden_default: false,
           filterOptions: {
             enabled: true,
-            placeholder: '初期けも級',
-            filterDropdownItems: [2, 3, 4],
+            filterValue: '',
+            // placeholder: '初期けも級',
+            // filterDropdownItems: [2, 3, 4],  //vgtのフィルターを使う場合の選択肢。今は使ってない。
+            type: 'select', //独自
+            options: [
+              { value: '', text: '初期けも級' },
+              { value: '2', text: '2' },
+              { value: '3', text: '3' },
+              { value: '4', text: '4' },
+            ], //独自。b-selectを使う場合の選択肢。
           },
         },
         {
@@ -540,10 +636,18 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           filterOptions: {
             enabled: true,
-            placeholder: '最大フォトポケ',
-            filterDropdownItems: [8, 12],
+            filterValue: '',
+            // placeholder: '最大フォトポケ',
+            // filterDropdownItems: [8, 12],
+            type: 'select', //独自
+            options: [
+              { value: '', text: '最大フォトポケ' },
+              { value: '8', text: '8' },
+              { value: '12', text: '12' },
+            ], //独自
           },
         },
         {
@@ -553,10 +657,18 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           filterOptions: {
             enabled: true,
-            placeholder: '最大野生解放',
-            filterDropdownItems: [4, 5],
+            filterValue: '',
+            // placeholder: '最大野生解放',
+            // filterDropdownItems: [4, 5],
+            type: 'select', //独自
+            options: [
+              { value: '', text: '最大野生解放' },
+              { value: '4', text: '4' },
+              { value: '5', text: '5' },
+            ], //独自
           },
         },
         {
@@ -566,6 +678,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -575,6 +688,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -584,6 +698,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -593,6 +708,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -602,6 +718,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -611,6 +728,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -620,6 +738,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -629,6 +748,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -638,6 +758,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -647,6 +768,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -656,6 +778,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -665,6 +788,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -674,6 +798,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'プラズム',
@@ -682,6 +807,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -689,6 +815,7 @@ export default {
           label: 'フラッグ補正',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'Beat補正',
@@ -697,6 +824,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'Try補正',
@@ -705,6 +833,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'Action補正',
@@ -713,54 +842,63 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'フラッグ',
           label: 'フラッグ',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'flag1',
           label: 'フラッグ1',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'flag2',
           label: 'フラッグ2',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'flag3',
           label: 'フラッグ3',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'flag4',
           label: 'フラッグ4',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'flag5',
           label: 'フラッグ5',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'ミラクル',
           label: 'ミラクル',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'ミラクル名',
           label: 'ミラクル名',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'MP',
@@ -769,6 +907,7 @@ export default {
           sortable: true,
           sortFn: this.numberColumnSortFn,
           hidden: true,
+          hidden_default: true,
           formatFn: this.formatFnRaw,
         },
         {
@@ -776,10 +915,19 @@ export default {
           label: 'ミラクル+',
           sortable: false,
           hidden: true,
+          hidden_default: true,
           filterOptions: {
             enabled: true,
-            placeholder: 'ミラクル+',
-            filterDropdownItems: ['Beat', 'Action', 'Try'],
+            filterValue: '',
+            // placeholder: 'ミラクル+',
+            // filterDropdownItems: ['Beat', 'Action', 'Try'],
+            type: 'select', //独自
+            options: [
+              { value: '', text: 'ミラクル+' },
+              { value: 'Beat', text: 'Beat' },
+              { value: 'Action', text: 'Action' },
+              { value: 'Try', text: 'Try' },
+            ], //独自
           },
         },
         {
@@ -787,81 +935,96 @@ export default {
           label: 'ミラクル (Lv.5)',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'とくいわざ',
           label: 'とくいわざ',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'とくいわざ名',
           label: 'とくいわざ名',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'とくいわざ詳細',
           label: 'とくいわざ詳細',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'たいきスキル',
           label: 'たいきスキル',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'たいきスキル名',
           label: 'たいきスキル名',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'たいきスキル詳細',
           label: 'たいきスキル詳細',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'とくせい/キセキとくせい',
           label: 'とくせい/キセキとくせい',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'とくせい名',
           label: 'とくせい名',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'とくせい詳細',
           label: 'とくせい詳細',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'キセキとくせい名',
           label: 'キセキとくせい名',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'キセキとくせい詳細',
           label: 'キセキとくせい詳細',
           sortable: false,
           hidden: true,
+          hidden_default: true,
         },
         {
           field: 'CV',
           label: 'CV',
           sortable: true,
           hidden: true,
+          hidden_default: true,
           filterOptions: {
             enabled: true,
+            filterValue: '',
             placeholder: 'CV名',
+            type: 'input', //独自
           },
         },
         {
@@ -869,6 +1032,7 @@ export default {
           field: '実装日',
           sortable: true,
           hidden: false,
+          hidden_default: false,
           type: 'date',
           dateInputFormat: 'yyyyMMdd',
           dateOutputFormat: 'yyyy/MM/dd',
@@ -881,9 +1045,13 @@ export default {
           field: '備考',
           label: '備考',
           sortable: true,
+          hidden: false,
+          hidden_default: false,
           filterOptions: {
             enabled: true,
+            filterValue: '',
             placeholder: '備考',
+            type: 'input', //独自
           },
         },
       ],
@@ -891,6 +1059,7 @@ export default {
       columnsIndex: new Map(),
       //ステータス表示関係
       selectedLevel: 70,
+      selectedLevel_default: 70, //クエリー生成時比較用
       selectLevelOptions: [
         { value: 70, text: 'Lv.70' },
         { value: 90, text: 'Lv.90' },
@@ -910,8 +1079,8 @@ export default {
         label: '',
         columns: '',
         regex: '',
+        query: '',
       },
-      typeFilter: '',
     };
   },
   computed: {
@@ -1014,14 +1183,33 @@ export default {
       return this.getGlobalSearchTermArray.every(i => i.test(tmpCellString));
     },
 
-    //advFilterボタンが押された時にこれを通してadvFilterに値をセットする。
+    //advFilterに値をセットする。
+    //引数として指定された2つのindexを利用し、mixinにて定義された配列を参照して値を渡す。indexを経由させているのはクエリーにて利用したい為。
     //regexは前後の/は不要。^や$などは使用可。
-    setAdvFilter(label, columns, regex) {
-      this.advFilter.label = label;
-      this.advFilter.columns = columns;
-      this.advFilter.regex = regex;
+    setAdvFilter(index1, index2) {
+      //引数チェック。queryで来る可能性があるので厳密にチェックする。指定なし(undefined)が選ばれた場合もここで判別する。
+      if (
+        !isNaN(index1) &&
+        !isNaN(index2) &&
+        0 <= index1 &&
+        0 <= index2 &&
+        index1 < this.advFilterFriends.length &&
+        index2 < this.advFilterFriends[index1].dataList.length
+      ) {
+        //指定有
+        const data = this.advFilterFriends[index1].dataList[index2];
+        this.advFilter.label = data.labelFull;
+        this.advFilter.columns = data.columns;
+        this.advFilter.regex = data.regex;
+        this.advFilter.query = index1 + ',' + index2;
+      } else {
+        //引数エラーもしくは指定なし
+        this.advFilter.label = '';
+        this.advFilter.columns = '';
+        this.advFilter.regex = '';
+        this.advFilter.query = '';
+      }
     },
-
     //行class生成
     rowStyleClassFn(row) {
       if (row.属性 === 'ファニー') return 'row-funny';
@@ -1076,6 +1264,68 @@ export default {
       }
       return otherClassesStr + ' color-' + tmpFlag;
     },
+
+    //現在の検索条件からクエリーURLを作り出し、セットする。
+    setQuery() {
+      const query = {}; //空のクエリーオブジェクトを生成。これに追加してゆく。
+
+      //特殊条件
+      if (this.advFilter.query) query.adv = this.advFilter.query;
+
+      //表示列（ボタン）
+      const visible = [];
+      this.columns.forEach((c, index) => {
+        if (c.hidden != c.hidden_default) {
+          visible.push(index);
+        }
+      });
+      if (0 < visible.length) query.v = visible.join(',');
+
+      //表示列（レベル）
+      if (this.selectedLevel != this.selectedLevel_default) query.lv = this.selectedLevel;
+
+      //表内検索
+      if (this.globalSearchTerm) query.s = this.globalSearchTerm;
+
+      //vgtカラムフィルター。vgt内のcolumnFiltersオブジェクトを参照してフィルター値を取り出す。
+      //クエリパラメータ名はcolumnsIndexを利用する。
+      Object.keys(this.$refs.vgt.columnFilters).forEach(k => {
+        if (this.$refs.vgt.columnFilters[k]) {
+          query['t' + this.columnsIndex.get(k)] = this.$refs.vgt.columnFilters[k];
+        }
+      });
+
+      //クエリーにセット
+      //router.replaceは同じURLに遷移しようとするとNavigationDuplicatedエラーを起こす。
+      //router.replaceはPromiseを返すので、それをcatchして処理している。catch内では特に処理は行わない。
+      this.$router.replace({ query: query }).catch(() => {});
+    },
+    //検索条件及び表示列をリセットする
+    reset() {
+      //特殊条件
+      this.setAdvFilter(undefined, undefined);
+      //表示列（ボタン）
+      this.columns.forEach(i => this.$set(i, 'hidden', i.hidden_default));
+      //表示列（レベル）
+      this.selectedLevel = this.selectedLevel_default;
+      //表示列（ボタン：ステータス）
+      this.levelStatusColumns.forEach(i => this.$set(i, 'hidden', true));
+      //表内検索
+      this.globalSearchTerm = '';
+      //vgtカラムフィルター
+      //クエリー文字列から確認すると面倒なのでcolumnsから走査する
+      this.columns.forEach(c => {
+        //filterOptionsがあるもののみ処理
+        if (Object.prototype.hasOwnProperty.call(c, 'filterOptions')) {
+          //filterValueをセットする。本来の目的であるvgtの初期値の他、見た目（入力欄）上の初期値も兼ねている。
+          this.$set(c.filterOptions, 'filterValue', '');
+        }
+      });
+    },
+    //クエリ文字列を消去する。実際にはこれによりbeforeRouteUpdate()が走りそこでreset()が呼ばれるため、検索欄もあわせてリセットされる。
+    resetQuery() {
+      this.$router.replace({ query: {} }).catch(() => {});
+    },
   },
   beforeMount() {
     //columnsIndexを初期化。
@@ -1122,6 +1372,75 @@ export default {
         i['ミラクル+'] = 'Try';
       }
     });
+
+    //クエリー処理ここから ========================================
+
+    //特殊条件
+    if (this.$route.query.adv != undefined) {
+      //クエリ文字列を,で分離し、2分割できたならsetAdvFilterに送る。値が正しいかはsetAdvFilterでチェックしている。
+      const tmpAdvQuery = this.$route.query.adv.split(',');
+      if (tmpAdvQuery.length == 2) this.setAdvFilter(tmpAdvQuery[0], tmpAdvQuery[1]);
+    }
+
+    //表示列（ボタン）
+    if (this.$route.query.v != undefined) {
+      //クエリ文字列を,で分離
+      const tmpVQuery = this.$route.query.v.split(',');
+      tmpVQuery.forEach(v => {
+        //有効な数値の場合のみ処理
+        if (!isNaN(v) && 0 <= v && v < this.columns.length) {
+          //hiddenにhidden_defaultの逆をセットする
+          this.$set(this.columns[v], 'hidden', !this.columns[v].hidden_default);
+        }
+      });
+    }
+
+    //表示列（レベル）
+    //ステータス関連ボタンの表示に関わってくる為、ボタンよりも先にレベルを処理する。
+    if (this.$route.query.lv != undefined) {
+      //選択肢としてありえる数値の配列を作る
+      const tmpLv = [];
+      this.selectLevelOptions.forEach(i => tmpLv.push(i.value));
+      //クエリから来た数値が有効ならセット
+      if (tmpLv.includes(Number(this.$route.query.lv))) this.selectedLevel = this.$route.query.lv;
+    }
+
+    //表示列（ボタン：ステータス）
+    //['けもステ', '体力', '攻撃', '守り']ボタン(levelStatusColumns)は特別な処理をしているのでここでセットする。
+    //現在選択されているレベルの各表示状態を調べ、それをlevelStatusColumnsに反映させる。
+    this.levelStatusColumns.forEach(
+      i => (i.hidden = this.columns[this.columnsIndex.get(this.selectedLevel + i.name)].hidden)
+    );
+
+    //表内検索
+    if (this.$route.query.s != undefined) this.globalSearchTerm = this.$route.query.s;
+
+    //vgtカラムフィルター
+    //クエリー文字列から確認すると面倒なのでcolumnsから走査する
+    this.columns.forEach((c, index) => {
+      //filterOptionsがあるもののみ処理
+      if (Object.prototype.hasOwnProperty.call(c, 'filterOptions')) {
+        //クエリに現在のカラムに関する指定があるかチェック
+        if (this.$route.query['t' + index] != undefined) {
+          //filterValueをセットする。本来の目的であるvgtの初期値の他、見た目（入力欄）上の初期値も兼ねている。
+          this.$set(
+            this.columns[index].filterOptions,
+            'filterValue',
+            this.$route.query['t' + index]
+          );
+        }
+      }
+    });
+
+    //クエリー処理ここまで ========================================
+  },
+  //vue-routerによる遷移の間に実行される。初回（create等が走るとき）は実行されない。$router.pushや$router.replaceが走るたびに呼ばれる。
+  //主にヘッダメニューでこのページを再選択したとき（同ページ、クエリー無し）に検索条件をリセットするために用いている（そうしないと検索後の状態が残ったままとなる）。
+  beforeRouteUpdate(to, from, next) {
+    //クエリが存在しない場合は検索条件をリセット
+    if (Object.keys(to.query).length == 0) this.reset();
+    //仕様によりnext()は必ず呼ぶ
+    next();
   },
 };
 </script>
@@ -1145,6 +1464,15 @@ export default {
 .color-try {
   background: linear-gradient(90deg, $try-color-1 2%, $try-color-2 5%, transparent 100%);
   padding-left: 5%;
+}
+
+//vue-good-tableのカスタムフィルター用。
+//実際にはこれに加えてvue-bootstrapのclassが自動挿入されるので、importantで優先順位を上げている。
+.vgt-custom-filter {
+  padding: 0.375rem 1.75rem 0.375rem 0.5rem !important;
+  font-size: 0.9rem !important;
+  height: 2.2rem !important;
+  line-height: 1 !important;
 }
 
 .search-option-grid {

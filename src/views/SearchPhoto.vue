@@ -611,7 +611,7 @@ export default {
         { name: '攻撃', hidden: true },
         { name: '守り', hidden: true },
       ],
-      //検索対象を管理する配列。チェック順で順番が入れ替わる可能性があるので_defaultは用意していない。
+      //検索対象を管理する配列
       searchTargetFlag: ['normal', 'wild'],
       searchTargetFlag_default: ['normal', 'wild'],
       //その他ページ内で使用している変数。不要かもしれないが初期値絡みの面倒を避けるため一応定義しておく。

@@ -37,7 +37,7 @@
             <b-table-simple small striped hover class="mb-0">
               <b-tbody>
                 <b-tr>
-                  <b-th class="align-middle text-right">属性</b-th>
+                  <b-th class="align-middle text-right">敵属性</b-th>
                   <b-td>
                     <TypeNameToIcon
                       :type="masterDojoData.get(getDayOfTheWeek).get('敵属性')"

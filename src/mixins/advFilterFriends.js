@@ -46,6 +46,12 @@ const _advFilterFriends = [
         regex: 'やまの(場合|とき)',
       },
       {
+        labelFull: '地形/時間特効(まち)',
+        labelShort: 'まち',
+        columns: ['とくせい詳細', 'キセキとくせい詳細'],
+        regex: 'まちの(場合|とき)',
+      },
+      {
         labelFull: '地形/時間特効(夜)',
         labelShort: '夜',
         columns: ['とくせい詳細', 'キセキとくせい詳細'],

@@ -45,6 +45,16 @@ body {
 $link-color: $color-blue-0;
 
 // Components
+//M PLUS Rounded 1cから3点リーダのみ取り出し、最優先度とする
+@font-face {
+  font-family: 'U2026';
+  src: url(https://fonts.gstatic.com/s/mplusrounded1c/v10/VdGBAYIAV6gnpUpoWwNkYvrugw9RuM064ZsPrfqk33YqOjLBxkUhdkeuqyIMwGYkDA.113.woff2)
+    format('woff2');
+  unicode-range: U+2026;
+}
+$font-family-sans-serif: 'U2026', -apple-system, 'BlinkMacSystemFont', 'Helvetica Neue', Helvetica,
+  'Arial', 'ヒラギノ角ゴ ProN W3', 'Hiragino Kaku Gothic ProN', 'メイリオ', Meiryo, sans-serif,
+  'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 $component-active-bg: $color-green-4; //$color-green-3程度にするか迷うがcheckbox等は小さいので濃ゆいほうが良いか
 
 // Typography

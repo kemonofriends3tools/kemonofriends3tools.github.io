@@ -1199,7 +1199,7 @@ export default {
         //指定有
         const data = this.advFilterFriends[index1].dataList[index2];
         this.advFilter.label = data.labelFull;
-        this.advFilter.columns = data.columns;
+        this.advFilter.columns = data.columns ? data.columns : this.advFilterFriends_defaultColumns;
         this.advFilter.regex = data.regex;
         this.advFilter.query = index1 + ',' + index2;
       } else {

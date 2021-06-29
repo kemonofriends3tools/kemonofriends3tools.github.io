@@ -641,7 +641,9 @@ export default {
         //some()は配列の各要素に対してループし、コールバック関数が１つでもtrueを返せばsome()自身もtrueを返す。
         //これを組み合わせ、指定カラムのうちどれか１つが正規表現に合格するフォトのみを抽出している。
         return this.masterPhoto.filter(row =>
-          this.advFilter.columns.some(col => row[col].match(this.advFilter.regex))
+          this.advFilter.columns.some(col =>
+            row[col].replace(/\r?\n/g, '').match(this.advFilter.regex)
+          )
         );
       } else {
         return this.masterPhoto;

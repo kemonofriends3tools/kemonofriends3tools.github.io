@@ -4375,7 +4375,7 @@
 		"35": "輝きの欠片フォト☆4 1,輝きの欠片フォト☆3 1,四神玉 1,インテリアメダル 60"
 	},
 	{
-		"0": "https://kemono-friends.sega.jp/info/detail/004093CVTL6HNC.htmll",
+		"0": "https://kemono-friends.sega.jp/info/detail/004093CVTL6HNC.html",
 		"1": "ヘラジカのカフェ制服＜リウキウ・イエロー＞",
 		"2": "2012010000",
 		"3": "2103312359",
@@ -5442,7 +5442,7 @@
 		"6": "カンザシフウチョウ,イワトビペンギン"
 	},
 	{
-		"0": "https://kemono-friends.sega.jp/info/detail/004763qAYOonzP.htmll",
+		"0": "https://kemono-friends.sega.jp/info/detail/004763qAYOonzP.html",
 		"1": "恒常追加",
 		"2": "2102121400",
 		"3": "3012312359",
@@ -5765,7 +5765,7 @@
 		"26": "やじるしカーペット(レッド)"
 	},
 	{
-		"0": "https://kemono-friends.sega.jp/info/detail/005035Q71O38tL.htmll",
+		"0": "https://kemono-friends.sega.jp/info/detail/005035Q71O38tL.html",
 		"1": "シナリオイベント☆４フレンズしょうたい",
 		"2": "2103121930",
 		"3": "2103251400",
@@ -5793,7 +5793,7 @@
 		"6": "アフリカオオコノハズク,ワシミミズク"
 	},
 	{
-		"0": "https://kemono-friends.sega.jp/info/detail/005032kwM4Fj5Q.htmll",
+		"0": "https://kemono-friends.sega.jp/info/detail/005032kwM4Fj5Q.html",
 		"1": "はなまるチェンジ♪フレンズの衣装をショップに追加",
 		"2": "2103121930",
 		"3": "3012312359",
@@ -6027,7 +6027,7 @@
 		"5": "みずべ。カフェ制服ピンク、ブルー、グリーンはランキング報酬"
 	},
 	{
-		"0": "https://kemono-friends.sega.jp/info/detail/005223kq5KkUBO.htmll",
+		"0": "https://kemono-friends.sega.jp/info/detail/005223kq5KkUBO.html",
 		"1": "マイルカのカフェ制服＜リウキウ・イエロー＞",
 		"2": "2104010000",
 		"3": "2107302359",
@@ -6165,7 +6165,7 @@
 		"37": "キラキラ 5,キラキラ 25"
 	},
 	{
-		"0": "https://kemono-friends.sega.jp/info/detail/005344dKhO1VRL.htmll",
+		"0": "https://kemono-friends.sega.jp/info/detail/005344dKhO1VRL.html",
 		"1": "恒常追加",
 		"2": "2104141400",
 		"3": "3012312359",
@@ -6392,7 +6392,7 @@
 		"18": "カフェ制服＜リウキウ・イエロー＞:ミーアキャット"
 	},
 	{
-		"0": "https://kemono-friends.sega.jp/info/detail/005440t5DiFKu9.htmll",
+		"0": "https://kemono-friends.sega.jp/info/detail/005440t5DiFKu9.html",
 		"1": "ちゅーばーのあかし追加",
 		"2": "2105010000",
 		"3": "3012312359",
@@ -6724,7 +6724,7 @@
 		"18": "カフェ制服＜リウキウ・イエロー＞:ハクトウワシ"
 	},
 	{
-		"0": "https://kemono-friends.sega.jp/info/detail/005753rb0xm2t8.htmll",
+		"0": "https://kemono-friends.sega.jp/info/detail/005753rb0xm2t8.html",
 		"1": "ちゅーばーのあかし追加",
 		"2": "2106010000",
 		"3": "3012312359",
@@ -7378,7 +7378,7 @@
 		"18": "カフェ制服＜リウキウ・イエロー＞:タスマニアデビル"
 	},
 	{
-		"0": "https://kemono-friends-3.jp/info/detail/006299EXiXtJRh.htmll",
+		"0": "https://kemono-friends-3.jp/info/detail/006299EXiXtJRh.html",
 		"1": "ちゅーばーのあかし追加",
 		"2": "2108010000",
 		"3": "3012312359",
@@ -7502,6 +7502,33 @@
 		"3": "2108100000",
 		"4": "とくべつくんれん,配布",
 		"5": "不具合のお詫びとしてとくべつくんれんメダル 300を配布"
+	},
+	{
+		"0": "https://kemono-friends-3.jp/info/detail/006408kYTEQxQ6.html",
+		"1": "メンテナンスのお知らせ",
+		"2": "2108131400",
+		"3": "2108131800",
+		"4": "メンテナンス,バージョンアップ",
+		"5": "Ver2.1",
+		"37": "キラキラ 5,キラキラ 25"
+	},
+	{
+		"0": "https://kemono-friends-3.jp/info/detail/00640193WgnU3W.html",
+		"1": "ニワトリ登場「新章公開前しょうたい」開催！",
+		"2": "2108131800",
+		"3": "2108201400",
+		"4": "しょうたい",
+		"6": "ニワトリ",
+		"31": "水しぶきのブローチ",
+		"35": "水着メダル"
+	},
+	{
+		"0": "https://kemono-friends-3.jp/info/detail/00640193WgnU3W.html",
+		"1": "恒常追加",
+		"2": "2108131800",
+		"3": "3012312359",
+		"4": "しょうたい,恒常",
+		"6": "ニワトリ"
 	},
 	{
 		"0": "",

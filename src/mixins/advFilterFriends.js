@@ -111,7 +111,7 @@ const _advFilterFriends = [
       {
         labelFull: '与・状態異常(ルンルンきぶん)',
         labelShort: 'ルンルンきぶん',
-        regex: 'ルンルンきぶん状態にな(る|り)',
+        regex: 'ルンルンきぶん.*状態にな(る|り)',
       },
       {
         labelFull: '与・状態異常(しょんぼりきぶん)',

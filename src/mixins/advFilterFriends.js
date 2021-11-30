@@ -1,58 +1,58 @@
 const _advFilterFriends = [
   {
-    title: '地形/時間特効',
-    subTitle: '特定の地形/時間に特効をもつフレンズ',
+    title: '地形/時間効果',
+    subTitle: '特定の地形/時間によって性能が変化するフレンズ',
     dataList: [
       {
-        labelFull: '地形/時間特効(サバンナ)',
+        labelFull: '地形/時間効果(サバンナ)',
         labelShort: 'サバンナ',
 
         regex: 'サバンナの(場合|とき)',
       },
       {
-        labelFull: '地形/時間特効(さばく)',
+        labelFull: '地形/時間効果(さばく)',
         labelShort: 'さばく',
 
         regex: 'さばくの(場合|とき)',
       },
       {
-        labelFull: '地形/時間特効(みずべ)',
+        labelFull: '地形/時間効果(みずべ)',
         labelShort: 'みずべ',
 
         regex: 'みずべの(場合|とき)',
       },
       {
-        labelFull: '地形/時間特効(寒冷地)',
+        labelFull: '地形/時間効果(寒冷地)',
         labelShort: '寒冷地',
 
         regex: '寒冷地の(場合|とき)',
       },
       {
-        labelFull: '地形/時間特効(どうくつ)',
+        labelFull: '地形/時間効果(どうくつ)',
         labelShort: 'どうくつ',
 
         regex: 'どうくつの(場合|とき)',
       },
       {
-        labelFull: '地形/時間特効(ジャングル)',
+        labelFull: '地形/時間効果(ジャングル)',
         labelShort: 'ジャングル',
 
         regex: 'ジャングルの(場合|とき)',
       },
       {
-        labelFull: '地形/時間特効(やま)',
+        labelFull: '地形/時間効果(やま)',
         labelShort: 'やま',
 
         regex: 'やまの(場合|とき)',
       },
       {
-        labelFull: '地形/時間特効(まち)',
+        labelFull: '地形/時間効果(まち)',
         labelShort: 'まち',
 
         regex: 'まちの(場合|とき)',
       },
       {
-        labelFull: '地形/時間特効(夜)',
+        labelFull: '地形/時間効果(夜)',
         labelShort: '夜',
 
         regex: 'ステージ(|の時間)が夜の(場合|とき)',

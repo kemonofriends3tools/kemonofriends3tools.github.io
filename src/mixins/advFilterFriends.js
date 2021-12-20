@@ -66,37 +66,37 @@ const _advFilterFriends = [
       {
         labelFull: '与・状態異常(くらくら)',
         labelShort: 'くらくら',
-        regex: 'くらくら.*状態に(する|し)',
+        regex: 'くらくら.*状態に(する|し|なる)',
       },
       {
         labelFull: '与・状態異常(どく)',
         labelShort: 'どく',
-        regex: 'どく.*状態に(する|し)',
+        regex: 'どく.*状態に(する|し|なる)',
       },
       {
         labelFull: '与・状態異常(すやすや)',
         labelShort: 'すやすや',
-        regex: 'すやすや.*状態に(する|し)',
+        regex: 'すやすや.*状態に(する|し|なる)',
       },
       {
         labelFull: '与・状態異常(くたくた)',
         labelShort: 'くたくた',
-        regex: 'くたくた.*状態に(する|し)',
+        regex: 'くたくた.*状態に(する|し|なる)',
       },
       {
         labelFull: '与・状態異常(ひやひや)',
         labelShort: 'ひやひや',
-        regex: 'ひやひや.*状態に(する|し)',
+        regex: 'ひやひや.*状態に(する|し|なる)',
       },
       {
         labelFull: '与・状態異常(ズキンズキン)',
         labelShort: 'ズキンズキン',
-        regex: 'ズキンズキン.*状態に(する|し)',
+        regex: 'ズキンズキン.*状態に(する|し|なる)',
       },
       {
         labelFull: '与・状態異常(からげんき)',
         labelShort: 'からげんき',
-        regex: 'からげんき.*状態に(する|し)',
+        regex: 'からげんき.*状態に(する|し|なる)',
       },
       {
         labelFull: '与・状態異常(はねかえし)',
@@ -106,7 +106,7 @@ const _advFilterFriends = [
       {
         labelFull: '与・状態異常(ぼんやりうっかり)',
         labelShort: 'ぼんやりうっかり',
-        regex: 'ぼんやりうっかり.*状態に(する|し)',
+        regex: 'ぼんやりうっかり.*状態に(する|し|なる)',
       },
       {
         labelFull: '与・状態異常(ルンルンきぶん)',
@@ -116,12 +116,12 @@ const _advFilterFriends = [
       {
         labelFull: '与・状態異常(しょんぼりきぶん)',
         labelShort: 'しょんぼりきぶん',
-        regex: 'しょんぼりきぶん.*状態に(する|し)',
+        regex: 'しょんぼりきぶん.*状態に(する|し|なる)',
       },
       {
         labelFull: '与・状態異常(びりびり)',
         labelShort: 'びりびり',
-        regex: 'びりびり.*状態に(する|し)',
+        regex: 'びりびり.*状態に(する|し|なる)',
       },
       // {
       //   labelFull: '与・状態異常(ちぐはぐリズム)',
@@ -131,12 +131,12 @@ const _advFilterFriends = [
       {
         labelFull: '与・状態異常(ばてばてヒリヒリ)',
         labelShort: 'ばてばてヒリヒリ',
-        regex: 'ばてばてヒリヒリ.*状態に(する|し)',
+        regex: 'ばてばてヒリヒリ.*状態に(する|し|なる)',
       },
       {
         labelFull: '与・状態異常(ロストフラッグ)',
         labelShort: 'ロストフラッグ',
-        regex: 'ロストフラッグ.*状態に(する|し)',
+        regex: 'ロストフラッグ.*状態に(する|し|なる)',
       },
     ],
   },

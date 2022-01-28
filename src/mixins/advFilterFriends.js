@@ -123,11 +123,11 @@ const _advFilterFriends = [
         labelShort: 'びりびり',
         regex: 'びりびり.*状態に(する|し|なる)',
       },
-      // {
-      //   labelFull: '与・状態異常(ちぐはぐリズム)',
-      //   labelShort: 'ちぐはぐリズム',
-      //   regex: 'ちぐはぐリズム',
-      // },
+      {
+        labelFull: '与・状態異常(ちぐはぐリズム)',
+        labelShort: 'ちぐはぐリズム',
+        regex: 'ちぐはぐリズム.*状態に(する|し|なる)',
+      },
       {
         labelFull: '与・状態異常(ばてばてヒリヒリ)',
         labelShort: 'ばてばてヒリヒリ',

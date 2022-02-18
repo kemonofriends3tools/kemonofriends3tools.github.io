@@ -254,7 +254,7 @@ const _advFilterFriends = [
       {
         labelFull: '特殊行動(ためこみ上手)',
         labelShort: 'ためこみ上手',
-        regex: 'ためこみ上手状態にな(る|り)',
+        regex: 'ためこみ上手(状態|)にな(る|り)',
       },
       {
         labelFull: '特殊行動(コチョコチョマスター)',

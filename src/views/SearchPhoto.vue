@@ -306,7 +306,7 @@
           perPage: $cookies.isKey('SearchPhoto_perPage')
             ? +$cookies.get('SearchPhoto_perPage')
             : 10,
-          position: 'both',
+          position: 'bottom',
           perPageDropdown: [10, 20, 30, 40, 50, 999],
           dropdownAllowAll: false,
           nextLabel: '次',

@@ -411,7 +411,7 @@
           perPage: $cookies.isKey('SearchEvents_perPage')
             ? +$cookies.get('SearchEvents_perPage')
             : 10,
-          position: 'both',
+          position: 'bottom',
           perPageDropdown: [10, 20, 30, 40, 50, 9999],
           dropdownAllowAll: false,
           nextLabel: '次',

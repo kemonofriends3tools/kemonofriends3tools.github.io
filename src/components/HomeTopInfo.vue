@@ -58,7 +58,9 @@
                 </b-tr>
                 <b-tr>
                   <b-th class="align-middle text-right">敵大技</b-th>
-                  <b-td class="preText">{{ masterDojoData.get(getDayOfTheWeek).get('大技') }}</b-td>
+                  <b-td class="preText">{{
+                    masterDojoData.get(getDayOfTheWeek).get('敵大技')
+                  }}</b-td>
                 </b-tr>
               </b-tbody>
             </b-table-simple>

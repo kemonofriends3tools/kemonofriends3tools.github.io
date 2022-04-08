@@ -56,9 +56,14 @@
                   <b-th class="align-middle text-right">備考</b-th>
                   <b-td class="preText">{{ masterDojoData.get(getDayOfTheWeek).get('備考') }}</b-td>
                 </b-tr>
+                <b-tr>
+                  <b-th class="align-middle text-right">敵大技</b-th>
+                  <b-td class="preText">{{ masterDojoData.get(getDayOfTheWeek).get('大技') }}</b-td>
+                </b-tr>
               </b-tbody>
             </b-table-simple>
-            <b-table-lite small striped hover :items="getDojoData" />
+            <b-table-lite small striped hover class="mb-0" :items="getDojoData" />
+            <p class="mb-2 ml-4 small">※：毎ターン3回攻撃したときの大技位置</p>
           </template>
         </b-col>
         <b-col cols="12" lg="6">
@@ -149,7 +154,7 @@ export default {
         const tmpMap = this.masterDojoData.get(this.getDayOfTheWeek);
         for (let i = 1; i <= 10; i++) {
           const tmpStr = 'Turn ' + i;
-          outArray.push({ Turn: tmpStr, 敵行動: tmpMap.get(tmpStr) });
+          outArray.push({ Turn: i, 敵行動: tmpMap.get(tmpStr) });
         }
       }
       return outArray;

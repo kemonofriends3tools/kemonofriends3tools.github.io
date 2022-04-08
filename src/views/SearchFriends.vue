@@ -101,7 +101,7 @@
                   </b-alert>
                 </b-collapse>
                 <b-alert show variant="warning" class="mt-2 mb-0 px-2 small">
-                  表示を増やすとそれだけ重くなります。選択をリセットしたい場合はページをリロードして下さい。
+                  表示を増やすとそれだけ重くなります。リセットしたい場合は「以下の検索条件をリセット」を押すかページをリロードしてください。
                 </b-alert>
               </b-col>
             </b-row>

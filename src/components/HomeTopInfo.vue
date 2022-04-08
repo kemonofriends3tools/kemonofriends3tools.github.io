@@ -64,8 +64,15 @@
                 </b-tr>
               </b-tbody>
             </b-table-simple>
-            <b-table-lite small striped hover class="mb-0" :items="getDojoData" />
-            <p class="mb-2 ml-4 small">※：毎ターン3回攻撃したときの大技位置</p>
+            <b-table-lite
+              small
+              striped
+              hover
+              class="mb-0"
+              :items="getDojoData"
+              :fields="dojoFields"
+            />
+            <p class="mb-2 ml-4 small">※&#xff1a;毎ターン3回攻撃したときの大技位置</p>
           </template>
         </b-col>
         <b-col cols="12" lg="6">
@@ -118,6 +125,7 @@ export default {
     return {
       masterDojoData: new Map(), //jsonデータを整理格納するMap()。mountedで初期化。
       tabIndex: 0, //この値はmounted内で再度初期化される。null初期化は不可。詳細はそちら参照。
+      dojoFields: [{ key: 'Turn', tdClass: 'text-center' }, { key: '敵行動' }],
     };
   },
   beforeMount() {

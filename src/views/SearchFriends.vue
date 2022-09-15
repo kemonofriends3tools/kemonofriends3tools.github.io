@@ -285,13 +285,16 @@
                       <li>
                         ここで指定したキーワードは表内でハイライト(強調表示)されます。
                       </li>
+                      <li>
+                        「正規表現」は上級者向けです。チェックをいれると入力をそのまま正規表現として扱います（半角または全角スペースによるAND条件は効かなくなります）。また^や$を使用した場合検索結果は正しいのですが上手くハイライト表示されないことがあります。
+                      </li>
                     </ul>
                   </b-alert>
                 </b-collapse>
               </b-col>
             </b-row>
             <b-row class="w-100">
-              <b-col cols="12" class="pr-0">
+              <b-col cols="12" md="10" xl="11" class="pr-0">
                 <b-form-input
                   class="vgt-input input-externalQuery my-1"
                   v-model="globalSearchTerm"
@@ -300,6 +303,11 @@
                   debounce="500"
                   @change="setQuery()"
                 />
+              </b-col>
+              <b-col cols="12" md="2" xl="1" class="pr-0 align-self-center">
+                <b-checkbox v-model="globalSearchMode" @change="setQuery()">
+                  正規表現
+                </b-checkbox>
               </b-col>
             </b-row>
           </div>
@@ -1075,6 +1083,7 @@ export default {
       masterFriends: null,
       //その他ページ内で使用している変数。不要かもしれないが初期値絡みの面倒を避けるため一応定義しておく。
       globalSearchTerm: '',
+      globalSearchMode: false,
       advFilter: {
         label: '',
         columns: '',
@@ -1100,28 +1109,43 @@ export default {
         return this.masterFriends;
       }
     },
-    //検索文字列を半角または全角スペースでsplitし、表内検索やvue-text-hightlight等で使いやすい形式（正規表現の配列）に直して返す。
+
+    //検索文字列を表内検索やvue-text-hightlight等で使いやすい形式（正規表現の配列）に直して返す。
+    //正規表現検索モードの場合はそのままそれを格納した要素１の配列を返す
+    //通常検索モードの場合は検索文字列を半角または全角スペースでsplitした配列を返す
     //複数個所で利用しているのでキャッシュの効くcomputedとして提供する。
     getGlobalSearchTermArray() {
-      //検索文字列配列を取得する。
-      //tirmで前後空白を除き、正規表現の特殊文字をエスケープ、半または全角スペースでsplitする。
-      //全角スペースをソースに直で書くとlintでエラーになるので文字コードで指定する。
-      let queries = this.globalSearchTerm
-        .trim()
-        .replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
-        .split(/[\x20\u3000]/);
-
-      //検索文字列配列から空文字要素を排除する（空文字要素があるとvue-text-hightlight内のロジックでフリーズする模様）。ページロード時などにそういう配列が生まれることがある。
-      queries = queries.filter(i => i != '');
-
       //戻り値となる正規表現配列を定義する。
       const regex = [];
-      //検索文字列が空（queriesの長さが１かつ空白）の場合は処理しない（vue-text-hightlight内のロジック絡みでフリーズする模様）
-      //RegExpのコンストラクタに不正な正規表現を入れると例外がおきるが、先にエスケープしているので例外はおきないものとする。今後正規表現検索に対応したりする場合は例外を考慮のこと。
-      //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。
-      if (queries.length) {
-        queries.forEach(i => regex.push(new RegExp(i, 'i')));
+      //正規表現検索フラグ確認
+      if (this.globalSearchMode) {
+        //正規表現検索モード
+        //検索文字列が空のときに正規表現モードにチェックを入れるとフリーズするので有効な文字列があるかをチェックする
+        if (this.globalSearchTerm.length) {
+          regex.push(new RegExp(this.globalSearchTerm, 'i'));
+        }
+      } else {
+        //通常検索モード
+
+        //検索文字列配列を取得する。
+        //tirmで前後空白を除き、正規表現の特殊文字をエスケープ、半または全角スペースでsplitする。
+        //全角スペースをソースに直で書くとlintでエラーになるので文字コードで指定する。
+        let queries = this.globalSearchTerm
+          .trim()
+          .replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
+          .split(/[\x20\u3000]/);
+
+        //検索文字列配列から空文字要素を排除する（空文字要素があるとvue-text-hightlight内のロジックでフリーズする模様）。ページロード時などにそういう配列が生まれることがある。
+        queries = queries.filter(i => i != '');
+
+        //検索文字列が空（queriesの長さが１かつ空白）の場合は処理しない（vue-text-hightlight内のロジック絡みでフリーズする模様）
+        //RegExpのコンストラクタに不正な正規表現を入れると例外がおきるが、先にエスケープしているので例外はおきないものとする。今後正規表現検索に対応したりする場合は例外を考慮のこと。
+        //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。
+        if (queries.length) {
+          queries.forEach(i => regex.push(new RegExp(i, 'i')));
+        }
       }
+      console.log(regex);
       return regex;
     },
   },
@@ -1182,6 +1206,7 @@ export default {
 
       //検索条件（正規表現配列）で検索対象文字列をテストする。
       //and条件としたいのでevery()を用いる。(every()は全要素がテストに合格するか判断する)
+      //正規表現モードの場合はgetGlobalSearchTermArrayにはRegExpオブジェクト１つしか入ってないのでeveryでも問題ない
       return this.getGlobalSearchTermArray.every(i => i.test(tmpCellString));
     },
 
@@ -1288,6 +1313,7 @@ export default {
 
       //表内検索
       if (this.globalSearchTerm) query.s = this.globalSearchTerm;
+      if (this.globalSearchMode) query.r = this.globalSearchMode;
 
       //vgtカラムフィルター。vgt内のcolumnFiltersオブジェクトを参照してフィルター値を取り出す。
       //クエリパラメータ名はcolumnsIndexを利用する。
@@ -1314,6 +1340,7 @@ export default {
       this.levelStatusColumns.forEach(i => this.$set(i, 'hidden', true));
       //表内検索
       this.globalSearchTerm = '';
+      this.globalSearchMode = false;
       //vgtカラムフィルター
       //クエリー文字列から確認すると面倒なのでcolumnsから走査する
       this.columns.forEach(c => {
@@ -1416,6 +1443,7 @@ export default {
 
     //表内検索
     if (this.$route.query.s != undefined) this.globalSearchTerm = this.$route.query.s;
+    if (this.$route.query.r != undefined) this.globalSearchMode = this.$route.query.r;
 
     //vgtカラムフィルター
     //クエリー文字列から確認すると面倒なのでcolumnsから走査する

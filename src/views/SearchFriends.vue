@@ -1120,8 +1120,8 @@ export default {
       //正規表現検索フラグ確認
       if (this.globalSearchMode) {
         //正規表現検索モード
-        //検索文字列が空のときに正規表現モードにチェックを入れるとフリーズするので有効な文字列があるかをチェックする
-        if (this.globalSearchTerm.length) {
+        //検索文字列が空であったり特殊文字だけだったりするとフリーズするので有効な文字列がある場合のみpushする
+        if (this.globalSearchTerm.trim().replace(/[\\^$.*+?()[\]{}|]/g, '').length) {
           regex.push(new RegExp(this.globalSearchTerm, 'i'));
         }
       } else {
@@ -1145,7 +1145,6 @@ export default {
           queries.forEach(i => regex.push(new RegExp(i, 'i')));
         }
       }
-      console.log(regex);
       return regex;
     },
   },

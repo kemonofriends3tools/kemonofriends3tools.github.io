@@ -305,9 +305,73 @@
                 />
               </b-col>
               <b-col cols="12" md="2" xl="1" class="pr-0 align-self-center">
-                <b-checkbox v-model="globalSearchMode" @change="setQuery()">
+                <b-checkbox
+                  v-model="globalSearchMode"
+                  @change="setQuery()"
+                  aria-controls="regexWarn"
+                >
                   正規表現
                 </b-checkbox>
+              </b-col>
+            </b-row>
+            <b-row class="w-100">
+              <b-col cols="12">
+                <b-alert
+                  show
+                  variant="danger"
+                  class="mb-1 p-1 pl-2 small font-weight-bold"
+                  v-if="checkSyntaxOfGlobalSearchTerm == 'SyntaxError'"
+                >
+                  正規表現の構文解析に失敗しました。構文を見直して下さい。現在表示されている検索結果に正規表現は適用されていません。
+                </b-alert>
+                <b-alert
+                  show
+                  variant="danger"
+                  class="mb-1 p-1 pl-2 small font-weight-bold"
+                  v-if="checkSyntaxOfGlobalSearchTerm == 'notEnough'"
+                >
+                  正規表現が特殊文字のみで構成されています。このような正規表現はブラウザをフリーズさせる恐れがあるため、現在検索結果に正規表現は適用されていません。もう少し何らかの情報（文字）を追加して下さい。
+                </b-alert>
+                <b-collapse id="regexWarn" v-model="globalSearchMode">
+                  <b-alert show variant="danger" class="m-0 p-1 pl-2">
+                    <span class="small font-weight-bold">正規表現検索時は改行に注意！</span>
+                    <b-button
+                      v-b-toggle.regexWarnDetail
+                      variant="info"
+                      class="debugButton px-1 py-0"
+                    >
+                      詳細を表示
+                    </b-button>
+                    <b-collapse id="regexWarnDetail">
+                      <b-alert show variant="warning" class="small mb-1">
+                        <p>
+                          正規表現で検索する場合、探したい文字列の途中に改行が入る可能性がないか注意して下さい。正規表現は強力ですが動作が厳密なため、そのような可能性は自分で考慮する必要があります。
+                        </p>
+                        <p>
+                          具体例で示します。カルガモのミラクルは以下のようなものです。
+                          <b-alert show variant="info" class="m-0 p-0">
+                            自身が大幅に狙われやすくなり被ダメージが70%減少し(2ターン)<br />
+                            自身を除いた味方全体の<br />
+                            与ダメージが45%増加する(3ターン)
+                          </b-alert>
+                          『味方全体の与ダメージ』という正規表現で検索した場合、カルガモはHITしません。なぜならカルガモのミラクルは『味方全体の』と『与ダメージ』の間に改行が入っているからです（この改行はゲーム中の表記に準拠しています）。<br />
+                          正規表現でカルガモを含むよう検索したい場合、『味方全体の(\n|)与ダメージ』などと改行が入る可能性を考慮する必要があります。
+                        </p>
+                        <p>
+                          こういった問題を避けるには単語を中心に利用し、助詞などを避けて正規表現を組み立てることです。<br />
+                          基本的に単語の途中に改行が入ることはありません。逆に助詞(てにおは)の周辺は改行が入りやすいです。<br />
+                          上の例で言うなら『味方全体.{0,10}与ダメージ』などすると期待通りの結果が得られます。（正規表現検索はsフラグ付で行っているので改行は『.』でマッチします。10という数字に深い意味はありません。ただ『.*』としてしまうと長文がHITしてしまうためある程度の文字で絞ったまでです）
+                        </p>
+                        <p class="mb-0">
+                          なお正規表現検索ではなく通常検索時はこの問題が発生しません。（改行を気にせず検索でき、途中改行があってもなくても両方HITします）<br />
+                          理由（仕組み）は単純で、裏でこっそり検索文字列を途中改行を考慮した文字列に変換しているからです。<br />
+                          具体的に言うと『味方全体の与ダメージ』という文字で通常検索をした場合、実際には『味(\n|)方(\n|)全(\n|)体(\n|)の(\n|)与(\n|)ダ(\n|)メ(\n|)ー(\n|)ジ』という文字列に変換して正規表現検索が行われています。これにより文中のどこに改行があってもマッチします。<br />
+                          正規表現検索においても改行がどこに入るかよくわからないときは『(\n|)』を各文字の間に挟めばとりあえず解決します。
+                        </p>
+                      </b-alert>
+                    </b-collapse>
+                  </b-alert>
+                </b-collapse>
               </b-col>
             </b-row>
           </div>
@@ -1122,7 +1186,15 @@ export default {
         //正規表現検索モード
         //検索文字列が空であったり特殊文字だけだったりするとフリーズするので有効な文字列がある場合のみpushする
         if (this.globalSearchTerm.trim().replace(/[\\^$.*+?()[\]{}|]/g, '').length) {
-          regex.push(new RegExp(this.globalSearchTerm, 'i'));
+          //正規表現を作れる場合のみpush
+          try {
+            //改行を"."で検索できるよう、正規表現フラグにsも追加する
+            regex.push(new RegExp(this.globalSearchTerm, 'is'));
+          } catch (error) {
+            if (error instanceof SyntaxError) {
+              console.log('RegExp SyntaxError:' + this.globalSearchTerm);
+            }
+          }
         }
       } else {
         //通常検索モード
@@ -1132,20 +1204,56 @@ export default {
         //全角スペースをソースに直で書くとlintでエラーになるので文字コードで指定する。
         let queries = this.globalSearchTerm
           .trim()
-          .replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
+          .replace(/[\\^$.*+?()[\]{}|/]/g, '\\$&')
           .split(/[\x20\u3000]/);
 
         //検索文字列配列から空文字要素を排除する（空文字要素があるとvue-text-hightlight内のロジックでフリーズする模様）。ページロード時などにそういう配列が生まれることがある。
         queries = queries.filter(i => i != '');
 
-        //検索文字列が空（queriesの長さが１かつ空白）の場合は処理しない（vue-text-hightlight内のロジック絡みでフリーズする模様）
-        //RegExpのコンストラクタに不正な正規表現を入れると例外がおきるが、先にエスケープしているので例外はおきないものとする。今後正規表現検索に対応したりする場合は例外を考慮のこと。
-        //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。
+        //検索文字列が空の場合は処理しない（空のqueriesを元にregexを作るとvue-text-hightlight内のロジック絡みでフリーズする模様）
         if (queries.length) {
-          queries.forEach(i => regex.push(new RegExp(i, 'i')));
+          //通常検索モードでは途中改行文字列も探せるようにする
+          //つまり探したい文字列がjsonデータ上では途中改行されていた場合でもHITさせたい。これは検索文字列の各文字の間に自動で(\n|)を挿入してあげることで対応出来る
+          //なお正規表現時は改行を考慮するのはユーザーの責任ということでこの対応は行わない。
+          queries.forEach((v, i) => {
+            queries[i] = v.split('').join('(\n|)');
+            //各文字の間に(\n|)を追加したが、正規表現エスケープ文字後にも追加されており構文エラーとなっているのでそれを消して修正する
+            queries[i] = queries[i].replace(/\\\(\n\|\)/g, '\\');
+          });
+
+          //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。
+          try {
+            queries.forEach(i => regex.push(new RegExp(i, 'i')));
+          } catch (error) {
+            if (error instanceof SyntaxError) {
+              console.log('SyntaxError:' + queries);
+            }
+          }
         }
       }
       return regex;
+    },
+    //入力された正規表現に問題がないか確認し、問題がある場合はその理由を返す。このメソッドの主目的はエラーメッセージ表示制御である
+    checkSyntaxOfGlobalSearchTerm() {
+      if (this.globalSearchMode && 0 < this.globalSearchTerm.trim().length) {
+        //正規表現検索モード
+        //SyntaxErrorが最も一般的な問題なので先にSyntaxErrorをチェックする
+        try {
+          //RegExpを作れるか確認
+          new RegExp(this.globalSearchTerm, 'is');
+        } catch (error) {
+          if (error instanceof SyntaxError) {
+            //SyntaxError
+            return 'SyntaxError';
+          }
+        }
+        //正規表現は正しいが特殊文字しか無く情報が不十分な場合（本質的にはフリーズ対策）
+        if (this.globalSearchTerm.trim().replace(/[\\^$.*+?()[\]{}|]/g, '').length <= 0) {
+          return 'notEnough';
+        }
+      }
+      //ここまで何も無ければ空文字を返す
+      return '';
     },
   },
   methods: {
@@ -1442,7 +1550,9 @@ export default {
 
     //表内検索
     if (this.$route.query.s != undefined) this.globalSearchTerm = this.$route.query.s;
-    if (this.$route.query.r != undefined) this.globalSearchMode = this.$route.query.r;
+    if (this.$route.query.r != undefined && this.$route.query.r === 'true')
+      //query.rをglobalSearchModeにそのまま代入するとString型となってしまうので、正しくbooleanで代入する
+      this.globalSearchMode = true;
 
     //vgtカラムフィルター
     //クエリー文字列から確認すると面倒なのでcolumnsから走査する

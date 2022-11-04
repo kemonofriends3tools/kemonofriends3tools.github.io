@@ -6,42 +6,42 @@ const _advFilterPhoto = [
       {
         labelFull: '地形/時間特効(サバンナ)',
         labelShort: 'サバンナ',
-        regex: '(地形|ステージ)がサバンナの(場合|とき)',
+        regex: 'サバンナ',
       },
       {
         labelFull: '地形/時間特効(さばく)',
         labelShort: 'さばく',
-        regex: '(地形|ステージ)がさばくの(場合|とき)',
+        regex: 'さばく',
       },
       {
         labelFull: '地形/時間特効(みずべ)',
         labelShort: 'みずべ',
-        regex: '(地形|ステージ)がみずべの(場合|とき)',
+        regex: 'みずべ',
       },
       {
         labelFull: '地形/時間特効(寒冷地)',
         labelShort: '寒冷地',
-        regex: '(地形|ステージ)が寒冷地の(場合|とき)',
+        regex: '寒冷地',
       },
       {
         labelFull: '地形/時間特効(どうくつ)',
         labelShort: 'どうくつ',
-        regex: '(地形|ステージ)がどうくつの(場合|とき)',
+        regex: 'どうくつ',
       },
       {
         labelFull: '地形/時間特効(ジャングル)',
         labelShort: 'ジャングル',
-        regex: '(地形|ステージ)がジャングルの(場合|とき)',
+        regex: 'ジャングル',
       },
       {
         labelFull: '地形/時間特効(やま)',
         labelShort: 'やま',
-        regex: '(地形|ステージ)がやまの(場合|とき)',
+        regex: 'やま',
       },
       {
         labelFull: '地形/時間特効(まち)',
         labelShort: 'まち',
-        regex: '(地形|ステージ)がまちの(場合|とき)',
+        regex: 'まち',
       },
       {
         labelFull: '地形/時間特効(夜)',

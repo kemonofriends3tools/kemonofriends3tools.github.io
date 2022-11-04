@@ -7,49 +7,49 @@ const _advFilterFriends = [
         labelFull: '地形/時間効果(サバンナ)',
         labelShort: 'サバンナ',
 
-        regex: 'サバンナの(場合|とき)',
+        regex: 'サバンナ',
       },
       {
         labelFull: '地形/時間効果(さばく)',
         labelShort: 'さばく',
 
-        regex: 'さばくの(場合|とき)',
+        regex: 'さばく',
       },
       {
         labelFull: '地形/時間効果(みずべ)',
         labelShort: 'みずべ',
 
-        regex: 'みずべの(場合|とき)',
+        regex: 'みずべ',
       },
       {
         labelFull: '地形/時間効果(寒冷地)',
         labelShort: '寒冷地',
 
-        regex: '寒冷地の(場合|とき)',
+        regex: '寒冷地',
       },
       {
         labelFull: '地形/時間効果(どうくつ)',
         labelShort: 'どうくつ',
 
-        regex: 'どうくつの(場合|とき)',
+        regex: 'どうくつ',
       },
       {
         labelFull: '地形/時間効果(ジャングル)',
         labelShort: 'ジャングル',
 
-        regex: 'ジャングルの(場合|とき)',
+        regex: 'ジャングル',
       },
       {
         labelFull: '地形/時間効果(やま)',
         labelShort: 'やま',
 
-        regex: 'やまの(場合|とき)',
+        regex: 'やま',
       },
       {
         labelFull: '地形/時間効果(まち)',
         labelShort: 'まち',
 
-        regex: 'まちの(場合|とき)',
+        regex: 'まち',
       },
       {
         labelFull: '地形/時間効果(夜)',

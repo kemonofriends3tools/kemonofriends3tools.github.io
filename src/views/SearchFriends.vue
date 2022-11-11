@@ -107,7 +107,7 @@
             </b-row>
             <b-row
               v-for="[key, value] of new Map([
-                ['基本', ['属性', '初期けも級', 'フォトポケ', '野生解放']],
+                ['基本', ['属性', 'サブ属性', '初期けも級', 'フォトポケ', '野生解放']],
                 ['ステータス(Lv)', null],
                 ['ステータス(他)', ['回避', 'プラズム', 'フラッグ補正', 'フラッグ']],
                 ['技・特性', ['ミラクル', 'とくいわざ', 'たいきスキル', 'とくせい/キセキとくせい']],
@@ -427,6 +427,7 @@
           >
             <template v-if="column.filterOptions.type == 'type'">
               <TypeSelectModalFriends
+                :field="column.field"
                 @typeFriendsSelected="
                   value => {
                     //バグなのか、同一ページ遷移後($router.replace等)、updateFiltersを実行するだけでは値が変わらなくなる。
@@ -473,6 +474,9 @@
           <!-- カラム表示に関することなので基本的にprops.column.label (not field)と比較することとする。 -->
           <template v-if="props.column.label == '属性'">
             <TypeNameToIcon :type="props.row.属性" :imgRemSize="1.8" />
+          </template>
+          <template v-else-if="props.column.label == 'サブ属性'">
+            <TypeNameToIcon :type="props.row.サブ属性" :imgRemSize="1.8" />
           </template>
           <template v-else-if="props.column.label == '回避'">
             <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
@@ -672,6 +676,19 @@ export default {
           sortable: true,
           hidden: false,
           hidden_default: false,
+          tdClass: 'text-center',
+          filterOptions: {
+            enabled: true,
+            filterValue: '', //本来初期値用だがvalueとしても使用。（特に属性についてはバグ？回避に必須。詳細はtypeFriendsSelectedあたり参照。）
+            type: 'type', //独自
+          },
+        },
+        {
+          field: 'サブ属性',
+          label: 'サブ属性',
+          sortable: true,
+          hidden: true,
+          hidden_default: true,
           tdClass: 'text-center',
           filterOptions: {
             enabled: true,

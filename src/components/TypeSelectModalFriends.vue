@@ -1,9 +1,9 @@
 <template>
   <span>
-    <b-button v-b-modal.modal-type-select ref="btnTypeSelectFriends" class="filter-type-button">
-      <slot>属性選択</slot>
+    <b-button v-b-modal="mordalID" class="filter-type-button">
+      <slot>{{ field }}選択</slot>
     </b-button>
-    <b-modal id="modal-type-select" title="属性選択" title-tag="h4" centered>
+    <b-modal :id="mordalID" :title="field + '選択'" title-tag="h4" centered>
       <b-container fluid>
         <b-row align-h="center" class="text-center">
           <b-col>
@@ -84,11 +84,21 @@
 <script>
 export default {
   name: 'TypeSelectModalFriends',
+  props: {
+    field: String,
+  },
+  computed: {
+    //modalに使うid文字列。属性とサブ属性で混じってダイアログが二重に出たりする問題の対策。
+    //この定義は変わることがないので外に出しても良いかもしれないが、propsとの初期化タイミングが自信なかったのでcompoutedにしておく
+    mordalID() {
+      return 'modal-type-select-' + this.field;
+    },
+  },
   methods: {
     typeFriendsSelected(type) {
       //親のtypeFriendsSelectedをコールして選択されたタイプを投げる。その後modalを閉じる。
       this.$emit('typeFriendsSelected', type);
-      this.$root.$emit('bv::hide::modal', 'modal-type-select', '#btnTypeSelectFriends');
+      this.$bvModal.hide(this.mordalID);
     },
   },
 };

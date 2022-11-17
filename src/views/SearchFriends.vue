@@ -637,7 +637,7 @@
 </template>
 
 <script>
-import friendsJson from '../json/friends.json';
+import masterFriends from '../json/friends.json';
 
 import SearchFriendsAdvFilterModal from '@/components/SearchFriendsAdvFilterModal.vue';
 import advFilterFriends from '@/mixins/advFilterFriends.js';
@@ -1160,8 +1160,6 @@ export default {
         { name: '攻撃', hidden: true },
         { name: '守り', hidden: true },
       ],
-      //フレンズのマスターデータ。内容はfriendsJsonと同等だがjson時の一部省略記法を復元している。詳細は初期化しているmounted参照。
-      masterFriends: null,
       //その他ページ内で使用している変数。不要かもしれないが初期値絡みの面倒を避けるため一応定義しておく。
       globalSearchTerm: '',
       globalSearchMode: false,
@@ -1181,13 +1179,13 @@ export default {
         //filter()はmasterFriendsを１行ずつチェックし、合格した行のみを集めたオブジェクトを新たに生成して返す。
         //some()は配列の各要素に対してループし、コールバック関数が１つでもtrueを返せばsome()自身もtrueを返す。
         //これを組み合わせ、指定カラムのうちどれか１つが正規表現に合格するフレンズのみを抽出している。
-        return this.masterFriends.filter(row =>
+        return masterFriends.filter(row =>
           this.advFilter.columns.some(col =>
             row[col].replace(/\r?\n/g, '').match(this.advFilter.regex)
           )
         );
       } else {
-        return this.masterFriends;
+        return masterFriends;
       }
     },
 
@@ -1487,44 +1485,47 @@ export default {
     this.columns.forEach((i, j) => this.columnsIndex.set(i.field, j));
 
     //masterFriends初期化
-    //こちらもmountedに置くとmasterFriendsがまだnullのときにアクセスされてコンソールにエラーが出るのでここで初期化する。
-    this.masterFriends = friendsJson;
-    //省略記入されたカラムを表示に適した正しい文字列に復元してゆく。
-    //元の値はそのまま残しつつ"Formatted"を付加したプロパティを別に作成する方法と、直接上書きしてしまう方法の２パターンが考えられる。
-    //前者の利点は出力が"+1.0%"のような文字列であってもカラムのソートでは元fieldを参照することにより正しくソートができること。
-    //前者の欠点は表のglobalSearchにおいて特殊処理を強いられること。
-    //カラムによってどちらを使用するかは使い分ける。
-    this.masterFriends.forEach(i => {
-      //回避、フラッグ補正値関係。元の値を残す"Formatted"処理型。処理が同じなのでまとめる。
-      ['回避', 'Beat補正', 'Try補正', 'Action補正'].forEach(
-        j =>
-          (i[j + 'Formatted'] =
-            new Intl.NumberFormat('ja', {
-              style: 'decimal',
-              signDisplay: 'always',
-              minimumFractionDigits: 1,
-              maximumFractionDigits: 1,
-            }).format(i[j]) + '%')
-      );
-      //フラッグ関係。単純上書き型。処理が同じなのでまとめる。
-      ['flag1', 'flag2', 'flag3', 'flag4', 'flag5'].forEach(j => {
-        if (i[j].match(/^b/i)) {
-          i[j] = 'Beat';
-        } else if (i[j].match(/^a/i)) {
-          i[j] = 'Action ' + i[j].substring(1);
-        } else if (i[j].match(/^t/i)) {
-          i[j] = 'Try ' + i[j].substring(1);
+    //要素を１つ取り出して既に初期化済みかを調べる（jsonをimportしたmasterFriendsはstaticであり、以下の変更処理を保持している為）
+    if (!Object.prototype.hasOwnProperty.call(masterFriends[0], '回避Formatted')) {
+      //初アクセス
+
+      //省略記入されたカラムを表示に適した正しい文字列に復元してゆく。
+      //元の値はそのまま残しつつ"Formatted"を付加したプロパティを別に作成する方法と、直接上書きしてしまう方法の２パターンが考えられる。
+      //前者の利点は出力が"+1.0%"のような文字列であってもカラムのソートでは元fieldを参照することにより正しくソートができること。
+      //前者の欠点は表のglobalSearchにおいて特殊処理を強いられること。
+      //カラムによってどちらを使用するかは使い分ける。
+      masterFriends.forEach(i => {
+        //回避、フラッグ補正値関係。元の値を残す"Formatted"処理型。処理が同じなのでまとめる。
+        ['回避', 'Beat補正', 'Try補正', 'Action補正'].forEach(
+          j =>
+            (i[j + 'Formatted'] =
+              new Intl.NumberFormat('ja', {
+                style: 'decimal',
+                signDisplay: 'always',
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
+              }).format(i[j]) + '%')
+        );
+        //フラッグ関係。単純上書き型。処理が同じなのでまとめる。
+        ['flag1', 'flag2', 'flag3', 'flag4', 'flag5'].forEach(j => {
+          if (i[j].match(/^b/i)) {
+            i[j] = 'Beat';
+          } else if (i[j].match(/^a/i)) {
+            i[j] = 'Action ' + i[j].substring(1);
+          } else if (i[j].match(/^t/i)) {
+            i[j] = 'Try ' + i[j].substring(1);
+          }
+        });
+        //'ミラクル+'。単純上書き型。フラッグ関係と似ているがActionとTryに数値がない。分けたほうがスッキリするので混ぜずにここに書く。
+        if (i['ミラクル+'].match(/^b/i)) {
+          i['ミラクル+'] = 'Beat';
+        } else if (i['ミラクル+'].match(/^a/i)) {
+          i['ミラクル+'] = 'Action';
+        } else if (i['ミラクル+'].match(/^t/i)) {
+          i['ミラクル+'] = 'Try';
         }
       });
-      //'ミラクル+'。単純上書き型。フラッグ関係と似ているがActionとTryに数値がない。分けたほうがスッキリするので混ぜずにここに書く。
-      if (i['ミラクル+'].match(/^b/i)) {
-        i['ミラクル+'] = 'Beat';
-      } else if (i['ミラクル+'].match(/^a/i)) {
-        i['ミラクル+'] = 'Action';
-      } else if (i['ミラクル+'].match(/^t/i)) {
-        i['ミラクル+'] = 'Try';
-      }
-    });
+    }
 
     //クエリー処理ここから ========================================
 

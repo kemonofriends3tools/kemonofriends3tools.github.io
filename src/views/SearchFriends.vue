@@ -646,6 +646,14 @@ import TypeSelectModalFriends from '@/components/TypeSelectModalFriends.vue';
 import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
 import resizableTable from '@/mixins/resizableTable.js';
 
+const multiLineColumns = [
+  'ミラクルlv5',
+  'とくいわざ詳細',
+  'たいきスキル詳細',
+  'とくせい詳細',
+  'キセキとくせい詳細',
+];
+
 export default {
   mixins: [resizableTable, advFilterFriends],
   name: 'SearchFriends',
@@ -1173,16 +1181,18 @@ export default {
   },
   computed: {
     //tableにセットする実データを作り出す(computedなのでキャッシュが効き、パラメータに変化があった場合のみ再計算される)。
-    //masterFriendsを特殊条件でフィルタリングして作る。
     filterdFriends() {
+      //masterFriendsを特殊条件でフィルタリングする
       if (this.advFilter.label) {
         //filter()はmasterFriendsを１行ずつチェックし、合格した行のみを集めたオブジェクトを新たに生成して返す。
         //some()は配列の各要素に対してループし、コールバック関数が１つでもtrueを返せばsome()自身もtrueを返す。
         //これを組み合わせ、指定カラムのうちどれか１つが正規表現に合格するフレンズのみを抽出している。
         return masterFriends.filter(row =>
-          this.advFilter.columns.some(col =>
-            row[col].replace(/\r?\n/g, '').match(this.advFilter.regex)
-          )
+          this.advFilter.columns.some(col => {
+            //調査対象が複数行カラムの場合、改行なしデータから検索する
+            let tmpCol = multiLineColumns.includes(col) ? col + 'noCR' : col;
+            return row[tmpCol].replace(/\r?\n/g, '').match(this.advFilter.regex);
+          })
         );
       } else {
         return masterFriends;
@@ -1484,8 +1494,8 @@ export default {
     //そのためpage描画が始まる前（elementがマウントされる前）であるここbeforeMountにて初期化を行う。
     this.columns.forEach((i, j) => this.columnsIndex.set(i.field, j));
 
-    //masterFriends初期化
-    //要素を１つ取り出して既に初期化済みかを調べる（jsonをimportしたmasterFriendsはstaticであり、以下の変更処理を保持している為）
+    //masterFriends初回初期化
+    //要素を１つ取り出して既に初回初期化済みかを調べる（jsonをimportしたmasterFriendsはstaticであり、画面遷移をしても以下の変更処理を保持している為）
     if (!Object.prototype.hasOwnProperty.call(masterFriends[0], '回避Formatted')) {
       //初アクセス
 
@@ -1524,6 +1534,13 @@ export default {
         } else if (i['ミラクル+'].match(/^t/i)) {
           i['ミラクル+'] = 'Try';
         }
+
+        //このオブジェクトの初期値をバックアップする
+        //コピーはObject.assignで行う。これはディープコピーではないが、第１階層に関してはちゃんと値でコピーされる。
+        i['default'] = Object.assign({}, i);
+
+        //検索用に改行有カラムの改行無しデータを用意する。これはバックアップ不要
+        multiLineColumns.forEach(j => (i[j + 'noCR'] = i[j].replace(/\r?\n/g, '')));
       });
     }
 

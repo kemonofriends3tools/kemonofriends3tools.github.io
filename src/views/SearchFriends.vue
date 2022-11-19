@@ -646,6 +646,7 @@ import TypeSelectModalFriends from '@/components/TypeSelectModalFriends.vue';
 import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
 import resizableTable from '@/mixins/resizableTable.js';
 
+//カラムのうち改行を含み複数行になりうるもの。検索等で利用
 const multiLineColumns = [
   'ミラクルlv5',
   'とくいわざ詳細',
@@ -1195,6 +1196,7 @@ export default {
           })
         );
       } else {
+        //特殊条件が無い場合はそのまま
         return masterFriends;
       }
     },
@@ -1298,34 +1300,40 @@ export default {
       //colがhiddenの場合は探索しない
       if (col['hidden']) return false;
 
-      //代替検索カラム配列
-      //現在のカラムが結合カラムや別に表示用カラム（formattedカラム）がある場合、これにカラム名を入れ、
-      //検索は現在のカラムではなく別カラム群を検索対象とする。
+      //検索対象カラム名配列の作成
+      //現在のカラムが結合カラムの場合、別途表示カラム（formattedカラム）がある場合、改行を除いて検索したい場合は本来のカラムとは別のカラムを検索対象としたい。
+      //そこで検索対象とするカラム名配列を作る。検索はそちらのカラムを対象に行う。
       let altTargetColumns = null;
-
-      //先に結合カラム関連から処理し、最後にformattedカラム関連を処理する。
+      //先に結合カラム関連から処理
       if (col.label == 'フラッグ補正') {
         altTargetColumns = ['Beat補正Formatted', 'Try補正Formatted', 'Action補正Formatted'];
       } else if (col.label == 'フラッグ') {
         altTargetColumns = ['flag1', 'flag2', 'flag3', 'flag4', 'flag5'];
       } else if (col.label == 'ミラクル') {
-        altTargetColumns = ['ミラクル名', 'MP', 'ミラクル+', 'ミラクルlv5'];
+        altTargetColumns = ['ミラクル名', 'MP', 'ミラクル+', 'ミラクルlv5noCR'];
       } else if (col.label == 'とくいわざ') {
-        altTargetColumns = ['とくいわざ名', 'とくいわざ詳細'];
+        altTargetColumns = ['とくいわざ名', 'とくいわざ詳細noCR'];
       } else if (col.label == 'たいきスキル') {
-        altTargetColumns = ['たいきスキル名', 'たいきスキル詳細'];
+        altTargetColumns = ['たいきスキル名', 'たいきスキル詳細noCR'];
       } else if (col.label == 'とくせい/キセキとくせい') {
-        altTargetColumns = ['とくせい名', 'とくせい詳細', 'キセキとくせい名', 'キセキとくせい詳細'];
+        altTargetColumns = [
+          'とくせい名',
+          'とくせい詳細noCR',
+          'キセキとくせい名',
+          'キセキとくせい詳細noCR',
+        ];
       } else if (['回避', 'Beat補正', 'Try補正', 'Action補正'].some(i => i == col.label)) {
-        //formattedカラム関連。
+        //別途表示カラム（formattedカラム）
         //処理はいずれも同じで対象カラムならfield名の後ろに'Formatted'を加える。
         altTargetColumns = [col.field + 'Formatted'];
+      } else if (multiLineColumns.includes(col.label)) {
+        //複数行カラム（単体表示指定された場合に発生）。改行なしを検索対象とする。
+        altTargetColumns = [col.label + 'noCR'];
       }
 
+      //検索対象カラム名配列をもとに検索対象文字列を作り出す
       //検索対象文字列定義
       let tmpCellString;
-
-      //代替検索カラム配列をもとに検索対象文字列を作り出す
       if (altTargetColumns) {
         //代替検索必要
         //配列にて示された各セル値を結合して検索対象文字列とする。

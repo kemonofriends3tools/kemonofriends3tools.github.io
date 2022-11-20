@@ -637,7 +637,7 @@
 </template>
 
 <script>
-import masterFriends from '../json/friends.json';
+import friendsJson from '../json/friends.json';
 
 import SearchFriendsAdvFilterModal from '@/components/SearchFriendsAdvFilterModal.vue';
 import advFilterFriends from '@/mixins/advFilterFriends.js';
@@ -645,6 +645,9 @@ import advFilterFriends from '@/mixins/advFilterFriends.js';
 import TypeSelectModalFriends from '@/components/TypeSelectModalFriends.vue';
 import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
 import resizableTable from '@/mixins/resizableTable.js';
+
+//表に与える実データ。computedにてjsonをディープコピーして生成する
+let masterFriends = null;
 
 //カラムのうち改行を含み複数行になりうるもの。検索等で利用
 const multiLineColumns = [
@@ -1183,6 +1186,9 @@ export default {
   computed: {
     //tableにセットする実データを作り出す(computedなのでキャッシュが効き、パラメータに変化があった場合のみ再計算される)。
     filterdFriends() {
+      //masterFriends初期化(jsonからディープコピー。値を毎回破棄するのはハイライト用にデータが加工されている為)
+      masterFriends = JSON.parse(JSON.stringify(friendsJson));
+
       //masterFriendsを特殊条件でフィルタリングする
       if (this.advFilter.label) {
         //filter()はmasterFriendsを１行ずつチェックし、合格した行のみを集めたオブジェクトを新たに生成して返す。
@@ -1502,9 +1508,10 @@ export default {
     //そのためpage描画が始まる前（elementがマウントされる前）であるここbeforeMountにて初期化を行う。
     this.columns.forEach((i, j) => this.columnsIndex.set(i.field, j));
 
-    //masterFriends初回初期化
-    //要素を１つ取り出して既に初回初期化済みかを調べる（jsonをimportしたmasterFriendsはstaticであり、画面遷移をしても以下の変更処理を保持している為）
-    if (!Object.prototype.hasOwnProperty.call(masterFriends[0], '回避Formatted')) {
+    //friendsJson初期化
+    //masterFriendsがnullならページへの初アクセスであり初期化が必要
+    //（importしたjsonはstaticであり、画面遷移をしても以下の変更処理を保持している為２回目以降は不要）
+    if (masterFriends == null) {
       //初アクセス
 
       //省略記入されたカラムを表示に適した正しい文字列に復元してゆく。
@@ -1512,7 +1519,7 @@ export default {
       //前者の利点は出力が"+1.0%"のような文字列であってもカラムのソートでは元fieldを参照することにより正しくソートができること。
       //前者の欠点は表のglobalSearchにおいて特殊処理を強いられること。
       //カラムによってどちらを使用するかは使い分ける。
-      masterFriends.forEach(i => {
+      friendsJson.forEach(i => {
         //回避、フラッグ補正値関係。元の値を残す"Formatted"処理型。処理が同じなのでまとめる。
         ['回避', 'Beat補正', 'Try補正', 'Action補正'].forEach(
           j =>
@@ -1543,11 +1550,7 @@ export default {
           i['ミラクル+'] = 'Try';
         }
 
-        //このオブジェクトの初期値をバックアップする
-        //コピーはObject.assignで行う。これはディープコピーではないが、第１階層に関してはちゃんと値でコピーされる。
-        i['default'] = Object.assign({}, i);
-
-        //検索用に改行有カラムの改行無しデータを用意する。これはバックアップ不要
+        //検索用に改行有カラムの改行無しデータを用意する。
         multiLineColumns.forEach(j => (i[j + 'noCR'] = i[j].replace(/\r?\n/g, '')));
       });
     }

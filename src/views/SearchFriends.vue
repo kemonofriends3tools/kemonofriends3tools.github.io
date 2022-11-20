@@ -1189,22 +1189,19 @@ export default {
       //masterFriends初期化(jsonからディープコピー。値を毎回破棄するのはハイライト用にデータが加工されている為)
       masterFriends = JSON.parse(JSON.stringify(friendsJson));
 
-      //masterFriendsを特殊条件でフィルタリングする
+      //特殊条件検索（advFilterで絞り込み）
       if (this.advFilter.label) {
         //filter()はmasterFriendsを１行ずつチェックし、合格した行のみを集めたオブジェクトを新たに生成して返す。
         //some()は配列の各要素に対してループし、コールバック関数が１つでもtrueを返せばsome()自身もtrueを返す。
         //これを組み合わせ、指定カラムのうちどれか１つが正規表現に合格するフレンズのみを抽出している。
-        return masterFriends.filter(row =>
-          this.advFilter.columns.some(col => {
+        masterFriends = masterFriends.filter(row =>
+          this.advFilter.columns.some(col =>
             //調査対象が複数行カラムの場合、改行なしデータから検索する
-            let tmpCol = multiLineColumns.includes(col) ? col + 'noCR' : col;
-            return row[tmpCol].replace(/\r?\n/g, '').match(this.advFilter.regex);
-          })
+            row[multiLineColumns.includes(col) ? col + 'noCR' : col].match(this.advFilter.regex)
+          )
         );
-      } else {
-        //特殊条件が無い場合はそのまま
-        return masterFriends;
       }
+      return masterFriends;
     },
 
     //検索文字列を表内検索やvue-text-hightlight等で使いやすい形式（正規表現の配列）に直して返す。

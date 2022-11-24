@@ -383,12 +383,6 @@
         :rows="filterdFriends"
         :columns="columns"
         :row-style-class="rowStyleClassFn"
-        :search-options="{
-          enabled: false,
-          skipDiacritics: true,
-          searchFn: globalSearch,
-          externalQuery: globalSearchTerm,
-        }"
         :sort-options="{
           enabled: true,
           initialSortBy: { field: '実装日', type: 'desc' },
@@ -1201,6 +1195,103 @@ export default {
           )
         );
       }
+
+      //表内検索：準備
+      //表内検索は現在表示しているカラムのみが検索対象なので、最初に検索対象カラム名配列(2次元配列)を作る
+      let searchTargetColumns = [];
+      //columnsを走査して現在表示されているカラムのみを集める(colがhiddenの場合は対象外)
+      this.columns.forEach(col => {
+        if (!col['hidden']) {
+          //検索対象カラム名配列に追加
+          //このカラムが結合カラムの場合、別途表示カラム（formattedカラム）がある場合、改行を除いて検索したい場合は本来のカラムとは別のカラムを検索対象としたい。
+          //先に結合カラム関連から処理
+          if (col.label == 'フラッグ補正') {
+            searchTargetColumns.push([
+              'Beat補正Formatted',
+              'Try補正Formatted',
+              'Action補正Formatted',
+            ]);
+          } else if (col.label == 'フラッグ') {
+            searchTargetColumns.push(['flag1', 'flag2', 'flag3', 'flag4', 'flag5']);
+          } else if (col.label == 'ミラクル') {
+            searchTargetColumns.push(['ミラクル名', 'MP', 'ミラクル+', 'ミラクルlv5noCR']);
+          } else if (col.label == 'とくいわざ') {
+            searchTargetColumns.push(['とくいわざ名', 'とくいわざ詳細noCR']);
+          } else if (col.label == 'たいきスキル') {
+            searchTargetColumns.push(['たいきスキル名', 'たいきスキル詳細noCR']);
+          } else if (col.label == 'とくせい/キセキとくせい') {
+            searchTargetColumns.push([
+              'とくせい名',
+              'とくせい詳細noCR',
+              'キセキとくせい名',
+              'キセキとくせい詳細noCR',
+            ]);
+          } else if (['回避', 'Beat補正', 'Try補正', 'Action補正'].some(i => i == col.label)) {
+            //別途表示カラム（formattedカラム）
+            //処理はいずれも同じで対象カラムならfield名の後ろに'Formatted'を加える。
+            searchTargetColumns.push([col.field + 'Formatted']);
+          } else if (multiLineColumns.includes(col.label)) {
+            //複数行カラム（単体表示指定された場合に発生）。改行なしを検索対象とする。
+            searchTargetColumns.push([col.label + 'noCR']);
+          } else {
+            //その他。そのままカラム名を入れる。
+            searchTargetColumns.push([col.label]);
+          }
+        }
+      });
+
+      //表内検索：データを絞り込む
+      masterFriends = masterFriends.filter(row =>
+        searchTargetColumns.some(cols => {
+          //検索対象カラム名配列をもとに検索対象文字列を作る
+          //検索対象文字列定義
+          let tmpCellString = '';
+          //検索対象カラムの値を結合して検索対象文字列とする。
+          cols.forEach(i => (tmpCellString += row[i].toString() + '\r\n'));
+          if (row['名前'] == 'アメリカビーバー')
+            console.log(
+              tmpCellString,
+              cols,
+              this.getGlobalSearchTermArray.every(i => i.test(tmpCellString)),
+              this.getGlobalSearchTermArray
+            );
+
+          //検索条件（正規表現配列）で検索対象文字列をテストする。
+          //and条件としたいのでevery()を用いる。(every()は全要素がテストに合格するか判断する)
+          //正規表現モードの場合はgetGlobalSearchTermArrayにはRegExpオブジェクト１つしか入ってないのでeveryでも問題ない
+          return this.getGlobalSearchTermArray.every(i => i.test(tmpCellString));
+        })
+      );
+      console.log(masterFriends.length);
+
+      //表内検索：ハイライト
+      //絞り込みが完了したデータを対象に、正規表現がhitした場所にハイライト用マークをつけて回る
+      //比較回数を減らすため表示対象カラムを1次元配列に圧縮したもの(flat)から開始する
+      searchTargetColumns.flat().forEach(col =>
+        masterFriends.forEach(row =>
+          //正規表現配列を順に処理
+          this.getGlobalSearchTermArray.forEach(regex => {
+            //正規表現にHITする場合のみ処理
+            if (regex.test(row[col])) {
+              //このカラムに現在の正規表現でハイライト処理を行う
+              //カラムが複数行カラムかどうかで処理を分ける
+              if (col.slice(-4) == 'noCR') {
+                //対象は複数行カラム
+                console.log('複数行カラム：', col);
+                //todo 現状これでは改行に対応できてない
+              } else {
+                //対象は非複数行カラム
+                //単純に正規表現で置換処理を行う（前後にハイライトマークを挿入する）
+                //todo ハイライトマークは仮
+                row[col] = row[col].replace(regex, '■$&■');
+              }
+            }
+          })
+        )
+      );
+      //TODO
+      console.log(masterFriends.length);
+
       return masterFriends;
     },
 
@@ -1218,8 +1309,8 @@ export default {
         if (this.globalSearchTerm.trim().replace(/[\\^$.*+?()[\]{}|]/g, '').length) {
           //正規表現を作れる場合のみpush
           try {
-            //改行を"."で検索できるよう、正規表現フラグにsも追加する
-            regex.push(new RegExp(this.globalSearchTerm, 'is'));
+            //改行を"."で検索できるよう、正規表現フラグにsも追加する。ハイライト時の置換処理でも利用できるようgフラグも追加する。
+            regex.push(new RegExp(this.globalSearchTerm, 'isg'));
           } catch (error) {
             if (error instanceof SyntaxError) {
               console.log('RegExp SyntaxError:' + this.globalSearchTerm);
@@ -1251,9 +1342,9 @@ export default {
             queries[i] = queries[i].replace(/\\\(\n\|\)/g, '\\');
           });
 
-          //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。
+          //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。ハイライト時の置換処理でも利用できるようgフラグも追加する。
           try {
-            queries.forEach(i => regex.push(new RegExp(i, 'i')));
+            queries.forEach(i => regex.push(new RegExp(i, 'ig')));
           } catch (error) {
             if (error instanceof SyntaxError) {
               console.log('SyntaxError:' + queries);

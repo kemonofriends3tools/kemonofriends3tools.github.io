@@ -1248,11 +1248,11 @@ export default {
           let tmpCellString = '';
           //検索対象カラムの値を結合して検索対象文字列とする。
           cols.forEach(i => (tmpCellString += row[i].toString() + '\r\n'));
-          if (row['名前'] == 'アメリカビーバー')
+          if (row['名前'] == 'シナウスイロイルカ')
             console.log(
-              tmpCellString,
-              cols,
               this.getGlobalSearchTermArray.every(i => i.test(tmpCellString)),
+              cols,
+              tmpCellString,
               this.getGlobalSearchTermArray
             );
 
@@ -1309,8 +1309,8 @@ export default {
         if (this.globalSearchTerm.trim().replace(/[\\^$.*+?()[\]{}|]/g, '').length) {
           //正規表現を作れる場合のみpush
           try {
-            //改行を"."で検索できるよう、正規表現フラグにsも追加する。ハイライト時の置換処理でも利用できるようgフラグも追加する。
-            regex.push(new RegExp(this.globalSearchTerm, 'isg'));
+            //改行を"."で検索できるよう、正規表現フラグにsも追加する。
+            regex.push(new RegExp(this.globalSearchTerm, 'is'));
           } catch (error) {
             if (error instanceof SyntaxError) {
               console.log('RegExp SyntaxError:' + this.globalSearchTerm);
@@ -1342,9 +1342,9 @@ export default {
             queries[i] = queries[i].replace(/\\\(\n\|\)/g, '\\');
           });
 
-          //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。ハイライト時の置換処理でも利用できるようgフラグも追加する。
+          //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。
           try {
-            queries.forEach(i => regex.push(new RegExp(i, 'ig')));
+            queries.forEach(i => regex.push(new RegExp(i, 'i')));
           } catch (error) {
             if (error instanceof SyntaxError) {
               console.log('SyntaxError:' + queries);

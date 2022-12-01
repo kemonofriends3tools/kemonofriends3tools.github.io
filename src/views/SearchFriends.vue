@@ -336,7 +336,7 @@
       <vue-good-table
         ref="vgt"
         compactMode
-        :rows="filterdFriends"
+        :rows="filterdJson"
         :columns="columns"
         :row-style-class="rowStyleClassFn"
         :sort-options="{
@@ -603,7 +603,7 @@ import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
 import resizableTable from '@/mixins/resizableTable.js';
 
 //表に与える実データ。computedにてjsonをディープコピーして生成する
-let masterFriends = null;
+let masterJson = null;
 
 //カラムのうち改行を含み複数行になりうるもの。検索等で利用
 const multiLineColumns = [
@@ -612,6 +612,7 @@ const multiLineColumns = [
   'たいきスキル詳細',
   'とくせい詳細',
   'キセキとくせい詳細',
+  '備考',
 ];
 
 export default {
@@ -1141,16 +1142,16 @@ export default {
   },
   computed: {
     //tableにセットする実データを作り出す(computedなのでキャッシュが効き、パラメータに変化があった場合のみ再計算される)。
-    filterdFriends() {
-      //masterFriends初期化(jsonからディープコピー。値を毎回破棄するのはハイライト用にデータが加工されている為)
-      masterFriends = JSON.parse(JSON.stringify(friendsJson));
+    filterdJson() {
+      //masterJson初期化(jsonからディープコピー。値を毎回破棄するのはハイライト用にデータが加工されている為)
+      masterJson = JSON.parse(JSON.stringify(friendsJson));
 
       //特殊条件検索（advFilterで絞り込み）
       if (this.advFilter.label) {
-        //filter()はmasterFriendsを１行ずつチェックし、合格した行のみを集めたオブジェクトを新たに生成して返す。
+        //filter()はmasterJsonを１行ずつチェックし、合格した行のみを集めたオブジェクトを新たに生成して返す。
         //some()は配列の各要素に対してループし、コールバック関数が１つでもtrueを返せばsome()自身もtrueを返す。
         //これを組み合わせ、指定カラムのうちどれか１つが正規表現に合格するフレンズのみを抽出している。
-        masterFriends = masterFriends.filter(row =>
+        masterJson = masterJson.filter(row =>
           this.advFilter.columns.some(col =>
             //調査対象が複数行カラムの場合、改行なしデータから検索する
             row[multiLineColumns.includes(col) ? col + 'noCR' : col].match(this.advFilter.regex)
@@ -1195,7 +1196,9 @@ export default {
             ]);
             searchTargetColumns_noCR_Set.add('とくせい詳細noCR');
             searchTargetColumns_noCR_Set.add('キセキとくせい詳細noCR');
-          } else if (['回避', 'Beat補正', 'Try補正', 'Action補正'].some(i => i == col.label)) {
+          } else if (
+            ['回避', 'Beat補正', 'Try補正', 'Action補正', '実装日'].some(i => i == col.label)
+          ) {
             //別途表示カラム（formattedカラム）
             //処理はいずれも同じで対象カラムならfield名の後ろに'Formatted'を加える。
             searchTargetColumns.push([col.field + 'Formatted']);
@@ -1213,7 +1216,7 @@ export default {
       //表内検索：データを絞り込む
       //表内検索がある場合(正規表現配列に有効な正規表現がある場合)のみ処理
       if (0 < this.getGlobalSearchTermArray.i.length) {
-        masterFriends = masterFriends.filter(row =>
+        masterJson = masterJson.filter(row =>
           searchTargetColumns.some(cols => {
             //検索対象カラム名配列をもとに検索対象文字列を作る
             //検索対象文字列定義
@@ -1234,7 +1237,7 @@ export default {
       //作業は正規表現モードかつ複数行カラムが表示中の場合のみ行う（ノーマル検索の場合もしくは正規表現であっても１行の場合は現在の正規表現で確実にHITするため）
       if (this.globalSearchMode && 0 < searchTargetColumns_noCR_Set.size) {
         //各データの表示状態複数行カラムを走査
-        masterFriends.forEach(row =>
+        masterJson.forEach(row =>
           searchTargetColumns_noCR_Set.forEach(col =>
             //正規表現配列を順に処理
             this.getGlobalSearchTermArray.g.forEach(tmpRegex => {
@@ -1284,7 +1287,7 @@ export default {
         );
       }
 
-      return masterFriends;
+      return masterJson;
     },
     //検索文字列を表内検索やハイライト等で使いやすい形式に直して返す。
     //戻り値はオブジェクトでiやgなどのプロパティを持ち、それぞれに検索条件を正規表現配列化したものがフラグ違い等で入っている。詳細はretrun行参照。
@@ -1328,14 +1331,14 @@ export default {
 
       //正規表現文字列配列を元に正規表現配列を作る。検索用(iフラグ)と、置換用(gフラグ)、ハイライト処理用のhighlightなどを作る。
       //尚検索用と置換用を混ぜて使うのは危険（gフラグ付の正規表現オブジェクトは検索カーソル位置をlastIndexとして持っており、これが最後まで行くとtest()がfalseになる為)
-      //この関数がわざわざオブジェクトにして複数の配列を提供しているのはそのため
+      //この関数がわざわざオブジェクトにして複数の正規表現配列を提供しているのはそのため
       const tmpArrayI = [];
       const tmpArrayG = [];
       const tmpArrayH = [new RegExp(/\u200b.*\u200b/ims)]; //highlightには初期値としてハイライト用特殊文字正規表現を入れておく
       searchString.forEach(i => {
         try {
           //beatをBeatにもマッチさせたいのでiフラグは付ける。複数行(^等)も考慮しmもつける(ミラクルなど結合カラムでは意味がある)
-          tmpArrayI.push(new RegExp(i, 'im'));
+          tmpArrayI.push(new RegExp(i, 'im')); //ここにはsは入れない。入れると結合カラムで.*などがカラムを越えて横断HITしてしまう
           tmpArrayG.push(new RegExp(i, 'imsg')); //こっちにsは不要かもしれないがハイライト用と合わせて念のため
           tmpArrayH.push(new RegExp(i, 'ims')); //ハイライト用は改行が.でマッチするようsを付ける（.*等で文字列大半を選択された場合を考慮。そうしないと見た目上の行末で止まってしまう）
         } catch (error) {
@@ -1536,9 +1539,9 @@ export default {
     this.columns.forEach((i, j) => this.columnsIndex.set(i.field, j));
 
     //friendsJson初期化
-    //masterFriendsがnullならページへの初アクセスであり初期化が必要
+    //masterJsonがnullならページへの初アクセスであり初期化が必要
     //（importしたjsonはstaticであり、画面遷移をしても以下の変更処理を保持している為２回目以降は不要）
-    if (masterFriends == null) {
+    if (masterJson == null) {
       //初アクセス
 
       //省略記入されたカラムを表示に適した正しい文字列に復元してゆく。
@@ -1579,6 +1582,9 @@ export default {
 
         //検索用に改行有カラムの改行無しデータを用意する。
         multiLineColumns.forEach(j => (i[j + 'noCR'] = i[j].replace(/\r?\n/g, '')));
+
+        //実装日をフォーマット済文字列で検索できるようフォーマット済日付文字列を用意する（同時に2021が20220218にhitさせないためでもある）
+        i['実装日Formatted'] = i['実装日'].replace(/(\d{4})(\d{2})(\d{2})/, '$1/$2/$3');
       });
     }
 

@@ -305,11 +305,7 @@
                 />
               </b-col>
               <b-col cols="12" md="2" xl="1" class="pr-0 align-self-center">
-                <b-checkbox
-                  v-model="globalSearchMode"
-                  @change="setQuery()"
-                  aria-controls="regexWarn"
-                >
+                <b-checkbox v-model="globalSearchMode" @change="setQuery()">
                   正規表現
                 </b-checkbox>
               </b-col>
@@ -332,46 +328,6 @@
                 >
                   正規表現が特殊文字のみで構成されています。このような正規表現はブラウザをフリーズさせる恐れがあるため、現在検索結果に正規表現は適用されていません。もう少し何らかの情報（文字）を追加して下さい。
                 </b-alert>
-                <b-collapse id="regexWarn" v-model="globalSearchMode">
-                  <b-alert show variant="danger" class="m-0 p-1 pl-2">
-                    <span class="small font-weight-bold">正規表現検索時は改行に注意！</span>
-                    <b-button
-                      v-b-toggle.regexWarnDetail
-                      variant="info"
-                      class="debugButton px-1 py-0"
-                    >
-                      詳細を表示
-                    </b-button>
-                    <b-collapse id="regexWarnDetail">
-                      <b-alert show variant="warning" class="small mb-1">
-                        <p>
-                          正規表現で検索する場合、探したい文字列の途中に改行が入る可能性がないか注意して下さい。正規表現は強力ですが動作が厳密なため、そのような可能性は自分で考慮する必要があります。
-                        </p>
-                        <p>
-                          具体例で示します。カルガモのミラクルは以下のようなものです。
-                          <b-alert show variant="info" class="m-0 p-0">
-                            自身が大幅に狙われやすくなり被ダメージが70%減少し(2ターン)<br />
-                            自身を除いた味方全体の<br />
-                            与ダメージが45%増加する(3ターン)
-                          </b-alert>
-                          『味方全体の与ダメージ』という正規表現で検索した場合、カルガモはHITしません。なぜならカルガモのミラクルは『味方全体の』と『与ダメージ』の間に改行が入っているからです（この改行はゲーム中の表記に準拠しています）。<br />
-                          正規表現でカルガモを含むよう検索したい場合、『味方全体の(\n|)与ダメージ』などと改行が入る可能性を考慮する必要があります。
-                        </p>
-                        <p>
-                          こういった問題を避けるには単語を中心に利用し、助詞などを避けて正規表現を組み立てることです。<br />
-                          基本的に単語の途中に改行が入ることはありません。逆に助詞(てにおは)の周辺は改行が入りやすいです。<br />
-                          上の例で言うなら『味方全体.{0,10}与ダメージ』などすると期待通りの結果が得られます。（正規表現検索はsフラグ付で行っているので改行は『.』でマッチします。10という数字に深い意味はありません。ただ『.*』としてしまうと長文がHITしてしまうためある程度の文字で絞ったまでです）
-                        </p>
-                        <p class="mb-0">
-                          なお正規表現検索ではなく通常検索時はこの問題が発生しません。（改行を気にせず検索でき、途中改行があってもなくても両方HITします）<br />
-                          理由（仕組み）は単純で、裏でこっそり検索文字列を途中改行を考慮した文字列に変換しているからです。<br />
-                          具体的に言うと『味方全体の与ダメージ』という文字で通常検索をした場合、実際には『味(\n|)方(\n|)全(\n|)体(\n|)の(\n|)与(\n|)ダ(\n|)メ(\n|)ー(\n|)ジ』という文字列に変換して正規表現検索が行われています。これにより文中のどこに改行があってもマッチします。<br />
-                          正規表現検索においても改行がどこに入るかよくわからないときは『(\n|)』を各文字の間に挟めばとりあえず解決します。
-                        </p>
-                      </b-alert>
-                    </b-collapse>
-                  </b-alert>
-                </b-collapse>
               </b-col>
             </b-row>
           </div>
@@ -380,15 +336,9 @@
       <vue-good-table
         ref="vgt"
         compactMode
-        :rows="filterdFriends"
+        :rows="filterdJson"
         :columns="columns"
         :row-style-class="rowStyleClassFn"
-        :search-options="{
-          enabled: false,
-          skipDiacritics: true,
-          searchFn: globalSearch,
-          externalQuery: globalSearchTerm,
-        }"
         :sort-options="{
           enabled: true,
           initialSortBy: { field: '実装日', type: 'desc' },
@@ -479,7 +429,7 @@
             <TypeNameToIcon :type="props.row.サブ属性" :imgRemSize="1.8" />
           </template>
           <template v-else-if="props.column.label == '回避'">
-            <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+            <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
               {{ props.row[props.column.field + 'Formatted'] }}
             </text-highlight>
           </template>
@@ -490,7 +440,7 @@
               :key="'flagCorrection' + i"
             >
               {{ i.substring(0, 1).toUpperCase() + i.substring(1) }} :
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row[i + 'Formatted'] }}
               </text-highlight>
             </p>
@@ -498,7 +448,10 @@
           <template v-else-if="props.column.label == 'フラッグ'">
             <div v-for="i of ['1', '2', '3', '4', '5']" :key="'flag' + i">
               <p :class="getFlagCorrectionColumnClass('m-0', props.row['flag' + i])">
-                <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                <text-highlight
+                  :queries="getGlobalSearchTermArray.highlight"
+                  :caseSensitive="false"
+                >
                   {{ props.row['flag' + i] }}
                 </text-highlight>
               </p>
@@ -506,74 +459,77 @@
           </template>
           <template v-else-if="props.column.label == 'ミラクル'">
             <p class="font-weight-bold m-0">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.ミラクル名 }}
               </text-highlight>
             </p>
             <p class="m-0 pl-2">
               MP:
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.MP }}
               </text-highlight>
               <span
                 :class="getFlagCorrectionColumnClass('pr-3', props.row['ミラクル+'])"
                 style="padding-left:0.5rem;"
               >
-                <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+                <text-highlight
+                  :queries="getGlobalSearchTermArray.highlight"
+                  :caseSensitive="false"
+                >
                   {{ props.row['ミラクル+'] }}
                 </text-highlight>
               </span>
               Lv.5
             </p>
             <p class="preText m-0 pl-2">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.ミラクルlv5 }}
               </text-highlight>
             </p>
           </template>
           <template v-else-if="props.column.label == 'とくいわざ'">
             <p class="font-weight-bold m-0">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.とくいわざ名 }}
               </text-highlight>
             </p>
             <p class="preText m-0 pl-2">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.とくいわざ詳細 }}
               </text-highlight>
             </p>
           </template>
           <template v-else-if="props.column.label == 'たいきスキル'">
             <p class="font-weight-bold m-0">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.たいきスキル名 }}
               </text-highlight>
             </p>
             <p class="preText m-0 pl-2">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.たいきスキル詳細 }}
               </text-highlight>
             </p>
           </template>
           <template v-else-if="props.column.label == 'とくせい/キセキとくせい'">
             <p class="font-weight-bold m-0">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.とくせい名 }}
               </text-highlight>
             </p>
             <p class="preText m-0 pl-2">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.とくせい詳細 }}
               </text-highlight>
             </p>
             <hr class="multiLine_hr" />
             <p class="font-weight-bold m-0">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.キセキとくせい名 }}
               </text-highlight>
             </p>
             <p class="preText m-0 pl-2">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.キセキとくせい詳細 }}
               </text-highlight>
             </p>
@@ -583,7 +539,7 @@
           >
             <!-- ここも背景色を変えるが、値に入っているのは数値のみなのでgetFlagCorrectionColumnClassにはfield名を渡す。頭文字判定なので問題ない。 -->
             <p :class="getFlagCorrectionColumnClass('m-0 text-right', props.column.field)">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row[props.column.field + 'Formatted'] }}
               </text-highlight>
             </p>
@@ -597,7 +553,7 @@
           >
             <!-- フラッグ1-5のfield名は"flag"なので表示にはprops.column.fieldを利用する。ミラクル+は同一だが処理は共通なのでここに置く。 -->
             <p :class="getFlagCorrectionColumnClass('m-0', props.row[props.column.field])">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row[props.column.field] }}
               </text-highlight>
             </p>
@@ -615,13 +571,13 @@
           >
             <!-- これらは複数行になりうる。複数行クラスを適用する。 -->
             <p class="preText m-0">
-              <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row[props.column.field] }}
               </text-highlight>
             </p>
           </template>
           <template v-else>
-            <text-highlight :queries="getGlobalSearchTermArray" :caseSensitive="false">
+            <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
               {{ props.formattedRow[props.column.field] }}
             </text-highlight>
           </template>
@@ -637,7 +593,7 @@
 </template>
 
 <script>
-import masterFriends from '../json/friends.json';
+import friendsJson from '../json/friends.json';
 
 import SearchFriendsAdvFilterModal from '@/components/SearchFriendsAdvFilterModal.vue';
 import advFilterFriends from '@/mixins/advFilterFriends.js';
@@ -645,6 +601,19 @@ import advFilterFriends from '@/mixins/advFilterFriends.js';
 import TypeSelectModalFriends from '@/components/TypeSelectModalFriends.vue';
 import TypeNameToIcon from '@/components/TypeNameToIcon.vue';
 import resizableTable from '@/mixins/resizableTable.js';
+
+//表に与える実データ。computedにてjsonをディープコピーして生成する
+let masterJson = null;
+
+//カラムのうち改行を含み複数行になりうるもの。検索等で利用
+const multiLineColumns = [
+  'ミラクルlv5',
+  'とくいわざ詳細',
+  'たいきスキル詳細',
+  'とくせい詳細',
+  'キセキとくせい詳細',
+  '備考',
+];
 
 export default {
   mixins: [resizableTable, advFilterFriends],
@@ -1173,80 +1142,214 @@ export default {
   },
   computed: {
     //tableにセットする実データを作り出す(computedなのでキャッシュが効き、パラメータに変化があった場合のみ再計算される)。
-    //masterFriendsを特殊条件でフィルタリングして作る。
-    filterdFriends() {
+    filterdJson() {
+      //masterJson初期化(jsonからディープコピー。値を毎回破棄するのはハイライト用にデータが加工されている為)
+      masterJson = JSON.parse(JSON.stringify(friendsJson));
+
+      //特殊条件検索（advFilterで絞り込み）
       if (this.advFilter.label) {
-        //filter()はmasterFriendsを１行ずつチェックし、合格した行のみを集めたオブジェクトを新たに生成して返す。
+        //filter()はmasterJsonを１行ずつチェックし、合格した行のみを集めたオブジェクトを新たに生成して返す。
         //some()は配列の各要素に対してループし、コールバック関数が１つでもtrueを返せばsome()自身もtrueを返す。
         //これを組み合わせ、指定カラムのうちどれか１つが正規表現に合格するフレンズのみを抽出している。
-        return masterFriends.filter(row =>
+        masterJson = masterJson.filter(row =>
           this.advFilter.columns.some(col =>
-            row[col].replace(/\r?\n/g, '').match(this.advFilter.regex)
+            //調査対象が複数行カラムの場合、改行なしデータから検索する
+            row[multiLineColumns.includes(col) ? col + 'noCR' : col].match(this.advFilter.regex)
           )
         );
-      } else {
-        return masterFriends;
       }
-    },
 
-    //検索文字列を表内検索やvue-text-hightlight等で使いやすい形式（正規表現の配列）に直して返す。
-    //正規表現検索モードの場合はそのままそれを格納した要素１の配列を返す
-    //通常検索モードの場合は検索文字列を半角または全角スペースでsplitした配列を返す
-    //複数個所で利用しているのでキャッシュの効くcomputedとして提供する。
-    getGlobalSearchTermArray() {
-      //戻り値となる正規表現配列を定義する。
-      const regex = [];
-      //正規表現検索フラグ確認
-      if (this.globalSearchMode) {
-        //正規表現検索モード
-        //検索文字列が空であったり特殊文字だけだったりするとフリーズするので有効な文字列がある場合のみpushする
-        if (this.globalSearchTerm.trim().replace(/[\\^$.*+?()[\]{}|]/g, '').length) {
-          //正規表現を作れる場合のみpush
-          try {
-            //改行を"."で検索できるよう、正規表現フラグにsも追加する
-            regex.push(new RegExp(this.globalSearchTerm, 'is'));
-          } catch (error) {
-            if (error instanceof SyntaxError) {
-              console.log('RegExp SyntaxError:' + this.globalSearchTerm);
-            }
+      //表内検索：準備：カラム名収集
+      //表内検索は現在表示しているカラムのみが検索対象なので、検索対象カラム名配列(2次元配列)を作る
+      //また、ハイライト表示時に使う複数行カラムのみを集めたSetオブジェクトも作る(重複不要のため配列ではなくSetとする)
+      let searchTargetColumns = [];
+      const searchTargetColumns_noCR_Set = new Set();
+      //columnsを走査して現在表示されているカラムのみを集める(colがhiddenの場合は対象外)
+      this.columns.forEach(col => {
+        if (!col['hidden']) {
+          //検索対象カラム名配列に追加
+          //このカラムが結合カラムの場合、別途表示カラム（formattedカラム）がある場合、改行を除いて検索したい場合は本来のカラムとは別のカラムを検索対象としたい。
+          //先に結合カラム関連から処理
+          if (col.label == 'フラッグ補正') {
+            searchTargetColumns.push([
+              'Beat補正Formatted',
+              'Try補正Formatted',
+              'Action補正Formatted',
+            ]);
+          } else if (col.label == 'フラッグ') {
+            searchTargetColumns.push(['flag1', 'flag2', 'flag3', 'flag4', 'flag5']);
+          } else if (col.label == 'ミラクル') {
+            searchTargetColumns.push(['ミラクル名', 'MP', 'ミラクル+', 'ミラクルlv5noCR']);
+            searchTargetColumns_noCR_Set.add('ミラクルlv5noCR');
+          } else if (col.label == 'とくいわざ') {
+            searchTargetColumns.push(['とくいわざ名', 'とくいわざ詳細noCR']);
+            searchTargetColumns_noCR_Set.add('とくいわざ詳細noCR');
+          } else if (col.label == 'たいきスキル') {
+            searchTargetColumns.push(['たいきスキル名', 'たいきスキル詳細noCR']);
+            searchTargetColumns_noCR_Set.add('たいきスキル詳細noCR');
+          } else if (col.label == 'とくせい/キセキとくせい') {
+            searchTargetColumns.push([
+              'とくせい名',
+              'とくせい詳細noCR',
+              'キセキとくせい名',
+              'キセキとくせい詳細noCR',
+            ]);
+            searchTargetColumns_noCR_Set.add('とくせい詳細noCR');
+            searchTargetColumns_noCR_Set.add('キセキとくせい詳細noCR');
+          } else if (
+            ['回避', 'Beat補正', 'Try補正', 'Action補正', '実装日'].some(i => i == col.label)
+          ) {
+            //別途表示カラム（formattedカラム）
+            //処理はいずれも同じで対象カラムならfield名の後ろに'Formatted'を加える。
+            searchTargetColumns.push([col.field + 'Formatted']);
+          } else if (multiLineColumns.includes(col.label)) {
+            //複数行カラム（単体表示指定された場合に発生）。改行なしを検索対象とする。
+            searchTargetColumns.push([col.field + 'noCR']);
+            searchTargetColumns_noCR_Set.add(col.field + 'noCR');
+          } else {
+            //その他。そのままカラム名を入れる。
+            searchTargetColumns.push([col.field]);
           }
         }
-      } else {
-        //通常検索モード
+      });
 
-        //検索文字列配列を取得する。
-        //tirmで前後空白を除き、正規表現の特殊文字をエスケープ、半または全角スペースでsplitする。
+      //表内検索：データを絞り込む
+      //表内検索がある場合(正規表現配列に有効な正規表現がある場合)のみ処理
+      if (0 < this.getGlobalSearchTermArray.i.length) {
+        masterJson = masterJson.filter(row =>
+          searchTargetColumns.some(cols => {
+            //検索対象カラム名配列をもとに検索対象文字列を作る
+            //検索対象文字列定義
+            let tmpCellString = '';
+            //検索対象カラムの値を結合して検索対象文字列とする。
+            cols.forEach(i => (tmpCellString += row[i].toString() + '\r\n'));
+
+            //検索条件（正規表現配列）で検索対象文字列をテストする。
+            //and条件としたいのでevery()を用いる。(every()は全要素がテストに合格するか判断する)
+            //（正規表現モードの場合は正規表現配列には１つしか入ってないのでeveryでも問題ない）
+            return this.getGlobalSearchTermArray.i.every(i => i.test(tmpCellString));
+          })
+        );
+      }
+
+      //表内検索：ハイライト
+      //絞り込みが完了したデータを対象に、正規表現がhitした場所がハイライトされるようにする
+      //作業は正規表現モードかつ複数行カラムが表示中の場合のみ行う（ノーマル検索の場合もしくは正規表現であっても１行の場合は現在の正規表現で確実にHITするため）
+      if (this.globalSearchMode && 0 < searchTargetColumns_noCR_Set.size) {
+        //各データの表示状態複数行カラムを走査
+        masterJson.forEach(row =>
+          searchTargetColumns_noCR_Set.forEach(col =>
+            //正規表現配列を順に処理
+            this.getGlobalSearchTermArray.g.forEach(tmpRegex => {
+              //改行無しデータが正規表現にHITする場合のみ処理
+              //正規表現で検索し（戻り値の配列から）検索のHIT数を調べる
+              const matchArrayNoCR = row[col].match(tmpRegex);
+              if (!(matchArrayNoCR == null) && 0 < matchArrayNoCR.length) {
+                //このカラムは複数行カラムかつ正規表現にHIT。ハイライトに特別な処理が必要な可能性有。
+                //対象カラムの改行有りカラム名を取得し、上と同様にHIT数を調べる
+                const col_org = col.substring(0, col.length - 4);
+                const matchArrayWithCR = row[col_org].match(tmpRegex);
+                //改行無しHIT数と改行有りHIT数を比較し、一致しない場合のみ処理（一致する場合は作業不要）
+                if (
+                  matchArrayWithCR == null ||
+                  !(matchArrayNoCR.length == matchArrayWithCR.length)
+                ) {
+                  //このカラムに特別な処理が必要
+                  //出力用文字配列定義。初期値は現在の改行有りカラムをArray.from()にて１文字単位に分解したもの（サロゲートペア安全）
+                  const tmpOut = Array.from(row[col_org]);
+                  //参照用文字配列定義。改行無しカラムを正規表現で置換処理（ハイライト用特殊文字で囲い付）し、上と同様に１文字単位に分解したもの
+                  const tmpRef = Array.from(row[col].replace(tmpRegex, '\u200b$&\u200b'));
+
+                  //出力用文字配列と参照用文字配列をマージする。前者にまとめる。
+                  let j = 0; //参照用文字配列のindexを指す作業変数
+                  tmpOut.forEach((i, index) => {
+                    //現在の文字が改行関係だった場合はスキップ（\nだけで済むと思うが念のため\rも定義）。参照用indexは動かさない。尚forEach内なのでループ抜けるのはcontinueではなくreturnが正しい。
+                    if (i == '\n' || i == '\r') return;
+                    if (tmpRef[j] == '\u200b') {
+                      //参照用が指す現在の文字がハイライト用特殊文字だった場合、出力用文字配列の文字に前置で結合する。代入はindexをtmpOut宛に行う（forEach内でiを書き換えても外には影響しない為）
+                      tmpOut[index] = '\u200b' + i;
+                      //参照用indexをインクリメント。これでiとjがまた一致する（それぞれの配列内で同じ文字を指すようになる）
+                      j++;
+                    }
+                    //参照用indexをインクリメント。iと同様に次の文字へと移る
+                    j++;
+                  });
+                  //tmpRefの最後の要素がハイライト用特殊文字だった場合、最後にハイライト用特殊文字を付け足す
+                  //（文字列終端までマッチする場合、上のループでjは最後まで到達していない為。安全のためjではなくtmpRef.length - 1で行う）
+                  if (tmpRef[tmpRef.length - 1] == '\u200b') tmpOut[tmpOut.length - 1] += '\u200b';
+
+                  //完成した出力用文字配列を書き戻す。結合して文字列にしてセットする。
+                  row[col_org] = tmpOut.join('');
+                }
+              }
+            })
+          )
+        );
+      }
+
+      return masterJson;
+    },
+    //検索文字列を表内検索やハイライト等で使いやすい形式に直して返す。
+    //戻り値はオブジェクトでiやgなどのプロパティを持ち、それぞれに検索条件を正規表現配列化したものがフラグ違い等で入っている。詳細はretrun行参照。
+    //複数個所で利用しているのでキャッシュの効くcomputedとして提供する。
+    getGlobalSearchTermArray() {
+      //まず検索文字列を正規表現文字列に変換し、配列に格納する
+      const searchString = [];
+      //正規表現検索フラグ確認
+      if (this.globalSearchMode) {
+        //正規表現検索モードの場合は基本的にそのまま利用する
+        //検索文字列が空であったり特殊文字だけだったりするとフリーズするので有効な文字列がある場合のみセットする
+        if (this.globalSearchTerm.trim().replace(/[\\^$.*+?()[\]{}|]/g, '').length) {
+          searchString.push(this.globalSearchTerm);
+        }
+      } else {
+        //通常検索モードの場合はスペース区切りでand検索を行う必要がある。各区切りを要素として配列に格納する。
+        //最初にtirmで前後空白を除き、正規表現の特殊文字をエスケープ、半または全角スペースでsplitする。
         //全角スペースをソースに直で書くとlintでエラーになるので文字コードで指定する。
-        let queries = this.globalSearchTerm
+        let tmpStrArray = this.globalSearchTerm
           .trim()
           .replace(/[\\^$.*+?()[\]{}|/]/g, '\\$&')
           .split(/[\x20\u3000]/);
 
-        //検索文字列配列から空文字要素を排除する（空文字要素があるとvue-text-hightlight内のロジックでフリーズする模様）。ページロード時などにそういう配列が生まれることがある。
-        queries = queries.filter(i => i != '');
+        //検索文字列配列から空文字要素を排除する。ページロード時などにそういう配列が生まれることがある。
+        tmpStrArray = tmpStrArray.filter(i => i != '');
 
-        //検索文字列が空の場合は処理しない（空のqueriesを元にregexを作るとvue-text-hightlight内のロジック絡みでフリーズする模様）
-        if (queries.length) {
+        //検索文字列が空の場合は処理しない
+        if (tmpStrArray.length) {
           //通常検索モードでは途中改行文字列も探せるようにする
           //つまり探したい文字列がjsonデータ上では途中改行されていた場合でもHITさせたい。これは検索文字列の各文字の間に自動で(\n|)を挿入してあげることで対応出来る
-          //なお正規表現時は改行を考慮するのはユーザーの責任ということでこの対応は行わない。
-          queries.forEach((v, i) => {
-            queries[i] = v.split('').join('(\n|)');
+          //なお正規表現時は別の方法で対処するのでこの対応は行わない。
+          tmpStrArray.forEach((v, i) => {
+            tmpStrArray[i] = Array.from(v).join('(\n|)');
             //各文字の間に(\n|)を追加したが、正規表現エスケープ文字後にも追加されており構文エラーとなっているのでそれを消して修正する
-            queries[i] = queries[i].replace(/\\\(\n\|\)/g, '\\');
+            tmpStrArray[i] = tmpStrArray[i].replace(/\\\(\n\|\)/g, '\\');
           });
-
-          //'i'オプションにより大文字小文字を区別しない。これによりbeatでBeatにHitするようになる。
-          try {
-            queries.forEach(i => regex.push(new RegExp(i, 'i')));
-          } catch (error) {
-            if (error instanceof SyntaxError) {
-              console.log('SyntaxError:' + queries);
-            }
-          }
+          //完成した正規表現配列をpush
+          tmpStrArray.forEach(i => searchString.push(i));
         }
       }
-      return regex;
+
+      //正規表現文字列配列を元に正規表現配列を作る。検索用(iフラグ)と、置換用(gフラグ)、ハイライト処理用のhighlightなどを作る。
+      //尚検索用と置換用を混ぜて使うのは危険（gフラグ付の正規表現オブジェクトは検索カーソル位置をlastIndexとして持っており、これが最後まで行くとtest()がfalseになる為)
+      //この関数がわざわざオブジェクトにして複数の正規表現配列を提供しているのはそのため
+      const tmpArrayI = [];
+      const tmpArrayG = [];
+      const tmpArrayH = [new RegExp(/\u200b.*\u200b/ims)]; //highlightには初期値としてハイライト用特殊文字正規表現を入れておく
+      searchString.forEach(i => {
+        try {
+          //beatをBeatにもマッチさせたいのでiフラグは付ける。複数行(^等)も考慮しmもつける(ミラクルなど結合カラムでは意味がある)
+          tmpArrayI.push(new RegExp(i, 'im')); //ここにはsは入れない。入れると結合カラムで.*などがカラムを越えて横断HITしてしまう
+          tmpArrayG.push(new RegExp(i, 'imsg')); //こっちにsは不要かもしれないがハイライト用と合わせて念のため
+          tmpArrayH.push(new RegExp(i, 'ims')); //ハイライト用は改行が.でマッチするようsを付ける（.*等で文字列大半を選択された場合を考慮。そうしないと見た目上の行末で止まってしまう）
+        } catch (error) {
+          if (error instanceof SyntaxError) {
+            console.log('RegExp SyntaxError:' + i);
+          }
+        }
+      });
+
+      //オブジェクトに格納して返す
+      return { i: tmpArrayI, g: tmpArrayG, highlight: tmpArrayH };
     },
     //入力された正規表現に問題がないか確認し、問題がある場合はその理由を返す。このメソッドの主目的はエラーメッセージ表示制御である
     checkSyntaxOfGlobalSearchTerm() {
@@ -1283,55 +1386,6 @@ export default {
       const iy = y == '' ? 0 : y;
       return ix < iy ? -1 : ix > iy ? 1 : 0;
     },
-    //表内検索。第4引数はglobalSearchTermだが使ってないので省略。
-    globalSearch(row, col, cellValue) {
-      //colがhiddenの場合は探索しない
-      if (col['hidden']) return false;
-
-      //代替検索カラム配列
-      //現在のカラムが結合カラムや別に表示用カラム（formattedカラム）がある場合、これにカラム名を入れ、
-      //検索は現在のカラムではなく別カラム群を検索対象とする。
-      let altTargetColumns = null;
-
-      //先に結合カラム関連から処理し、最後にformattedカラム関連を処理する。
-      if (col.label == 'フラッグ補正') {
-        altTargetColumns = ['Beat補正Formatted', 'Try補正Formatted', 'Action補正Formatted'];
-      } else if (col.label == 'フラッグ') {
-        altTargetColumns = ['flag1', 'flag2', 'flag3', 'flag4', 'flag5'];
-      } else if (col.label == 'ミラクル') {
-        altTargetColumns = ['ミラクル名', 'MP', 'ミラクル+', 'ミラクルlv5'];
-      } else if (col.label == 'とくいわざ') {
-        altTargetColumns = ['とくいわざ名', 'とくいわざ詳細'];
-      } else if (col.label == 'たいきスキル') {
-        altTargetColumns = ['たいきスキル名', 'たいきスキル詳細'];
-      } else if (col.label == 'とくせい/キセキとくせい') {
-        altTargetColumns = ['とくせい名', 'とくせい詳細', 'キセキとくせい名', 'キセキとくせい詳細'];
-      } else if (['回避', 'Beat補正', 'Try補正', 'Action補正'].some(i => i == col.label)) {
-        //formattedカラム関連。
-        //処理はいずれも同じで対象カラムならfield名の後ろに'Formatted'を加える。
-        altTargetColumns = [col.field + 'Formatted'];
-      }
-
-      //検索対象文字列定義
-      let tmpCellString;
-
-      //代替検索カラム配列をもとに検索対象文字列を作り出す
-      if (altTargetColumns) {
-        //代替検索必要
-        //配列にて示された各セル値を結合して検索対象文字列とする。
-        altTargetColumns.forEach(i => (tmpCellString = tmpCellString + row[i].toString() + '\r\n'));
-      } else {
-        //代替検索不要
-        //検索対象文字列はセル値
-        tmpCellString = cellValue.toString();
-      }
-
-      //検索条件（正規表現配列）で検索対象文字列をテストする。
-      //and条件としたいのでevery()を用いる。(every()は全要素がテストに合格するか判断する)
-      //正規表現モードの場合はgetGlobalSearchTermArrayにはRegExpオブジェクト１つしか入ってないのでeveryでも問題ない
-      return this.getGlobalSearchTermArray.every(i => i.test(tmpCellString));
-    },
-
     //advFilterに値をセットする。
     //引数として指定された2つのindexを利用し、mixinにて定義された配列を参照して値を渡す。indexを経由させているのはクエリーにて利用したい為。
     //regexは前後の/は不要。^や$などは使用可。
@@ -1484,9 +1538,10 @@ export default {
     //そのためpage描画が始まる前（elementがマウントされる前）であるここbeforeMountにて初期化を行う。
     this.columns.forEach((i, j) => this.columnsIndex.set(i.field, j));
 
-    //masterFriends初期化
-    //要素を１つ取り出して既に初期化済みかを調べる（jsonをimportしたmasterFriendsはstaticであり、以下の変更処理を保持している為）
-    if (!Object.prototype.hasOwnProperty.call(masterFriends[0], '回避Formatted')) {
+    //friendsJson初期化
+    //masterJsonがnullならページへの初アクセスであり初期化が必要
+    //（importしたjsonはstaticであり、画面遷移をしても以下の変更処理を保持している為２回目以降は不要）
+    if (masterJson == null) {
       //初アクセス
 
       //省略記入されたカラムを表示に適した正しい文字列に復元してゆく。
@@ -1494,7 +1549,7 @@ export default {
       //前者の利点は出力が"+1.0%"のような文字列であってもカラムのソートでは元fieldを参照することにより正しくソートができること。
       //前者の欠点は表のglobalSearchにおいて特殊処理を強いられること。
       //カラムによってどちらを使用するかは使い分ける。
-      masterFriends.forEach(i => {
+      friendsJson.forEach(i => {
         //回避、フラッグ補正値関係。元の値を残す"Formatted"処理型。処理が同じなのでまとめる。
         ['回避', 'Beat補正', 'Try補正', 'Action補正'].forEach(
           j =>
@@ -1524,6 +1579,12 @@ export default {
         } else if (i['ミラクル+'].match(/^t/i)) {
           i['ミラクル+'] = 'Try';
         }
+
+        //検索用に改行有カラムの改行無しデータを用意する。
+        multiLineColumns.forEach(j => (i[j + 'noCR'] = i[j].replace(/\r?\n/g, '')));
+
+        //実装日をフォーマット済文字列で検索できるようフォーマット済日付文字列を用意する（同時に2021が20220218にhitさせないためでもある）
+        i['実装日Formatted'] = i['実装日'].replace(/(\d{4})(\d{2})(\d{2})/, '$1/$2/$3');
       });
     }
 

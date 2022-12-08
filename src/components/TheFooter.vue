@@ -4,8 +4,8 @@
     <p>
       このサイトの情報のうち「けものフレンズ」全般に関するものは 「
       <a href="https://kemono-friends.jp/">けものフレンズプロジェクト</a>
-      」 に、「けものフレンズ３」に関するものは 「
-      <a href="https://kemono-friends.sega.jp/">SEGA</a>
+      」 に、「けものフレンズ３」に関するものは 「SEGA」及び「
+      <a href="https://kemono-friends-3.jp/">Appirits</a>
       」にそれぞれ帰属しています。<br />
       それら以外のものは
       <a href="https://discord.gg/yru5YvBmCx">© 2020 けものフレンズ3ツール</a> です。

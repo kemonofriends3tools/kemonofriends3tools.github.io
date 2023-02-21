@@ -1,6 +1,6 @@
 <template>
   <b-container>
-    <b-card class="mb-2" title="[ちからくらべ] 今期末ランク予想">
+    <b-card class="mb-2" title="[ちからくらべ/とくべつくんれん] 今期末ランク予想">
       <b-alert show variant="info" class="small">
         今期末までにランクいくつになれるかを計算します。
       </b-alert>
@@ -9,7 +9,25 @@
       </b-alert>
       <b-row>
         <b-col cols="12" lg="8" xl="7" class="mb-4">
-          <h5 class="input">[入力] ちからくらべ状況・対戦方針</h5>
+          <h5 class="input">[入力] 現状・対戦方針</h5>
+          <b-row class="align-items-center">
+            <b-col cols="12" md="4">
+              <label class="mb-0 font-weight-bold">イベント</label>
+            </b-col>
+            <b-col class="text-right d-inline input-right-margin">
+              <b-row>
+                <b-col cols="12">
+                  <b-select
+                    v-model.number="inputEvent"
+                    :options="selectEvent"
+                    class="d-inline width12rem"
+                    required
+                    @change="changeEvent"
+                  />
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
           <b-row class="align-items-center">
             <b-col cols="12" md="4">
               <label class="mb-0 font-weight-bold">今期終了日時</label>
@@ -102,7 +120,7 @@
               </b-row>
             </b-col>
           </b-row>
-          <b-row class="align-items-center">
+          <b-row class="align-items-center" v-if="inputEvent == 'normal'">
             <b-col cols="12" md="4">
               <label class="mb-0 font-weight-bold">くんれんポイント</label>
             </b-col>
@@ -118,6 +136,40 @@
                   /><span class="font-weight-bold input-right-display-unit">pt</span><br />
                   <span class="small mr-4">
                     <template v-if="currentRank != ''">(ランク {{ currentRank }} )</template>
+                  </span>
+                </b-col>
+              </b-row>
+            </b-col>
+          </b-row>
+          <b-row class="align-items-center" v-else>
+            <b-col cols="12" md="4">
+              <label class="mb-0 font-weight-bold">とくべつくんれんポイント</label>
+            </b-col>
+            <b-col class="text-right d-inline input-right-margin">
+              <b-row>
+                <b-col cols="12">
+                  <span class="font-weight-bold">ランク：</span>
+                  <b-input
+                    required
+                    v-model.number="inputCurrentSPRank"
+                    type="number"
+                    min="1"
+                    max="30"
+                    class="d-inline ml-0 input-number-7rem"
+                  />
+                  <br /><span class="font-weight-bold">次のクラスまで：</span>
+                  <b-input
+                    required
+                    v-model.number="inputCurrentSPRemainPoint"
+                    type="number"
+                    min="1"
+                    class="d-inline ml-0 input-number-7rem"
+                  />
+                  <br />
+                  <span class="small mr-4">
+                    <template v-if="currentPoint != ''"
+                      >(現在のとくべつくんれんポイント {{ currentPoint }})</template
+                    >
                   </span>
                 </b-col>
               </b-row>
@@ -267,8 +319,11 @@
               <li>
                 『最終ランクアップ日時』はあくまで目安です。プレイタイミングにより数時間ズレることがあります。
               </li>
-              <li>
+              <li v-if="inputEvent == 'normal'">
                 くんれんメダルは『総獲得くんれんメダル』以外に防衛ボーナスとして入手できる可能性があります。
+              </li>
+              <li v-else>
+                とくべつくんれんメダルは『総獲得とくべつくんれんメダル』以外に防衛ボーナスやおうえんボーナス（連敗時ボーナス）として入手できる可能性があります。
               </li>
               <li>
                 このツールは結果を総計ではなく、真面目に毎戦シミュレーションして求めています。そのため勝率が100%未満の場合、計算毎に結果が変動します。
@@ -317,82 +372,139 @@ import dayjs from 'dayjs';
 import VueTimepicker from 'vue2-timepicker';
 
 import contestOfStrengthJson from '../json/contestOfStrength.json';
+import contestOfStrengthSPJson from '../json/contestOfStrengthSP.json';
+
+//イベント終了日時。更新する場合はここを変更する。
+//終了時間は10分程前を指定しておくこと（最終対戦をメンテ前に終えられるよう配慮している）。
+const endDateNormal = new Date('2023/3/23 13:50:00');
+const EndDateSP = new Date('2022/10/20 13:50:00');
+
+const DifficultyNormal = [
+  { value: 1.2, text: 'てごわい (x1.2)' },
+  { value: 1.0, text: 'とんとん (x1.0)' },
+  { value: 0.8, text: 'やさしい (x0.8)' },
+];
+const DifficultySP = [
+  { value: 1.2, text: 'げきせん (x1.2)' },
+  { value: 1.0, text: 'はくねつ (x1.0)' },
+  { value: 0.8, text: 'てあわせ (x0.8)' },
+];
+const AverageTurnsNormal = [
+  { value: 1.5, text: '1 ターン (x1.5)' },
+  { value: 1.4, text: '2 ターン (x1.4)' },
+  { value: 1.3, text: '3 ターン (x1.3)' },
+  { value: 1.2, text: '4 ターン (x1.2)' },
+  { value: 1.1, text: '5 ターン (x1.1)' },
+  { value: 1.0, text: '6 ターン以上 (x1.0)' },
+];
+const AverageTurnsSP = [
+  { value: 1.2, text: '7 ターン以内 (x1.2)' },
+  { value: 1.1, text: '8 ターン以上 (x1.1)' },
+];
 
 export default {
   name: 'CalcContestOfStrength',
   components: { VueTimepicker },
   data() {
     return {
-      endDate: new Date('2021/3/31 13:50:00'), //今期末日付。更新する場合はここを変更する。
+      selectEvent: [
+        { value: 'normal', text: 'ちからくらべ' },
+        { value: 'sp', text: 'とくべつくんれん' },
+      ],
+      inputEvent: 'normal', //イベント選択の初期値はちからくらべ。
+      endDate: endDateNormal, //今期末日付。
       rankArray: [], //次ランクへ上がるために必要なpt数を格納する配列。実際のランクはindex+1。mountedにて初期化。
-      inputEndDate: undefined, //mountedにて初期化
+      inputEndDate: undefined,
       inputMinDate: new Date(dayjs().startOf('day')),
-      inputEndTime: '13:50', //参照していないがこの時間はinputEndDateの初期化に関係有なので変更時注意
-      inputNumberOfChallenge: 0,
-      maxNumberOfChallenge: 9,
-      inputLeastTime: 30,
-      inputCurrentPoint: '',
-      selectDifficulty: [
-        { value: 1.2, text: 'てごわい (x1.2)' },
-        { value: 1.0, text: 'とんとん (x1.0)' },
-        { value: 0.8, text: 'やさしい (x0.8)' },
-      ],
-      inputDifficulty: 1.0,
-      selectAverageTurns: [
-        { value: 1.5, text: '1 ターン (x1.5)' },
-        { value: 1.4, text: '2 ターン (x1.4)' },
-        { value: 1.3, text: '3 ターン (x1.3)' },
-        { value: 1.2, text: '4 ターン (x1.2)' },
-        { value: 1.1, text: '5 ターン (x1.1)' },
-        { value: 1.0, text: '6 ターン以上 (x1.0)' },
-      ],
-      inputAverageTurns: 1.2,
-      inputWinRate: 100,
+      inputEndTime: '13:50',
+      inputNumberOfChallenge: 0, //挑戦回数 現在値
+      maxNumberOfChallenge: 9, //挑戦回数 最大値
+      inputLeastTime: 30, //次の回復まで
+      inputCurrentPoint: '', //現在のくんれんポイント。数値を入れるとページロード時に計算処理が走るので空欄にしておく。
+      inputCurrentSPRank: '', //とくべつくんれん用 現在のランク
+      inputCurrentSPRemainPoint: '', //とくべつくんれん用 次のクラスまでの値
+      selectDifficulty: DifficultyNormal, //対戦相手難易度 選択肢
+      inputDifficulty: 1.0, //対戦相手難易度
+      selectAverageTurns: AverageTurnsNormal, //平均ターン数 選択肢
+      inputAverageTurns: 1.2, //平均ターン数
+      inputWinRate: 100, //勝率
       selectChallengeMode: [
         { value: 3, text: '3倍モード' },
         { value: 1, text: '通常モード(1倍)' },
       ],
-      inputChallengeMode: 3,
+      inputChallengeMode: 3, //挑戦モード
       selectRecoverLogic: [
         { value: 'easy', text: '構わず3倍モードで継続' },
         { value: 'smart', text: '連勝ボーナス回復まで通常モードに' },
       ],
-      inputRecoverLogic: 'smart',
-      inputCurrentConsecutiveWinBonus: 5,
+      inputRecoverLogic: 'smart', //負けた場合（対戦方針）
+      inputCurrentConsecutiveWinBonus: 5, //現在の連勝ボーナス
     };
   },
   mounted() {
-    //inputEndDateの初期化。
-    const tmpDateNow = new Date();
-    if (tmpDateNow < this.endDate) {
-      //endDateが正しい（未来日付）場合はその値を採用する。
-      this.inputEndDate = this.endDate;
-    } else {
-      //endDateが古い場合は現在時刻によって本日もしくは翌日の日付とする。
-      //inputEndDateにいれる変数を用意する。時間はinputEndTimeと共通のマジックナンバー。ないだろうけど変更する際は注意。
-      const tmpThresholdDate = new Date(
-        tmpDateNow.getFullYear(),
-        tmpDateNow.getMonth(),
-        tmpDateNow.getDate(),
-        13,
-        50
-      );
-
-      //今日の時刻が13:50を超えているなら1日ずらして翌日を〆とする
-      if (tmpThresholdDate <= tmpDateNow) tmpThresholdDate.setDate(tmpThresholdDate.getDate() + 1);
-
-      this.inputEndDate = tmpThresholdDate;
-    }
-
-    //ランクテーブルをjsonから作成
-    for (const row of contestOfStrengthJson) {
-      this.rankArray.push(row['くんれんポイント']);
-    }
-
-    //一応ソートしておく。そのままだと文字列で比較してしまうのでコールバック関数で数値比較に。
-    this.rankArray.sort((a, b) => a - b);
+    //changeEvent()に初期化処理があるのでそちらを走らせる
+    this.changeEvent();
   },
   methods: {
+    //計算対象イベントを切り替えた場合の処理。dataを初期化して回る。
+    changeEvent() {
+      //イベントによって異なる初期値関連
+      if (this.inputEvent == 'normal') {
+        //ちからくらべ
+        this.endDate = endDateNormal;
+        this.rankArray = [];
+        contestOfStrengthJson.forEach(i => this.rankArray.push(i['くんれんポイント']));
+        this.selectDifficulty = DifficultyNormal; //対戦相手難易度 選択肢
+        this.inputDifficulty = 1.0; //対戦相手難易度
+        this.selectAverageTurns = AverageTurnsNormal; //平均ターン数 選択肢
+        this.inputAverageTurns = 1.2; //平均ターン数
+      } else {
+        //とくべつくんれん（ちからくらべでなければ全てとくべつくんれんとみなす）
+        this.endDate = EndDateSP;
+        this.rankArray = [];
+        contestOfStrengthSPJson.forEach(i => this.rankArray.push(i['とくべつくんれんポイント']));
+        this.selectDifficulty = DifficultySP; //対戦相手難易度 選択肢
+        this.inputDifficulty = 1.0; //対戦相手難易度
+        this.selectAverageTurns = AverageTurnsSP; //平均ターン数 選択肢
+        this.inputAverageTurns = 1.2; //平均ターン数
+      }
+
+      //イベントを問わず共通の初期値
+      this.inputEndTime = this.endDate.getHours() + ':' + this.endDate.getMinutes();
+      this.inputNumberOfChallenge = 0; //挑戦回数
+      this.inputLeastTime = 30; //次の回復まで
+      this.inputCurrentPoint = ''; //現在のくんれんポイント。数値を入れるとページロード時に計算処理が走るので空欄にしておく。
+      this.inputCurrentSPRank = ''; //とくべつくんれん用 現在のランク
+      this.inputCurrentSPRemainPoint = ''; //とくべつくんれん用 次のクラスまでの値
+      this.inputWinRate = 100; //勝率
+      this.inputChallengeMode = 3; //挑戦モード
+      this.inputRecoverLogic = 'smart'; //負けた場合（対戦方針）
+      this.inputCurrentConsecutiveWinBonus = 5; //現在の連勝ボーナス
+
+      //inputEndDate初期化
+      const tmpDateNow = new Date();
+      if (tmpDateNow < this.endDate) {
+        //endDateが正しい（未来日付）場合はその値を採用する。
+        this.inputEndDate = this.endDate;
+      } else {
+        //endDateが古い場合は現在時刻によって本日もしくは翌日の日付とする。
+        //時間はendDateから持ってくる。
+        const tmpThresholdDate = new Date(
+          tmpDateNow.getFullYear(),
+          tmpDateNow.getMonth(),
+          tmpDateNow.getDate(),
+          this.endDate.getHours(),
+          this.endDate.getMinutes()
+        );
+        //今日の時刻が13:50を超えているなら1日ずらして翌日を〆とする
+        if (tmpThresholdDate <= tmpDateNow)
+          tmpThresholdDate.setDate(tmpThresholdDate.getDate() + 1);
+        this.inputEndDate = tmpThresholdDate;
+      }
+
+      //rankArrayは一応ソートしておく。そのままだと文字列で比較してしまうのでコールバック関数で数値比較に。
+      this.rankArray.sort((a, b) => a - b);
+    },
     //小数点2位に丸める（四捨五入）。勝率入力用。
     winRateFormatter(value) {
       if (value < 0) return 0;
@@ -401,20 +513,61 @@ export default {
     },
   },
   computed: {
-    //『挑戦回数』がmaxNumberOfChallengeのときture。『次の回復まで』入力boxの有効/無効切り替え用。
+    //計算対象イベントの情報（使用するjsonやメダルの名称等）をオブジェクトとして返す。
+    currentEvent() {
+      if (this.inputEvent == 'normal') {
+        return {
+          name: 'ちからくらべ',
+          json: contestOfStrengthJson,
+          pointName: 'くんれんポイント',
+          medalName: 'くんれんメダル',
+        };
+      } else {
+        return {
+          name: 'とくべつくんれん',
+          json: contestOfStrengthSPJson,
+          pointName: 'とくべつくんれんポイント',
+          medalName: 'とくべつくんれんメダル',
+        };
+      }
+    },
+    //『挑戦回数』がmaxNumberOfChallengeに一致するかどうかを返す。『次の回復まで』入力boxの有効/無効切り替え用。
     isInputNumberOfChallengeFull() {
       return this.inputNumberOfChallenge == this.maxNumberOfChallenge ? true : false;
     },
+    //現在のランクを返す
     currentRank() {
-      //簡単に入力チェック（''と0の区別がつかず先に進むとランク1がついてしまうので、ここでreturnする
-      if (this.inputCurrentPoint === '' || this.inputCurrentPoint < 0) return '';
+      if (this.inputEvent == 'normal') {
+        //ちからくらべの場合はまず入力がなされているか確認する
+        //簡単に入力チェック（''と0の区別がつかず先に進むとランク1がついてしまうので、ここでreturnする
+        if (this.inputCurrentPoint === '' || this.inputCurrentPoint < 0) return '';
 
-      //入力されたくんれんポイントから現在のランクを計算
-      let tmpRank = 0; //arrayの最初は0なのでいきなり1になるが、レベルは1から始まるのでこれで良い。
-      for (const i of this.rankArray) {
-        if (i <= this.inputCurrentPoint) tmpRank++;
+        //入力されたくんれんポイントから現在のランクを計算
+        let tmpRank = 0; //arrayの最初は0なのでいきなり1になるが、レベルは1から始まるのでこれで良い。
+        for (const i of this.rankArray) {
+          if (i <= this.inputCurrentPoint) tmpRank++;
+        }
+        return tmpRank;
+      } else {
+        //とくべつくんれんのときは単にユーザー入力を返す
+        return this.inputCurrentSPRank;
       }
-      return tmpRank;
+    },
+    //現在のくんれんポイントを返す
+    currentPoint() {
+      if (this.inputEvent == 'normal') {
+        //ちからくらべのときは単にユーザー入力を返す
+        return this.inputCurrentPoint;
+      } else {
+        //とくべつくんれんの場合はまず入力がなされているか確認する
+        if (this.inputCurrentSPRank && this.inputCurrentSPRemainPoint) {
+          //rankArrayを使ってポイントを調べる。現在ランクより1ランク上のptから"次のクラスまで"を引く。
+          return this.rankArray[this.inputCurrentSPRank] - this.inputCurrentSPRemainPoint;
+        } else {
+          //入力が不正な場合は空文字を返す
+          return '';
+        }
+      }
     },
     result() {
       const result = [[], [], []]; //メイン出力([0]:項目名、[1]:値。いずれもhtml可)、エラー出力(string(あとでulに入る),1要素1行)、計算詳細出力(string,1要素1行)。
@@ -461,11 +614,26 @@ export default {
           result[1].push('『次の回復まで』が不正です。(1～59、0不可)');
         }
       }
-      if (this.inputCurrentPoint === '') {
-        result[1].push('『くんれんポイント』が空です。');
-      }
-      if (parseInt(this.inputCurrentPoint) < 0) {
-        result[1].push('『くんれんポイント』が不正です。');
+      if (this.inputEvent == 'normal') {
+        if (this.inputCurrentPoint === '') {
+          result[1].push('『くんれんポイント』が空です。');
+        }
+        if (parseInt(this.inputCurrentPoint) < 0) {
+          result[1].push('『くんれんポイント』が不正です。');
+        }
+      } else {
+        if (this.inputCurrentSPRank === '') {
+          result[1].push('『とくべつくんれんポイント』の『ランク』が空です。');
+        }
+        if (parseInt(this.inputCurrentSPRank) < 1) {
+          result[1].push('『とくべつくんれんポイント』の『ランク』が不正です。');
+        }
+        if (this.inputCurrentSPRemainPoint === '') {
+          result[1].push('『とくべつくんれんポイント』の『次のクラスまで』が空です。');
+        }
+        if (parseInt(this.inputCurrentSPRemainPoint) < 1) {
+          result[1].push('『とくべつくんれんポイント』の『次のクラスまで』が不正です。');
+        }
       }
       if (
         this.inputDifficulty === '' ||
@@ -537,7 +705,7 @@ export default {
         noMoreTime: false, //残り時間が1時間以下でこれ以上挑戦回数に追加がない場合ture。
         buttleCounter: 0, //総対戦数。無限ループ防止用とstat用
         tmpWinRate: this.inputWinRate / 100, //勝率
-        tmpCurrentPoint: this.inputCurrentPoint, //くんれんポイント
+        tmpCurrentPoint: this.currentPoint, //くんれんポイント(初期値は他のcomputedから。validateしていないが上のエラーチェックを抜けてきてるので正しいはず。)
         tmpCurrentRank: this.currentRank, //ランク(初期値は他のcomputedから。validateしていないが上のエラーチェックを抜けてきてるので正しいはず。)
         tmpNumberOfChallenge: this.inputNumberOfChallenge, //挑戦回数
         tmpConsecutiveWinBonus: this.inputCurrentConsecutiveWinBonus, //連勝ボーナス
@@ -631,28 +799,39 @@ export default {
           }
           //新ランクに到達しているか計算
           //ループ変数の初期値は現在のランクにすることで比較回数を減らす。rankArrayのindexと実ランクは1つずれているので初期値を実ランクにするとちょうど次lvのptと比較が出来る。
-          //通常２ランク一気にあがることはありえないので、実質このfor文はループすること無く１回で終了するはず。
+          //通常２ランク一気にあがることはありえないので、実質このfor文はループすること無く１回で終了するはず。（とくべつくんれんの初戦時などはループする可能性がある。）
           for (let i = model['tmpCurrentRank']; i < model['parent'].rankArray.length; i++) {
             if (model['parent'].rankArray[i] <= model['tmpCurrentPoint']) {
               //ランク上昇
               model['tmpCurrentRank']++;
-              model['tmpKirakira'] += contestOfStrengthJson[i]['キラキラ'];
-              model['tmpMedal'] += contestOfStrengthJson[i]['くんれんメダル'];
-              model['result'][2].push(
-                'ランク ' +
-                  model['tmpCurrentRank'] +
-                  ' に到達 [報酬: キラキラ' +
-                  contestOfStrengthJson[i]['キラキラ'] +
-                  ' メダル' +
-                  contestOfStrengthJson[i]['くんれんメダル'] +
-                  ']'
-              );
-              model['tmpLastRankUpDate'] = model['currentTime'].format('MM/DD(dd) HH:mm');
+              model['tmpKirakira'] += model['parent'].currentEvent.json[i]['キラキラ'];
+              //ランクアップログ出力
+              let rankUpLogStr = 'ランク ' + model['tmpCurrentRank'] + ' に到達';
+              //ランクアップ報酬の有無を確認
+              if (
+                model['parent'].currentEvent.json[i]['キラキラ'] ||
+                model['parent'].currentEvent.json[i][model['parent'].currentEvent.medalName]
+              ) {
+                rankUpLogStr += ' [報酬:';
+                //キラキラ
+                if (model['parent'].currentEvent.json[i]['キラキラ']) {
+                  rankUpLogStr += ' キラキラ' + model['parent'].currentEvent.json[i]['キラキラ'];
+                }
+                //メダル
+                if (model['parent'].currentEvent.json[i][model['parent'].currentEvent.medalName]) {
+                  rankUpLogStr +=
+                    ' メダル' +
+                    model['parent'].currentEvent.json[i][model['parent'].currentEvent.medalName];
+                }
+                rankUpLogStr += ']';
+              }
+              model['result'][2].push(rankUpLogStr);
             }
+            model['tmpLastRankUpDate'] = model['currentTime'].format('MM/DD(dd) HH:mm');
           }
         } else {
           //負け
-          model['tmpMedal'] += 40 * tmpMode; //くんれんメダル
+          model['tmpMedal'] += 40 * tmpMode; //メダル
           model['result'][2].push(
             model['currentTime'].format('MM/DD(dd) HH:mm') +
               ' [' +
@@ -719,20 +898,22 @@ export default {
         if (challengeModel['tmpLastRankUpDate'] != '') {
           result[0].push(['最終ランクアップ日時', challengeModel['tmpLastRankUpDate']]);
         }
-        result[0].push(['最終くんれんポイント', challengeModel['tmpCurrentPoint']]);
+        result[0].push(['最終' + this.currentEvent.pointName, challengeModel['tmpCurrentPoint']]); //ポイント
         result[0].push(['総対戦数', challengeModel['buttleCounter']]);
         result[0].push(['総獲得キラキラ', challengeModel['tmpKirakira']]);
-        result[0].push(['総獲得くんれんメダル', challengeModel['tmpMedal']]);
+        result[0].push(['総獲得' + this.currentEvent.medalName, challengeModel['tmpMedal']]); //メダル
 
         //最終ログ出力
         result[2].push('');
         result[2].push('最終時間 ' + challengeModel['currentTime'].format('MM/DD(dd) HH:mm'));
         result[2].push('最終挑戦回数 ' + challengeModel['tmpNumberOfChallenge']);
-        result[2].push('最終くんれんポイント ' + challengeModel['tmpCurrentPoint']);
+        result[2].push(
+          '最終' + this.currentEvent.pointName + ' ' + challengeModel['tmpCurrentPoint']
+        ); //ポイント
         result[2].push('最終ランク ' + challengeModel['tmpCurrentRank']);
         result[2].push('総対戦数 ' + challengeModel['buttleCounter']);
         result[2].push('総獲得キラキラ ' + challengeModel['tmpKirakira']);
-        result[2].push('総獲得くんれんメダル ' + challengeModel['tmpMedal']);
+        result[2].push('総獲得' + this.currentEvent.medalName + ' ' + challengeModel['tmpMedal']); //メダル
       }
 
       //出力

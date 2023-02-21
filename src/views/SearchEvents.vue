@@ -18,6 +18,23 @@
       <!-- table-attached-headerのfirst/last-childを見ているのでこのdivは必要 -->
       <div>
         <div class="table-attached-header">
+          <b-container fluid>
+            <b-row class="align-items-baseline">
+              <b-col class="pl-0">
+                <b-icon
+                  class="table-attached-header-icon align-middle"
+                  icon="arrowCounterclockwise"
+                  variant="dark"
+                  font-scale="1.5"
+                />
+                <b-button @click="resetQuery()" class="table-attached-header-view-button">
+                  以下の検索条件をリセット
+                </b-button>
+              </b-col>
+            </b-row>
+          </b-container>
+        </div>
+        <div class="table-attached-header">
           <div>
             <b-icon
               class="table-attached-header-icon"
@@ -75,7 +92,10 @@
                       v-model="SearchFilter.category.value"
                       :options="SearchFilter.category.list"
                       :placeholder="SearchFilter.category.placeholder"
-                      @input="selectedCategory"
+                      @input="
+                        selectedCategory();
+                        setQuery();
+                      "
                       class="background-white"
                       style="width: 100%"
                       :selectable="option => !option.startsWith('━')"
@@ -97,6 +117,7 @@
                       :options="getNameList"
                       :placeholder="SearchFilter.name.placeholder"
                       @search:focus="SearchFilter.name.value = ''"
+                      @input="setQuery()"
                       class="background-white"
                       style="width: 100%"
                     >
@@ -137,8 +158,9 @@
                   v-model="SearchFilter.tags.valueOK"
                   :options="getTagList"
                   :placeholder="SearchFilter.tags.placeholder"
-                  class="background-white"
                   :selectable="option => !option.startsWith('◆')"
+                  @input="setQuery()"
+                  class="background-white"
                 >
                   <template v-slot:no-options="{ search, searching }">
                     <template v-if="searching">
@@ -162,8 +184,9 @@
                   v-model="SearchFilter.tags.valueNG"
                   :options="getTagList"
                   :placeholder="SearchFilter.tags.placeholder"
-                  class="background-white"
                   :selectable="option => !option.startsWith('◆')"
+                  @input="setQuery()"
+                  class="background-white"
                 >
                   <template v-slot:no-options="{ search, searching }">
                     <template v-if="searching">
@@ -204,7 +227,10 @@
                         v-show="!column.hidden"
                         variant="secondary"
                         :key="column.label"
-                        @click="$set(column, 'hidden', !column.hidden)"
+                        @click="
+                          $set(column, 'hidden', !column.hidden);
+                          setQuery();
+                        "
                         class="table-attached-header-view-button"
                       >
                         {{ column.label }}
@@ -213,7 +239,10 @@
                         v-show="column.hidden"
                         variant="outline-secondary"
                         :key="column.label + '-outline'"
-                        @click="$set(column, 'hidden', !column.hidden)"
+                        @click="
+                          $set(column, 'hidden', !column.hidden);
+                          setQuery();
+                        "
                         class="table-attached-header-view-button"
                       >
                         {{ column.label }}
@@ -224,7 +253,13 @@
               </b-row>
               <b-row>
                 <b-col cols="12">
-                  <b-checkbox v-model="isShowTime" @change="setDateOutputFormat">
+                  <b-checkbox
+                    v-model="isShowTime"
+                    @change="
+                      setDateOutputFormat();
+                      setQuery();
+                    "
+                  >
                     開始・終了時間を表示
                   </b-checkbox>
                 </b-col>
@@ -266,7 +301,11 @@
           </b-row>
           <b-row>
             <b-col>
-              <b-checkbox v-model="inputCalendarVisible" class="d-inline-block mr-2">
+              <b-checkbox
+                v-model="inputCalendarVisible"
+                @change="setQuery()"
+                class="d-inline-block mr-2"
+              >
                 カレンダー表示
               </b-checkbox>
               <div class="d-inline-block">
@@ -280,6 +319,7 @@
                     { value: 5, text: '5列' },
                     { value: 6, text: '6列' },
                   ]"
+                  @change="setQuery()"
                   class="mx-1"
                   style="width:5rem"
                   required
@@ -294,6 +334,7 @@
                     { value: 5, text: '5行' },
                     { value: 6, text: '6行' },
                   ]"
+                  @change="setQuery()"
                   class="mx-1"
                   style="width:5rem"
                   required
@@ -367,16 +408,20 @@
         styleClass="vgt-table bordered condensed"
         :pagination-options="{
           enabled: true,
-          perPage: 10,
-          position: 'both',
+          perPage: $cookies.isKey('SearchEvents_perPage')
+            ? +$cookies.get('SearchEvents_perPage')
+            : 10,
+          position: 'bottom',
+          perPageDropdown: [10, 20, 30, 40, 50, 9999],
+          dropdownAllowAll: false,
           nextLabel: '次',
           prevLabel: '前',
           rowsPerPageLabel: 'ページあたりの表示件数',
           ofLabel: '/',
-          allLabel: '全て',
           infoFn: params =>
             `全${params.totalRecords}件中 ${params.firstRecordOnPage}件～${params.lastRecordOnPage}件目を表示`,
         }"
+        @on-per-page-change="params => $cookies.set('SearchEvents_perPage', params.currentPerPage)"
       >
         <template v-slot:table-column="props">
           {{ props.column.label }}
@@ -390,7 +435,12 @@
             <text-highlight :queries="getHighlightQueries" :caseSensitive="false">
               {{ props.formattedRow[props.column.field] }}
             </text-highlight>
-            <a :href="props.row.customData.url" target="_blank" rel="noopener">
+            <a
+              v-if="props.row.customData.url"
+              :href="props.row.customData.url"
+              target="_blank"
+              rel="noopener"
+            >
               <i class="fas fa-external-link-alt" />
             </a>
           </template>
@@ -404,6 +454,7 @@
                 '家具',
                 'インテリア',
                 'ピクニックアイテム',
+                'おしゃれアクセ',
                 'その他アイテム',
               ].some(i => i == props.column.label)
             "
@@ -506,6 +557,7 @@ const originalCategoryItems = [
   '家具',
   'インテリア',
   'ピクニックアイテム',
+  'おしゃれアクセ',
   'その他アイテム',
 ];
 
@@ -520,6 +572,7 @@ const originalColumn = new Map([
   ['家具', ['招待', '特効', '配布', '引換']],
   ['インテリア', ['招待', '特効', '配布', '引換']],
   ['ピクニックアイテム', ['招待', '特効', '配布', '引換']],
+  ['おしゃれアクセ', ['招待', '特効', '配布', '引換']],
   ['その他アイテム', ['招待', '特効', '配布', '引換']],
 ]);
 
@@ -544,6 +597,7 @@ export default {
       SearchFilter: {
         category: {
           value: '',
+          value_default: '',
           list: [
             'フレンズ',
             'フォト',
@@ -552,20 +606,24 @@ export default {
             '家具',
             'インテリア',
             'ピクニックアイテム',
+            'おしゃれアクセ',
             'その他アイテム',
           ],
           placeholder: 'カテゴリー',
         },
-        name: { value: '', placeholder: '先にカテゴリーを選んで下さい' },
+        name: { value: '', value_default: '', placeholder: '先にカテゴリーを選んで下さい' },
         tags: {
           valueOK: [],
-          valueNG: ['恒常', '有料パック'], //NGタグ初期値
+          valueOK_default: [], //初期値
+          valueNG: ['恒常', '有料パック'],
+          valueNG_default: ['恒常', '有料パック'], //初期値
           placeholder: 'タグ',
         },
       },
 
       //表の開始・終了欄にて、日付だけでなく時間も合わせて表示するかどうかの変数。デフォルトでは非表示。
       isShowTime: false,
+      isShowTime_default: false,
 
       //"フレンズ(招待または配布)"といった結合特殊タグを保存するMap。
       //keyは'フレンズ','フォト'等文字列
@@ -578,8 +636,11 @@ export default {
 
       //calendarの初期表示数
       inputCalendarVisible: false,
+      inputCalendarVisible_default: false,
       inputCalendarRows: 1,
+      inputCalendarRows_default: 1,
       inputCalendarCols: 1,
+      inputCalendarCols_default: 1,
 
       //出力テーブルカラム
       tableColumns: [
@@ -591,6 +652,7 @@ export default {
           dateOutputFormat: 'yyyy/MM/dd',
           firstSortType: 'desc',
           hidden: false,
+          hidden_default: false,
         },
         {
           field: 'customData.end',
@@ -600,64 +662,82 @@ export default {
           dateOutputFormat: 'yyyy/MM/dd',
           firstSortType: 'desc',
           hidden: false,
+          hidden_default: false,
         },
         {
           field: 'popover.label',
           label: 'イベント名',
           hidden: false,
+          hidden_default: false,
         },
         {
           field: 'customData.フレンズ',
           label: 'フレンズ',
           hidden: true,
+          hidden_default: true,
           sortable: false,
         },
         {
           field: 'customData.フォト',
           label: 'フォト',
           hidden: true,
+          hidden_default: true,
           sortable: false,
         },
         {
           field: 'customData.衣装',
           label: '衣装',
           hidden: true,
+          hidden_default: true,
           sortable: false,
         },
         {
           field: 'customData.家具',
           label: '家具',
           hidden: true,
+          hidden_default: true,
           sortable: false,
         },
         {
           field: 'customData.インテリア',
           label: 'インテリア',
           hidden: true,
+          hidden_default: true,
           sortable: false,
         },
         {
           field: 'customData.ピクニックアイテム',
           label: 'ピクニックアイテム',
           hidden: true,
+          hidden_default: true,
+          sortable: false,
+        },
+        {
+          field: 'customData.おしゃれアクセ',
+          label: 'おしゃれアクセ',
+          hidden: true,
+          hidden_default: true,
           sortable: false,
         },
         {
           field: 'customData.その他アイテム',
           label: 'その他アイテム',
           hidden: true,
+          hidden_default: true,
           sortable: false,
         },
         {
           field: 'customData.tags',
           label: 'タグ',
           hidden: false,
+          hidden_default: false,
           sortable: false,
         },
         {
           field: 'customData.備考',
           label: '備考',
           hidden: false,
+          hidden_default: false,
           sortable: false,
         },
       ],
@@ -706,6 +786,7 @@ export default {
           家具: new Map(),
           インテリア: new Map(),
           ピクニックアイテム: new Map(),
+          おしゃれアクセ: new Map(),
           その他アイテム: new Map(),
         },
       };
@@ -785,6 +866,7 @@ export default {
     //尚、参考までに以下に初期に検討していたレスポンシブな表示列の例を示す。見た目は良かったがパフォーマンスにHITするので断念した。
     //$screens({ default: 1, c2: 2, c3: 3, c4: 4, c5: 5, c6: 6 })
     this.inputCalendarCols = this.$screens({ default: 1, c2: 2, c3: 3, c4: 4, c5: 5, c6: 6 });
+    this.inputCalendarCols_default = this.inputCalendarCols;
   },
   computed: {
     filteredAttributes() {
@@ -883,7 +965,7 @@ export default {
             i.customData.衣装.forEach(j => j.forEach(k => k.forEach(l => tmpSet.add(l))))
           );
         } else {
-          //フレンズ、フォト、家具、インテリア、ピクニックアイテム、その他アイテム
+          //フレンズ、フォト、家具、インテリア、ピクニックアイテム、おしゃれアクセ、その他アイテム
           this.filteredAttributes.forEach(i =>
             i.customData[tmpCategory].forEach(j => j.forEach(k => tmpSet.add(k)))
           );
@@ -917,7 +999,12 @@ export default {
         ],
         [
           'イベント(特殊)',
-          new Set(['ログインボーナス', 'すぺしゃるクエスト:期間限定クエスト', 'コラボイベント']),
+          new Set([
+            'ログインボーナス',
+            'すぺしゃるクエスト:期間限定クエスト',
+            'コラボイベント',
+            'タイアップ',
+          ]),
         ],
         ['フレンズ(開放)', new Set(['けも級開放', 'キセキとくせい開放', 'フォトポケランク開放'])],
         [
@@ -925,7 +1012,9 @@ export default {
           new Set([
             'ゴールドあつめ',
             'スタミナ減少(主要ストーリー)',
+            'スタミナ回復速度上昇',
             '成功確率増加(フレンズ成長)',
+            '成功確率増加(フォト強化)',
             '獲得増加(くんれんメダル)',
             '獲得増加(けもけも弁当)',
             '獲得増加(なかよしポイント)',
@@ -1127,6 +1216,160 @@ export default {
       if (str == '対象') return 'custom-badge badge-target-color';
       return '';
     },
+    //現在の検索条件からクエリーURLを作り出し、セットする。
+    setQuery() {
+      const query = {}; //空のクエリーオブジェクトを生成。これに追加してゆく。
+
+      //フィルター
+      //指名検索（カテゴリー）
+      if (this.SearchFilter.category.value != this.SearchFilter.category.value_default)
+        query.c = this.SearchFilter.category.value;
+      //指名検索（名前）
+      if (this.SearchFilter.name.value != this.SearchFilter.name.value_default)
+        query.n = this.SearchFilter.name.value;
+      //タグ（OK）。要素の順番が入れ替わっている可能性があるのでsort()してから文字列化して比較する。sort()は破壊的だが特に問題ない。
+      if (
+        this.SearchFilter.tags.valueOK.sort().toString() !=
+        this.SearchFilter.tags.valueOK_default.sort().toString()
+      ) {
+        query.ok = this.SearchFilter.tags.valueOK.join(',');
+      }
+      //タグ（NG）。要素の順番が入れ替わっている可能性があるのでsort()してから文字列化して比較する。sort()は破壊的だが特に問題ない。
+      if (
+        this.SearchFilter.tags.valueNG.sort().toString() !=
+        this.SearchFilter.tags.valueNG_default.sort().toString()
+      ) {
+        query.ng = this.SearchFilter.tags.valueNG.join(',');
+      }
+
+      //表示列
+      const visible = [];
+      this.tableColumns.forEach((c, index) => {
+        if (c.hidden != c.hidden_default) {
+          visible.push(index);
+        }
+      });
+      if (0 < visible.length) query.v = visible.join(',');
+
+      //開始・終了時間を表示
+      if (this.isShowTime != this.isShowTime_default) query.t = this.isShowTime;
+
+      //カレンダー表示
+      if (this.inputCalendarVisible != this.inputCalendarVisible_default)
+        query.cal = this.inputCalendarVisible;
+      //カレンダー表示（列）
+      if (this.inputCalendarRows != this.inputCalendarRows_default)
+        query.calr = this.inputCalendarRows;
+      //カレンダー表示（行）
+      if (this.inputCalendarCols != this.inputCalendarCols_default)
+        query.calc = this.inputCalendarCols;
+
+      //クエリーにセット
+      //router.replaceは同じURLに遷移しようとするとNavigationDuplicatedエラーを起こす。
+      //router.replaceはPromiseを返すので、それをcatchして処理している。catch内では特に処理は行わない。
+      this.$router.replace({ query: query }).catch(() => {});
+    },
+    //検索条件及び表示列をリセットする
+    reset() {
+      //フィルター
+      //指名検索（カテゴリー）
+      this.$set(this.SearchFilter.category, 'value', this.SearchFilter.category.value_default);
+      //指名検索（名前）
+      this.$set(this.SearchFilter.name, 'value', this.SearchFilter.name.value_default);
+      //タグ（OK）
+      this.$set(this.SearchFilter.tags, 'valueOK', this.SearchFilter.tags.valueOK_default.slice());
+      //タグ（NG）
+      this.$set(this.SearchFilter.tags, 'valueNG', this.SearchFilter.tags.valueNG_default.slice());
+
+      //表示列
+      this.tableColumns.forEach(i => this.$set(i, 'hidden', i.hidden_default));
+      //開始・終了時間を表示
+      this.isShowTime = this.isShowTime_default;
+      this.setDateOutputFormat(); //表示反映
+
+      //カレンダー表示
+      this.inputCalendarVisible = this.inputCalendarVisible_default;
+      //カレンダー表示（列）
+      this.inputCalendarRows = this.inputCalendarRows_default;
+      //カレンダー表示（行）
+      this.inputCalendarCols = this.inputCalendarCols_default;
+    },
+    //クエリ文字列を消去する。実際にはこれによりbeforeRouteUpdate()が走りそこでreset()が呼ばれるため、検索欄もあわせてリセットされる。
+    resetQuery() {
+      this.$router.replace({ query: {} }).catch(() => {});
+    },
+  },
+  beforeMount() {
+    //クエリー処理ここから ========================================
+
+    //フィルター
+    //指名検索（カテゴリー）
+    if (
+      this.$route.query.c != undefined &&
+      this.SearchFilter.category.list.includes(this.$route.query.c)
+    ) {
+      this.$set(this.SearchFilter.category, 'value', this.$route.query.c);
+    }
+    //指名検索（名前）
+    if (
+      this.$route.query.c != undefined &&
+      this.$route.query.n != undefined &&
+      this.getNameList.includes(this.$route.query.n)
+    ) {
+      this.$set(this.SearchFilter.name, 'value', this.$route.query.n);
+    }
+    //タグ（OK）
+    if (this.$route.query.ok != undefined) {
+      if (this.$route.query.ok == '') {
+        this.$set(this.SearchFilter.tags, 'valueOK', []);
+      } else {
+        this.$set(this.SearchFilter.tags, 'valueOK', this.$route.query.ok.split(','));
+      }
+    }
+    //タグ（NG）
+    if (this.$route.query.ng != undefined) {
+      if (this.$route.query.ng == '') {
+        this.$set(this.SearchFilter.tags, 'valueNG', []);
+      } else {
+        this.$set(this.SearchFilter.tags, 'valueNG', this.$route.query.ng.split(','));
+      }
+    }
+
+    //表示列
+    if (this.$route.query.v != undefined) {
+      //クエリ文字列を,で分離
+      const tmpVQuery = this.$route.query.v.split(',');
+      tmpVQuery.forEach(v => {
+        //有効な数値の場合のみ処理
+        if (!isNaN(v) && 0 <= v && v < this.tableColumns.length) {
+          //hiddenにhidden_defaultの逆をセットする
+          this.$set(this.tableColumns[v], 'hidden', !this.tableColumns[v].hidden_default);
+        }
+      });
+    }
+
+    //開始・終了時間を表示
+    if (this.$route.query.t != undefined) this.isShowTime = this.$route.query.t;
+    this.setDateOutputFormat(); //表示反映
+
+    //カレンダー表示
+    if (this.$route.query.cal != undefined) this.inputCalendarVisible = this.$route.query.cal;
+    //カレンダー表示（列）
+    if (this.$route.query.calr != undefined)
+      this.inputCalendarRows = Number(this.$route.query.calr);
+    //カレンダー表示（行）
+    if (this.$route.query.calc != undefined)
+      this.inputCalendarCols = Number(this.$route.query.calc);
+
+    //クエリー処理ここまで ========================================
+  },
+  //vue-routerによる遷移の間に実行される。初回（create等が走るとき）は実行されない。$router.pushや$router.replaceが走るたびに呼ばれる。
+  //主にヘッダメニューでこのページを再選択したとき（同ページ、クエリー無し）に検索条件をリセットするために用いている（そうしないと検索後の状態が残ったままとなる）。
+  beforeRouteUpdate(to, from, next) {
+    //クエリが存在しない場合は検索条件をリセット
+    if (Object.keys(to.query).length == 0) this.reset();
+    //仕様によりnext()は必ず呼ぶ
+    next();
   },
 };
 </script>

@@ -8,333 +8,27 @@
         <b-alert show variant="warning" class="small">
           指定できるのは以下から１つだけです。
         </b-alert>
-        <b-card class="mb-2" title="地形/時間特効" sub-title="特定の地形/時間に特効をもつフレンズ">
-          <b-card-text>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '地形/時間特効(サバンナ)',
-                  ['とくせい詳細', 'キセキとくせい詳細'],
-                  'サバンナの(場合|とき)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              サバンナ
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '地形/時間特効(さばく)',
-                  ['とくせい詳細', 'キセキとくせい詳細'],
-                  'さばくの(場合|とき)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              さばく
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '地形/時間特効(みずべ)',
-                  ['とくせい詳細', 'キセキとくせい詳細'],
-                  'みずべの(場合|とき)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              みずべ
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '地形/時間特効(寒冷地)',
-                  ['とくせい詳細', 'キセキとくせい詳細'],
-                  '寒冷地の(場合|とき)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              寒冷地
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '地形/時間特効(どうくつ)',
-                  ['とくせい詳細', 'キセキとくせい詳細'],
-                  'どうくつの(場合|とき)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              どうくつ
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '地形/時間特効(ジャングル)',
-                  ['とくせい詳細', 'キセキとくせい詳細'],
-                  'ジャングルの(場合|とき)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              ジャングル
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '地形/時間特効(やま)',
-                  ['とくせい詳細', 'キセキとくせい詳細'],
-                  'やまの(場合|とき)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              やま
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '地形/時間特効(夜)',
-                  ['とくせい詳細', 'キセキとくせい詳細'],
-                  'ステージ(|の時間)が夜の(場合|とき)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              夜
-            </b-button>
-          </b-card-text>
-        </b-card>
         <b-card
           class="mb-2"
-          title="状態異常付与/特殊行動実行"
-          sub-title="状態異常を付与したり、特殊な行動を行えるフレンズ"
+          v-for="(advFilter, index1) in advFilterFriends"
+          :key="advFilter.title"
+          :title="advFilter.title"
+          :sub-title="advFilter.subTitle"
         >
           <b-card-text>
             <b-button
-              @click="
-                advFilterSelected(
-                  '状態異常付与/特殊行動実行(くらくら)',
-                  [
-                    'ミラクルlv5',
-                    'とくいわざ詳細',
-                    'たいきスキル詳細',
-                    'とくせい詳細',
-                    'キセキとくせい詳細',
-                  ],
-                  'くらくら状態に(する|し)'
-                )
-              "
+              v-for="(data, index2) in advFilter.dataList"
+              :key="data.labelFull"
+              @click="advFilterSelected(index1, index2)"
               class="table-attached-header-view-button"
             >
-              くらくら
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '状態異常付与/特殊行動実行(どく)',
-                  [
-                    'ミラクルlv5',
-                    'とくいわざ詳細',
-                    'たいきスキル詳細',
-                    'とくせい詳細',
-                    'キセキとくせい詳細',
-                  ],
-                  'どく状態に(する|し)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              どく
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '状態異常付与/特殊行動実行(すやすや)',
-                  [
-                    'ミラクルlv5',
-                    'とくいわざ詳細',
-                    'たいきスキル詳細',
-                    'とくせい詳細',
-                    'キセキとくせい詳細',
-                  ],
-                  'すやすや状態に(する|し)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              すやすや
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '状態異常付与/特殊行動実行(くたくた)',
-                  [
-                    'ミラクルlv5',
-                    'とくいわざ詳細',
-                    'たいきスキル詳細',
-                    'とくせい詳細',
-                    'キセキとくせい詳細',
-                  ],
-                  'くたくた状態に(する|し)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              くたくた
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '状態異常付与/特殊行動実行(ひやひや)',
-                  [
-                    'ミラクルlv5',
-                    'とくいわざ詳細',
-                    'たいきスキル詳細',
-                    'とくせい詳細',
-                    'キセキとくせい詳細',
-                  ],
-                  'ひやひや状態に(する|し)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              ひやひや
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '状態異常付与/特殊行動実行(ズキンズキン)',
-                  [
-                    'ミラクルlv5',
-                    'とくいわざ詳細',
-                    'たいきスキル詳細',
-                    'とくせい詳細',
-                    'キセキとくせい詳細',
-                  ],
-                  'ズキンズキン(|、からげんき)状態に(する|し)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              ズキンズキン
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '状態異常付与/特殊行動実行(からげんき)',
-                  [
-                    'ミラクルlv5',
-                    'とくいわざ詳細',
-                    'たいきスキル詳細',
-                    'とくせい詳細',
-                    'キセキとくせい詳細',
-                  ],
-                  'からげんき状態に(する|し)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              からげんき
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '状態異常付与/特殊行動実行(はねかえし)',
-                  [
-                    'ミラクルlv5',
-                    'とくいわざ詳細',
-                    'たいきスキル詳細',
-                    'とくせい詳細',
-                    'キセキとくせい詳細',
-                  ],
-                  'はねかえす'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              はねかえし
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '状態異常付与/特殊行動実行(かばう)',
-                  [
-                    'ミラクルlv5',
-                    'とくいわざ詳細',
-                    'たいきスキル詳細',
-                    'とくせい詳細',
-                    'キセキとくせい詳細',
-                  ],
-                  'かばう'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              かばう
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '状態異常付与/特殊行動実行(ぼんやりうっかり)',
-                  [
-                    'ミラクルlv5',
-                    'とくいわざ詳細',
-                    'たいきスキル詳細',
-                    'とくせい詳細',
-                    'キセキとくせい詳細',
-                  ],
-                  'ぼんやりうっかり状態に(する|し)'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              ぼんやりうっかり
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '状態異常付与/特殊行動実行(ルンルンきぶん)',
-                  [
-                    'ミラクルlv5',
-                    'とくいわざ詳細',
-                    'たいきスキル詳細',
-                    'とくせい詳細',
-                    'キセキとくせい詳細',
-                  ],
-                  'ルンルンきぶん状態になる'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              ルンルンきぶん
-            </b-button>
-            <b-button
-              @click="
-                advFilterSelected(
-                  '状態異常付与/特殊行動実行(復帰)',
-                  [
-                    'ミラクルlv5',
-                    'とくいわざ詳細',
-                    'たいきスキル詳細',
-                    'とくせい詳細',
-                    'キセキとくせい詳細',
-                  ],
-                  '復帰'
-                )
-              "
-              class="table-attached-header-view-button"
-            >
-              復帰
+              {{ data.labelShort }}
             </b-button>
           </b-card-text>
         </b-card>
       </b-container>
       <template v-slot:modal-footer>
-        <b-button @click="advFilterSelected('', '', '')">
+        <b-button @click="advFilterSelected(undefined, undefined)">
           指定なし
         </b-button>
       </template>
@@ -343,12 +37,15 @@
 </template>
 
 <script>
+import advFilterFriends from '@/mixins/advFilterFriends.js';
+
 export default {
+  mixins: [advFilterFriends],
   name: 'SearchFriendsAdvFilterModal',
   methods: {
     //advFilterモーダル内ボタンクリック処理。親コンポーネントへの引き渡しとモーダルの非表示化。
-    advFilterSelected(label, columns, regex) {
-      this.$emit('advFilterSelected', label, columns, regex);
+    advFilterSelected(index1, index2) {
+      this.$emit('advFilterSelected', index1, index2);
       this.$root.$emit('bv::hide::modal', 'modal-advFilter', '#btnAdvFilter');
     },
   },

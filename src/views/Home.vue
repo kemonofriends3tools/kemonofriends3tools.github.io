@@ -92,6 +92,23 @@
       </b-card>
     </b-card-group>
     <HomeTopInfo />
+    <h2 class="text-center">情報提供やお手伝いに興味がある方へ</h2>
+    <div class="d-flex flex-column align-items-center mx-2">
+      <b-button
+        variant="outline-secondary"
+        class="mb-2"
+        onClick="window.open('https://docs.google.com/spreadsheets/d/1RpSL7SRXZFzqJDK5AG-63aevHAI4Aew8IuU2S-rZ2EM/edit?usp=sharing','_blank','noopener')"
+      >
+        <i class="fas fa-table fa-lg"></i>『けものフレンズ3ツール データシート』を開く
+      </b-button>
+      <div style="max-width:60rem;">
+        <p class="mb-1">
+          ありがとうございます。このサイトの情報は上のgoogleスプレッドシートで管理・作業しています。<br />
+          もしサイトにない情報をお持ちであったり、入力ミス等を発見された場合は編集していただけると幸いです。<br />
+          詳細はスプレッドシートを参照して下さい。それ以上の不明点がありましたら下のdiscordのほうでご相談下さい。
+        </p>
+      </div>
+    </div>
     <h2 class="text-center">discordのご案内</h2>
     <div class="d-flex flex-column align-items-center mx-2">
       <b-button
@@ -107,9 +124,9 @@
       </b-button>
       <div style="max-width:60rem;">
         <p class="mb-1">
-          このサイトの管理・運営・連絡用にdiscordのサーバーを用意しています。<br />
-          サイトにない情報をお持ちでしたらこちらから提供いただけると幸いです。<br />
-          誤字やバグ報告、サイト管理者への問い合わせ等もこちらから受け付けています。
+          このサイトの管理・運営・連絡・雑談用にdiscordのサーバーを用意しています。<br />
+          誤字やバグ報告、問い合わせ等何かありましたらこちらからご連絡下さい。<br />
+          尚、入室の際に挨拶等は特段必要ありません。ROM(読み専)でも全く問題ありません。
         </p>
       </div>
     </div>

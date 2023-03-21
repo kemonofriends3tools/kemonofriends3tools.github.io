@@ -14,7 +14,7 @@
     <b-card-group deck class="mx-1 mb-4 justify-content-center">
       <b-card header-tag="header" footer-tag="footer" class="b-cards-contents">
         <template v-slot:header>
-          <i class="fas fa-paw" style="font-size:5rem; display: block; text-align:center;"></i>
+          <i class="fas fa-paw" style="font-size:4rem; display: block; text-align:center;"></i>
         </template>
         <b-card-title>フレンズ検索</b-card-title>
         <b-card-text>
@@ -32,7 +32,7 @@
       </b-card>
       <b-card header-tag="header" footer-tag="footer" class="b-cards-contents">
         <template v-slot:header>
-          <i class="fas fa-camera" style="font-size:5rem; display: block; text-align:center;"></i>
+          <i class="fas fa-camera" style="font-size:4rem; display: block; text-align:center;"></i>
         </template>
         <b-card-title>フォト検索</b-card-title>
         <b-card-text>
@@ -52,7 +52,7 @@
         <template v-slot:header>
           <i
             class="fas fa-calendar-alt"
-            style="font-size:5rem; display: block; text-align:center;"
+            style="font-size:4rem; display: block; text-align:center;"
           ></i>
         </template>
         <b-card-title>イベント・しょうたい検索</b-card-title>
@@ -73,7 +73,7 @@
         <template v-slot:header>
           <i
             class="fas fa-calculator"
-            style="font-size:5rem; display: block; text-align:center;"
+            style="font-size:4rem; display: block; text-align:center;"
           ></i>
         </template>
         <b-card-title>各種計算</b-card-title>
@@ -87,6 +87,23 @@
         <template v-slot:footer>
           <div class="text-right">
             <b-button to="/calc">各種計算</b-button>
+          </div>
+        </template>
+      </b-card>
+      <b-card footer-tag="footer" class="b-cards-contents">
+        <template v-slot:header>
+          <i class="fas fa-database" style="font-size:4rem; display: block; text-align:center;"></i>
+        </template>
+        <b-card-title>統計</b-card-title>
+        <b-card-text>
+          <p>
+            今フレンズって合計何人？最も多くの絵を書いたイラストレーターは？次に来そうなイベントは？
+          </p>
+          <p>ここでは様々な統計を見ることが出来ます。</p>
+        </b-card-text>
+        <template v-slot:footer>
+          <div class="text-right">
+            <b-button to="/statistics">統計</b-button>
           </div>
         </template>
       </b-card>

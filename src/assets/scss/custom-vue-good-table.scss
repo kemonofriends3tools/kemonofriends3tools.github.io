@@ -60,6 +60,10 @@ table.vgt-table {
   border-top-width: 0px;
   border-bottom-width: 0px;
 }
+//ボーダー無し。vgt-tableと併用すること
+table.vgt-table-noBorder {
+  border: 0px solid $color-primary-3;
+}
 
 //_table-th.scss
 $sort-chevron-width: 8px;

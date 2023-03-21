@@ -1,0 +1,7 @@
+{
+   "vueCompilerOptions": {
+    "strictTemplates": true,
+    "target": 2,
+    // "target": 2, // For Vue version <= 2.6.14
+  }
+}

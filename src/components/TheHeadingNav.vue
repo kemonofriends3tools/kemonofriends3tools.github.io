@@ -25,6 +25,7 @@
           <b-nav-item to="/photo">フォト検索</b-nav-item>
           <b-nav-item to="/events">イベント・しょうたい検索</b-nav-item>
           <b-nav-item to="/calc">各種計算</b-nav-item>
+          <b-nav-item to="/statistics">統計</b-nav-item>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>

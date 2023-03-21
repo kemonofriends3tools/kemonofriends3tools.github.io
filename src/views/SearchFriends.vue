@@ -1220,10 +1220,10 @@ export default {
         masterJson = masterJson.filter(row =>
           searchTargetColumns.some(cols => {
             //検索対象カラム名配列をもとに検索対象文字列を作る
-            //検索対象文字列定義
-            let tmpCellString = '';
-            //検索対象カラムの値を結合して検索対象文字列とする。
-            cols.forEach(i => (tmpCellString += row[i].toString() + '\r\n'));
+            let tmpCellStringArray = [];
+            cols.forEach(i => tmpCellStringArray.push(row[i].toString()));
+            //改行で結合して一つの文字列とする（mフラグ付きの正規表現を使う上で都合が良い）
+            const tmpCellString = tmpCellStringArray.join('\r\n');
 
             //検索条件（正規表現配列）で検索対象文字列をテストする。
             //and条件としたいのでevery()を用いる。(every()は全要素がテストに合格するか判断する)

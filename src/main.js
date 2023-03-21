@@ -18,8 +18,6 @@ import 'dayjs/locale/ja';
 dayjs.locale('ja');
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 dayjs.extend(isSameOrAfter);
-import relativeTime from 'dayjs/plugin/relativeTime';
-dayjs.extend(relativeTime);
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 dayjs.extend(LocalizedFormat);
 import customParseFormat from 'dayjs/plugin/customParseFormat';

@@ -7,7 +7,7 @@ import SearchFriends from '@/views/SearchFriends.vue';
 import SearchPhoto from '@/views/SearchPhoto.vue';
 import SearchEvents from '@/views/SearchEvents.vue';
 import Calc from '@/views/Calc.vue';
-import Analysis from '@/views/Analysis.vue';
+import Statistics from '@/views/Statistics.vue';
 import dev from '@/views/Dev.vue';
 
 Vue.use(VueRouter);
@@ -61,12 +61,12 @@ const routes = [
     },
   },
   {
-    path: '/analysis',
-    name: 'analysis',
-    component: Analysis,
+    path: '/statistics',
+    name: 'statistics',
+    component: Statistics,
     meta: {
-      title: '各種分析(β)',
-      description: '各種分析(β)のdescription',
+      title: '統計',
+      description: 'アプリ版「けものフレンズ３」のさまざまな統計を見ることができます。',
     },
   },
   {

@@ -324,6 +324,9 @@
         </b-card>
       </b-card-group>
       <b-card class="mb-2" title="イベント予想">
+        <b-alert show variant="warning" class="d-block d-sm-none small">
+          スマホの場合表が大きいので横画面での閲覧を推奨します。
+        </b-alert>
         <b-alert show variant="warning" class="small">
           <ul class="mb-0">
             <li>

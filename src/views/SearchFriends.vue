@@ -110,7 +110,15 @@
                 ['基本', ['属性', 'サブ属性', '初期けも級', 'フォトポケ', '野生解放']],
                 ['ステータス(Lv)', null],
                 ['ステータス(他)', ['回避', 'プラズム', 'フラッグ補正', 'フラッグ']],
-                ['技・特性', ['ミラクル', 'とくいわざ', 'たいきスキル', 'とくせい/キセキとくせい']],
+                [
+                  '技・特性',
+                  [
+                    'ミラクル',
+                    'とくいわざ',
+                    'たいきスキル',
+                    'とくせい/キセキとくせい/なないろとくせい',
+                  ],
+                ],
                 ['その他', ['CV', '実装日', '備考']],
               ])"
               :key="key"
@@ -205,7 +213,14 @@
                   ['flag1', 'flag2', 'flag3', 'flag4', 'flag5'],
                   ['ミラクル名', 'MP', 'ミラクル+', 'ミラクルlv5'],
                   ['とくいわざ名', 'とくいわざ詳細', 'たいきスキル名', 'たいきスキル詳細'],
-                  ['とくせい名', 'とくせい詳細', 'キセキとくせい名', 'キセキとくせい詳細'],
+                  [
+                    'とくせい名',
+                    'とくせい詳細',
+                    'キセキとくせい名',
+                    'キセキとくせい詳細',
+                    'なないろとくせい名',
+                    'なないろとくせい詳細',
+                  ],
                 ]"
                 :key="'advancedColumns- ' + index"
               >
@@ -280,7 +295,7 @@
                           >のみ</span
                         >、キーワード２が"たいきスキル"に<span class="font-weight-bold">のみ</span
                         >存在する場合、この行には両方のキーワード満たす項目が１つも存在しなかったと判定され、そのデータ行は非表示となります。<br />
-                        "とくせい/キセキとくせい"のように1項目に複数の項目がまとまっている場合は"とくせい"と"キセキとくせい"を同時に検索することが出来ます。
+                        "とくせい/キセキとくせい/なないろとくせい"のように1項目に複数の項目がまとまっている場合は"とくせい"と"キセキとくせい"、"なないろとくせい"を同時に検索することが出来ます。
                       </li>
                       <li>
                         ここで指定したキーワードは表内でハイライト(強調表示)されます。
@@ -511,7 +526,7 @@
               </text-highlight>
             </p>
           </template>
-          <template v-else-if="props.column.label == 'とくせい/キセキとくせい'">
+          <template v-else-if="props.column.label == 'とくせい/キセキとくせい/なないろとくせい'">
             <p class="font-weight-bold m-0">
               <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.とくせい名 }}
@@ -531,6 +546,17 @@
             <p class="preText m-0 pl-2">
               <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row.キセキとくせい詳細 }}
+              </text-highlight>
+            </p>
+            <hr class="multiLine_hr" />
+            <p class="font-weight-bold m-0">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
+                {{ props.row.なないろとくせい名 }}
+              </text-highlight>
+            </p>
+            <p class="preText m-0 pl-2">
+              <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
+                {{ props.row.なないろとくせい詳細 }}
               </text-highlight>
             </p>
           </template>
@@ -566,6 +592,7 @@
                 'たいきスキル詳細',
                 'とくせい詳細',
                 'キセキとくせい詳細',
+                'なないろとくせい詳細',
               ].some(i => i == props.column.label)
             "
           >
@@ -612,6 +639,7 @@ const multiLineColumns = [
   'たいきスキル詳細',
   'とくせい詳細',
   'キセキとくせい詳細',
+  'なないろとくせい詳細',
   '備考',
 ];
 
@@ -1039,8 +1067,8 @@ export default {
           hidden_default: true,
         },
         {
-          field: 'とくせい/キセキとくせい',
-          label: 'とくせい/キセキとくせい',
+          field: 'とくせい/キセキとくせい/なないろとくせい',
+          label: 'とくせい/キセキとくせい/なないろとくせい',
           sortable: false,
           hidden: true,
           hidden_default: true,
@@ -1069,6 +1097,20 @@ export default {
         {
           field: 'キセキとくせい詳細',
           label: 'キセキとくせい詳細',
+          sortable: false,
+          hidden: true,
+          hidden_default: true,
+        },
+        {
+          field: 'なないろとくせい名',
+          label: 'なないろとくせい名',
+          sortable: false,
+          hidden: true,
+          hidden_default: true,
+        },
+        {
+          field: 'なないろとくせい詳細',
+          label: 'なないろとくせい詳細',
           sortable: false,
           hidden: true,
           hidden_default: true,
@@ -1188,15 +1230,18 @@ export default {
           } else if (col.label == 'たいきスキル') {
             searchTargetColumns.push(['たいきスキル名', 'たいきスキル詳細noCR']);
             searchTargetColumns_noCR_Set.add('たいきスキル詳細noCR');
-          } else if (col.label == 'とくせい/キセキとくせい') {
+          } else if (col.label == 'とくせい/キセキとくせい/なないろとくせい') {
             searchTargetColumns.push([
               'とくせい名',
               'とくせい詳細noCR',
               'キセキとくせい名',
               'キセキとくせい詳細noCR',
+              'なないろとくせい名',
+              'なないろとくせい詳細noCR',
             ]);
             searchTargetColumns_noCR_Set.add('とくせい詳細noCR');
             searchTargetColumns_noCR_Set.add('キセキとくせい詳細noCR');
+            searchTargetColumns_noCR_Set.add('なないろとくせい詳細noCR');
           } else if (
             ['回避', 'Beat補正', 'Try補正', 'Action補正', '実装日'].some(i => i == col.label)
           ) {

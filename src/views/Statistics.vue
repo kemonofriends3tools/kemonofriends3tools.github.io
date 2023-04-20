@@ -145,7 +145,7 @@
             <StatisticsSimpleTable :tableData="stat.get(i)" />
           </b-card-text>
         </b-card>
-        <b-card title="キセキとくせい未実装">
+        <b-card title="キセキとくせい">
           <b-card-text>
             <b-row>
               <b-col>合計</b-col>
@@ -168,6 +168,26 @@
                 <ul class="small m-0 pl-1 pr-0">
                   <li v-for="i of stat.get('キセキとくせい未実装')" :key="i">{{ i }}</li>
                 </ul>
+              </b-col>
+            </b-row>
+          </b-card-text>
+        </b-card>
+        <b-card title="なないろとくせい実装済">
+          <b-card-text>
+            <b-row>
+              <b-col>合計</b-col>
+              <b-col class="text-right">
+                {{ stat.get('なないろとくせい実装済').length }}
+                <span class="small">
+                  ({{
+                    Math.round(
+                      (stat.get('なないろとくせい実装済').length / stat.get('総フレンズ数')) * 10000
+                    ) / 100
+                  }}%)
+                </span>
+                <b-link href="/friends?v=44&s=未実装" target="_blank" rel="noopener">
+                  <i class="fas fa-external-link-alt" />
+                </b-link>
               </b-col>
             </b-row>
           </b-card-text>
@@ -634,6 +654,8 @@ export default {
       };
       //キセキとくせい未実装
       const tmpKisekiNashi = [];
+      //なないろとくせい実装済
+      const tmpNanairoAri = [];
       //CV掛け持ち数
       let tmpCvMap = new Map();
       //CV後日実装
@@ -768,6 +790,9 @@ export default {
 
         //キセキとくせい未実装
         if (i.キセキとくせい名 == '未実装') tmpKisekiNashi.push(i.名前);
+        //なないろとくせい実装済
+        if (0 < i.なないろとくせい名.length && i.なないろとくせい名 != '未実装')
+          tmpNanairoAri.push(i.名前);
         //CV掛け持ち数
         let tmptmpCvMapCounter = 1;
         if (tmpCvMap.has(i.CV)) tmptmpCvMapCounter = tmpCvMap.get(i.CV) + 1;
@@ -800,7 +825,7 @@ export default {
             ((masterJsonFriends.length - tmpHanamaruChange) / masterJsonFriends.length) * 10000
           ) / 100,
         ],
-        rightUrls: ['/friends?v=48&s=^【&r=true', '/friends?v=1,3,47,48&s=^[^【]&r=true'],
+        rightUrls: ['/friends?v=50&s=^【&r=true', '/friends?v=1,3,49,50&s=^[^【]&r=true'],
       });
       //フレンズ名長さ
       this.stat.set('フレンズ名長さ', {
@@ -816,11 +841,11 @@ export default {
           tmpFriendsNameLengthCollector.最小フレンズ,
         ],
         rightUrls: [
-          '/friends?v=1,3,47,48&s=^.{' + tmpFriendsNameLengthCollector.最大値 + '}%24&r=true',
-          '/friends?v=1,3,47,48&s=^[^【].{' +
+          '/friends?v=1,3,49,50&s=^.{' + tmpFriendsNameLengthCollector.最大値 + '}%24&r=true',
+          '/friends?v=1,3,49,50&s=^[^【].{' +
             (tmpFriendsNameLengthCollector.最大値noHc - 1) +
             '}%24&r=true',
-          '/friends?v=1,3,47,48&s=^.{' + tmpFriendsNameLengthCollector.最小値 + '}%24&r=true',
+          '/friends?v=1,3,49,50&s=^.{' + tmpFriendsNameLengthCollector.最小値 + '}%24&r=true',
         ],
       });
       //属性・サブ属性
@@ -925,6 +950,8 @@ export default {
       });
       //キセキとくせい未実装
       this.stat.set('キセキとくせい未実装', tmpKisekiNashi);
+      //なないろとくせい実装済
+      this.stat.set('なないろとくせい実装済', tmpNanairoAri);
       //CV掛け持ち数
       let tmpCvMapOut = new Map();
       tmpCvMap.delete(''); //空（CV未入力）は削除しておく
@@ -952,7 +979,7 @@ export default {
           tmpCvMapOutArray.left.push(v[0]);
           tmpCvMapOutArray.rightList.push(v[1]);
           const tmpArray = [];
-          v[1].forEach(v2 => tmpArray.push('/friends?v=46&t46=' + v2));
+          v[1].forEach(v2 => tmpArray.push('/friends?v=48&t48=' + v2));
           tmpCvMapOutArray.rightListUrls.push(tmpArray);
         });
       this.stat.set('CV掛け持ち数', tmpCvMapOutArray);
@@ -994,7 +1021,7 @@ export default {
         tmpKubunWork.rightPercentage.push(
           Math.round((v.length / masterJsonFriends.length) * 10000) / 100
         );
-        tmpKubunWork.rightUrls.push('/friends?t48=' + k);
+        tmpKubunWork.rightUrls.push('/friends?t50=' + k);
       });
       this.stat.set('フレンズ入手区分', tmpKubunWork);
     }

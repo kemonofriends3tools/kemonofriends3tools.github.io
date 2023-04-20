@@ -145,7 +145,7 @@
             <StatisticsSimpleTable :tableData="stat.get(i)" />
           </b-card-text>
         </b-card>
-        <b-card title="キセキとくせい">
+        <b-card title="キセキとくせい未実装">
           <b-card-text>
             <b-row>
               <b-col>合計</b-col>
@@ -185,9 +185,6 @@
                     ) / 100
                   }}%)
                 </span>
-                <b-link href="/friends?v=44&s=未実装" target="_blank" rel="noopener">
-                  <i class="fas fa-external-link-alt" />
-                </b-link>
               </b-col>
             </b-row>
           </b-card-text>

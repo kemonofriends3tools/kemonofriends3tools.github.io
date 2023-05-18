@@ -158,7 +158,7 @@
                     ) / 100
                   }}%)
                 </span>
-                <b-link href="/friends?v=44&s=未実装" target="_blank" rel="noopener">
+                <b-link href="/friends?v=44&t44=未実装" target="_blank" rel="noopener">
                   <i class="fas fa-external-link-alt" />
                 </b-link>
               </b-col>
@@ -185,6 +185,9 @@
                     ) / 100
                   }}%)
                 </span>
+                <b-link href="/friends?v=46,47&t46=実装済" target="_blank" rel="noopener">
+                  <i class="fas fa-external-link-alt" />
+                </b-link>
               </b-col>
             </b-row>
           </b-card-text>
@@ -196,7 +199,11 @@
         </b-card>
         <b-card title="CV後日実装">
           <b-card-text>
-            <StatisticsSimpleTable :tableData="stat.get('CV後日実装')" />
+            <StatisticsSimpleTable
+              v-if="stat.get('CV後日実装') && 0 < stat.get('CV後日実装')['left'].length"
+              :tableData="stat.get('CV後日実装')"
+            />
+            <span v-else>なし</span>
           </b-card-text>
         </b-card>
         <b-card title="直近実装フレンズ">

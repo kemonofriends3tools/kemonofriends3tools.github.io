@@ -1090,9 +1090,26 @@ export default {
         {
           field: 'キセキとくせい名',
           label: 'キセキとくせい名',
-          sortable: false,
+          sortable: true,
           hidden: true,
           hidden_default: true,
+          filterOptions: {
+            enabled: true,
+            filterValue: '',
+            type: 'select', //独自
+            options: [
+              { value: '', text: 'キセキとくせい名' },
+              { value: '実装済', text: '実装済' },
+              { value: '未実装', text: '未実装' },
+            ], //独自。b-selectを使う場合の選択肢。
+            filterFn: function(data, filterString) {
+              //独自比較。中身見て振り分け
+              if (filterString == '未実装') return data == filterString ? true : false;
+              if (filterString == '実装済')
+                return 0 < data.length && data != '未実装' ? true : false;
+              return false;
+            },
+          },
         },
         {
           field: 'キセキとくせい詳細',
@@ -1100,13 +1117,46 @@ export default {
           sortable: false,
           hidden: true,
           hidden_default: true,
+          filterOptions: {
+            enabled: true,
+            filterValue: '',
+            type: 'select', //独自
+            options: [
+              { value: '', text: 'キセキとくせい詳細' },
+              { value: '実装済', text: '実装済' },
+              { value: '未実装', text: '未実装' },
+            ], //独自。b-selectを使う場合の選択肢。
+            filterFn: function(data, filterString) {
+              //独自比較。中身見て振り分け
+              if (filterString == '未実装') return data == '' ? true : false;
+              if (filterString == '実装済') return 0 < data.length ? true : false;
+              return false;
+            },
+          },
         },
         {
           field: 'なないろとくせい名',
           label: 'なないろとくせい名',
-          sortable: false,
+          sortable: true,
           hidden: true,
           hidden_default: true,
+          filterOptions: {
+            enabled: true,
+            filterValue: '',
+            type: 'select', //独自
+            options: [
+              { value: '', text: 'なないろとくせい名' },
+              { value: '実装済', text: '実装済' },
+              { value: '未実装', text: '未実装' },
+            ], //独自。b-selectを使う場合の選択肢。
+            filterFn: function(data, filterString) {
+              //独自比較。中身見て振り分け
+              if (filterString == '未実装') return data == filterString ? true : false;
+              if (filterString == '実装済')
+                return 0 < data.length && data != '未実装' ? true : false;
+              return false;
+            },
+          },
         },
         {
           field: 'なないろとくせい詳細',
@@ -1114,6 +1164,22 @@ export default {
           sortable: false,
           hidden: true,
           hidden_default: true,
+          filterOptions: {
+            enabled: true,
+            filterValue: '',
+            type: 'select', //独自
+            options: [
+              { value: '', text: 'なないろとくせい詳細' },
+              { value: '実装済', text: '実装済' },
+              { value: '未実装', text: '未実装' },
+            ], //独自。b-selectを使う場合の選択肢。
+            filterFn: function(data, filterString) {
+              //独自比較。中身見て振り分け
+              if (filterString == '未実装') return data == '' ? true : false;
+              if (filterString == '実装済') return 0 < data.length ? true : false;
+              return false;
+            },
+          },
         },
         {
           field: 'CV',

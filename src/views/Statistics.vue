@@ -104,8 +104,7 @@
         >
           <b-card-text>
             <span v-if="i != '回避' && i != 'プラズム'" class="small">
-              LV70時の値にて比較<br />
-              (★3以下データ不足による漏れ有)
+              LV70時の値にて比較
             </span>
             <StatisticsSimpleTable :tableData="stat.get('フレンズ' + i)" />
           </b-card-text>

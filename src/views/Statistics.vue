@@ -1137,25 +1137,28 @@ export default {
           tmpPhotoStarCounter[i['☆']]++;
         }
         //ステータス
-        tmpPhotoStatus.forEach(j => {
-          if (Number.isInteger(i[j.比較対象])) {
-            //空文字は処理スキップ
-            //最大値検索
-            if (j.最大値 < i[j.比較対象]) {
-              j.最大値 = i[j.比較対象];
-              j.最大フォト = [i.名前]; //新配列に差し替え
-            } else if (j.最大値 == i[j.比較対象]) {
-              j.最大フォト.push(i.名前);
+        //強化素材は除外
+        if (!i['備考'].includes('強化素材')) {
+          tmpPhotoStatus.forEach(j => {
+            if (Number.isInteger(i[j.比較対象])) {
+              //空文字は処理スキップ
+              //最大値検索
+              if (j.最大値 < i[j.比較対象]) {
+                j.最大値 = i[j.比較対象];
+                j.最大フォト = [i.名前]; //新配列に差し替え
+              } else if (j.最大値 == i[j.比較対象]) {
+                j.最大フォト.push(i.名前);
+              }
+              //最小値検索
+              if (j.最小値 > i[j.比較対象]) {
+                j.最小値 = i[j.比較対象];
+                j.最小フォト = [i.名前]; //新配列に差し替え
+              } else if (j.最小値 == i[j.比較対象]) {
+                j.最小フォト.push(i.名前);
+              }
             }
-            //最小値検索
-            if (j.最小値 > i[j.比較対象]) {
-              j.最小値 = i[j.比較対象];
-              j.最小フォト = [i.名前]; //新配列に差し替え
-            } else if (j.最小値 == i[j.比較対象]) {
-              j.最小フォト.push(i.名前);
-            }
-          }
-        });
+          });
+        }
         //最多イラストレーター
         let tmpIllustratorMapCounter = 1;
         if (tmpIllustratorMap.has(i.イラストレータ名))

@@ -720,7 +720,7 @@ export default {
         if (5 <= i.野生解放) tmpYaseiKaihou5++;
         //ステータス
         tmpStatus.forEach(j => {
-          if (!Number(i[j.比較対象]).isNaN) {
+          if (Number.isInteger(i[j.比較対象])) {
             //空文字は処理スキップ
             //最大値検索
             if (j.最大値 < i[j.比較対象]) {
@@ -1138,7 +1138,7 @@ export default {
         }
         //ステータス
         tmpPhotoStatus.forEach(j => {
-          if (!Number(i[j.比較対象]).isNaN) {
+          if (Number.isInteger(i[j.比較対象])) {
             //空文字は処理スキップ
             //最大値検索
             if (j.最大値 < i[j.比較対象]) {

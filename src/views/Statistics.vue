@@ -276,7 +276,7 @@
         <b-card v-for="i of ['体力', '攻撃', '守り']" :key="i" :title="i">
           <b-card-text>
             <span class="small"
-              >限界突破無、LV最大にて比較<br />(データ不足が多い為、参考程度に留めてください)</span
+              >限界突破無、LV最大にて比較、強化素材は除外<br />(データ不足が多い為、参考程度に留めてください)</span
             >
             <StatisticsSimpleTable :tableData="stat.get('フォト' + i)" />
           </b-card-text>

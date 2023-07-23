@@ -739,10 +739,17 @@ export default {
           }
         });
         //フラッグ3枚以上
+        //以下の正規表現は本来|の手前側だけで済む。が、先にSearchFriendsを見ているとHITせず結果が空になってしまう。
+        //原因はSearchFriendsのbeforeMountにて原本であるJsonの中身を直接書き換えている為（bなど省略記法からBeatなど表示用記法に上書きしている）
+        //そのため最初にFriendsを見た後にStatisticsを開くと本来の正規表現ではHITせず空欄になる（ページをリロードすると治る）
+        //原因はSearchFriendsなのであちらを修正すべきかもしれないがコードが複雑化しているためこちらで正規表現を工夫して両方がHITするようにして対応する
+        //参考：tmpFlag3Concatに本来来るべき文字列：bba10a15t30、SearchFriends経由で来た場合の文字列：BeatBeatAction 10Action 15Try 30
         const tmpFlag3Concat = i.flag1 + i.flag2 + i.flag3 + i.flag4 + i.flag5;
-        if (new RegExp('b{3}').test(tmpFlag3Concat)) tmpFlag3Beat.push(i.名前);
-        if (new RegExp('(a[0-9]+){3}').test(tmpFlag3Concat)) tmpFlag3Action.push(i.名前);
-        if (new RegExp('(t[0-9]+){3}').test(tmpFlag3Concat)) tmpFlag3Try.push(i.名前);
+        if (new RegExp('b{3}|(Beat){3}').test(tmpFlag3Concat)) tmpFlag3Beat.push(i.名前);
+        if (new RegExp('(a[0-9]+){3}|(Action [0-9]+){3}').test(tmpFlag3Concat))
+          tmpFlag3Action.push(i.名前);
+        if (new RegExp('(t[0-9]+){3}|(Try [0-9]+){3}').test(tmpFlag3Concat))
+          tmpFlag3Try.push(i.名前);
         //待機スキル
         let tmpTaikiCurrentRate = i.たいきスキル詳細.match(/発動率：([0-9]+)%/iu);
         let tmpTaikiCurrentTimes = i.たいきスキル詳細.match(/発動回数：(∞|[0-9]+)/iu);

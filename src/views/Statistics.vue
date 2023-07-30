@@ -273,7 +273,7 @@
             <StatisticsSimpleTable :tableData="stat.get('フォト★')" />
           </b-card-text>
         </b-card>
-        <b-card v-for="i of ['体力', '攻撃', '守り']" :key="i" :title="i">
+        <b-card v-for="i of ['体力', '攻撃', '守り', 'けもステ']" :key="i" :title="i">
           <b-card-text>
             <span class="small"
               >限界突破無、LV最大にて比較、強化素材は除外<br />(データ不足が多い為、参考程度に留めてください)</span
@@ -1098,6 +1098,16 @@ export default {
             最小フォト: [],
           },
         ],
+        [
+          'けもステ',
+          {
+            比較対象: '0けもステ',
+            最大値: 0,
+            最小値: Number.MAX_SAFE_INTEGER,
+            最大フォト: [],
+            最小フォト: [],
+          },
+        ],
       ]);
       //最多イラストレーター
       let tmpIllustratorMap = new Map();
@@ -1147,7 +1157,8 @@ export default {
         //強化素材は除外
         if (!i['備考'].includes('強化素材')) {
           tmpPhotoStatus.forEach(j => {
-            if (Number.isInteger(i[j.比較対象])) {
+            //空文字を除いて数値である場合のみ処理するがフォトのけもステは小数で来るのでisInteger()ではなくisFinite()を使用する
+            if (Number.isFinite(i[j.比較対象])) {
               //空文字は処理スキップ
               //最大値検索
               if (j.最大値 < i[j.比較対象]) {
@@ -1268,7 +1279,7 @@ export default {
       //ステータス
       //登録時はそのままだとフレンズと名前が被るので頭に'フォト'を足す
       let tmpStatusWork;
-      ['体力', '攻撃', '守り'].forEach(i => {
+      ['体力', '攻撃', '守り', 'けもステ'].forEach(i => {
         tmpStatusWork = tmpPhotoStatus.get(i);
         this.stat.set('フォト' + i, {
           left: ['最大', '最小'],

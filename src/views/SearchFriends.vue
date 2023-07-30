@@ -1496,7 +1496,8 @@ export default {
     numberColumnSortFn(x, y) {
       const ix = x == '' ? 0 : x;
       const iy = y == '' ? 0 : y;
-      return ix < iy ? -1 : ix > iy ? 1 : 0;
+      //930.0など小数点を含む文字列同士で比較すると辞書順で比較してしまう模様。数値として比較したいのでNumberにキャストして比較する
+      return Number(ix) < Number(iy) ? -1 : Number(ix) > Number(iy) ? 1 : 0;
     },
     //advFilterに値をセットする。
     //引数として指定された2つのindexを利用し、mixinにて定義された配列を参照して値を渡す。indexを経由させているのはクエリーにて利用したい為。

@@ -132,7 +132,8 @@
                   <b-alert show variant="info" class="small mb-1">
                     ３：下の表の表示列を切り替えます。<br />
                     変化するのは列の表示のみで、行数が変化することはありません。ただしここの選択は４の『表内検索』と深く関係しています。<br />
-                    ４の『表内検索』はここで表示させたものが検索対象となります。
+                    ４の『表内検索』はここで表示させたものが検索対象となります。<br />
+                    なお、けもステは他数値からの算出値です（体力*0.8+攻撃*3+守り*2）。
                   </b-alert>
                 </b-collapse>
                 <b-alert show variant="warning" class="mt-2 mb-0 px-2 small">
@@ -541,6 +542,16 @@ export default {
           formatFn: this.formatFnRaw,
         },
         {
+          field: '0けもステ',
+          label: 'けもステ',
+          type: 'number',
+          sortable: true,
+          sortFn: this.numberColumnSortFn,
+          hidden: true,
+          hidden_default: true,
+          formatFn: this.formatFnToFixed,
+        },
+        {
           field: '4体力',
           label: '体力',
           type: 'number',
@@ -569,6 +580,16 @@ export default {
           hidden: true,
           hidden_default: true,
           formatFn: this.formatFnRaw,
+        },
+        {
+          field: '4けもステ',
+          label: 'けもステ',
+          type: 'number',
+          sortable: true,
+          sortFn: this.numberColumnSortFn,
+          hidden: true,
+          hidden_default: true,
+          formatFn: this.formatFnToFixed,
         },
         {
           field: 'とくせい(変化前)',
@@ -638,6 +659,7 @@ export default {
         { name: '体力', hidden: true },
         { name: '攻撃', hidden: true },
         { name: '守り', hidden: true },
+        { name: 'けもステ', hidden: true },
       ],
       //検索対象を管理する配列
       searchTargetFlag: ['normal', 'wild'],
@@ -869,12 +891,17 @@ export default {
     formatFnRaw(v) {
       return v;
     },
+    //vue-good-tableデータ生出力用formatter小数対応
+    formatFnToFixed(v) {
+      return Number(v).toFixed(1);
+    },
     //vue-good-table用numberカラムのsort用function
     //デフォルトのsortだと上のformatFnRawの影響か、空欄があったときにそこでソートが分割されてしまう。なので、空欄は0とみなし、正常にsortが行えるようにする。
     numberColumnSortFn(x, y) {
       const ix = x == '' ? 0 : x;
       const iy = y == '' ? 0 : y;
-      return ix < iy ? -1 : ix > iy ? 1 : 0;
+      //930.0など小数点を含む文字列同士で比較すると辞書順で比較してしまう模様。数値として比較したいのでNumberにキャストして比較する
+      return Number(ix) < Number(iy) ? -1 : Number(ix) > Number(iy) ? 1 : 0;
     },
     //advFilterに値をセットする。
     //引数として指定された2つのindexを利用し、mixinにて定義された配列を参照して値を渡す。indexを経由させているのはクエリーにて利用したい為。
@@ -923,7 +950,7 @@ export default {
         }
       }
     },
-    //['体力', '攻撃', '守り']ボタンを押したときの動作。ボタン自体の表示制御の他、columnsのhiddenを切り替えて回る。
+    //['体力', '攻撃', '守り', 'けもステ']ボタンを押したときの動作。ボタン自体の表示制御の他、columnsのhiddenを切り替えて回る。
     setLevelStatusColumnHidden(columnLabel, index) {
       //ボタン表示反転(dataが変更を検知できるよう$setで変更する。この動作は他の@clickでやってることと同じ。)
       this.$set(this.levelStatusColumns[index], 'hidden', !this.levelStatusColumns[index].hidden);
@@ -1078,7 +1105,7 @@ export default {
     }
 
     //表示列（ボタン：ステータス）
-    //['体力', '攻撃', '守り']ボタン(levelStatusColumns)は特別な処理をしているのでここでセットする。
+    //['体力', '攻撃', '守り', 'けもステ']ボタン(levelStatusColumns)は特別な処理をしているのでここでセットする。
     //現在選択されているレベルの各表示状態を調べ、それをlevelStatusColumnsに反映させる。
     this.levelStatusColumns.forEach(
       i => (i.hidden = this.columns[this.columnsIndex.get(this.selectedLevel + i.name)].hidden)

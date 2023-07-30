@@ -893,7 +893,7 @@ export default {
     },
     //vue-good-tableデータ生出力用formatter小数対応
     formatFnToFixed(v) {
-      return Number(v).toFixed(1);
+      return Number.isFinite(v) ? Number(v).toFixed(1) : '';
     },
     //vue-good-table用numberカラムのsort用function
     //デフォルトのsortだと上のformatFnRawの影響か、空欄があったときにそこでソートが分割されてしまう。なので、空欄は0とみなし、正常にsortが行えるようにする。

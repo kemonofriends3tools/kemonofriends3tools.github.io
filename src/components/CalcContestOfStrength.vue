@@ -376,7 +376,7 @@ import contestOfStrengthSPJson from '../json/contestOfStrengthSP.json';
 
 //イベント終了日時。更新する場合はここを変更する。
 //終了時間は10分程前を指定しておくこと（最終対戦をメンテ前に終えられるよう配慮している）。
-const endDateNormal = new Date('2024/07/25 13:50:00');
+const endDateNormal = new Date('2024/09/26 13:50:00');
 const EndDateSP = new Date('2023/10/26 13:50:00');
 
 const DifficultyNormal = [

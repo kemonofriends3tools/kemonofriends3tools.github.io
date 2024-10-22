@@ -15,16 +15,16 @@
               </b-link>
               <br />
               <span class="small">
-                はなまるチェンジ込み。ユニークフレンズ数は「はなまるチェンジ以外」を参照
+                はなまるチェンジ込み
               </span>
             </p>
           </b-card-text>
         </b-card>
-        <b-card title="はなまるチェンジ">
+        <!-- <b-card title="はなまるチェンジ">
           <b-card-text>
             <StatisticsSimpleTable :tableData="stat.get('はなまるチェンジ')" />
           </b-card-text>
-        </b-card>
+        </b-card> -->
         <b-card title="フレンズ名長さ">
           <b-card-text>
             <StatisticsSimpleTable :tableData="stat.get('フレンズ名長さ')" />

@@ -1221,8 +1221,8 @@ export default {
         ],
         rightList: [tmpPhotoNameLengthCollector.最大フォト, tmpPhotoNameLengthCollector.最小フォト],
         rightUrls: [
-          '/photo?v=1,2,10,12,13&s=^.{' + tmpPhotoNameLengthCollector.最大値 + '}%24&r=true',
-          '/photo?v=1,2,10,12,13&s=^.{' + tmpPhotoNameLengthCollector.最小値 + '}%24&r=true',
+          '/photo?v=1,2,12,14,15&s=^.{' + tmpPhotoNameLengthCollector.最大値 + '}%24&r=true',
+          '/photo?v=1,2,12,14,15&s=^.{' + tmpPhotoNameLengthCollector.最小値 + '}%24&r=true',
         ],
       });
       //属性
@@ -1314,7 +1314,7 @@ export default {
           tmpIllustratorMapArray.left.push(v[0]);
           tmpIllustratorMapArray.rightList.push(v[1]);
           const tmpArray = [];
-          v[1].forEach(v2 => tmpArray.push('/photo?v=11&t11=' + v2));
+          v[1].forEach(v2 => tmpArray.push('/photo?v=13&t13=' + v2));
           tmpIllustratorMapArray.rightListUrls.push(tmpArray);
         });
       this.stat.set('最多イラストレーター', tmpIllustratorMapArray);
@@ -1339,7 +1339,7 @@ export default {
         tmpPhotoTypeSPWork.left.push(k);
         tmpPhotoTypeSPWork.right.push(v.length);
         tmpPhotoTypeSPWork.rightList.push(v);
-        tmpPhotoTypeSPWork.rightUrls.push('/photo?j=material,normal,wild&t13=' + k);
+        tmpPhotoTypeSPWork.rightUrls.push('/photo?j=material,normal,wild&t15=' + k);
       });
       this.stat.set('特殊入手フォト', tmpPhotoTypeSPWork);
     }

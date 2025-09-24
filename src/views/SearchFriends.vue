@@ -1567,7 +1567,7 @@ export default {
     },
 
     //フラッグ関係カラムに使用する背景色classを取得する
-    //['beat', 'try', 'action']などの文字列が来ることを想定し、頭1文字で判定して対応するclassを返す。
+    //['beat', 'try', 'action','special']などの文字列が来ることを想定し、頭1文字で判定して対応するclassを返す。
     //第一引数では背景色以外に適用したいクラスを受け付けている。
     getFlagCorrectionColumnClass(otherClassesStr, i) {
       let tmpFlag = '';
@@ -1577,6 +1577,8 @@ export default {
         tmpFlag = 'action';
       } else if (i.match(/^t/i)) {
         tmpFlag = 'try';
+      } else if (i.match(/^s/i)) {
+        tmpFlag = 'special';
       }
       return otherClassesStr + ' color-' + tmpFlag;
     },
@@ -1794,6 +1796,10 @@ export default {
 }
 .color-try {
   background: linear-gradient(90deg, $try-color-1 2%, $try-color-2 5%, transparent 100%);
+  padding-left: 5%;
+}
+.color-special {
+  background: linear-gradient(90deg, $special-color-1 2%, $special-color-2 5%, transparent 100%);
   padding-left: 5%;
 }
 

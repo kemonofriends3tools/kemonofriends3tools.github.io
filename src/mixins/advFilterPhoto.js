@@ -44,6 +44,11 @@ const _advFilterPhoto = [
         regex: 'まち',
       },
       {
+        labelFull: '地形/時間特効(昼)',
+        labelShort: '昼',
+        regex: 'ステージ(|の時間)が昼の(場合|とき)',
+      },
+      {
         labelFull: '地形/時間特効(夜)',
         labelShort: '夜',
         regex: 'ステージ(|の時間)が夜の(場合|とき)',

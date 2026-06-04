@@ -19,7 +19,6 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      # 1. 各種ActionをNode.js 24対応の最新メジャーバージョンに変更
       - uses: actions/checkout@v6
       
       - name: Setup Node
@@ -28,7 +27,7 @@ jobs:
           node-version: '14'
           
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -41,14 +40,12 @@ jobs:
       - name: build
         run: npm run build
         
-      # 2. peaceiris/actions-gh-pages を廃止し、公式Actionでビルド成果物(dist)をアップロード
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
 
   deploy:
-    # 3. アップロードされた成果物を GitHub Pages にデプロイ
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -57,4 +54,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

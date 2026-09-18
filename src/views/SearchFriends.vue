@@ -114,6 +114,7 @@
                   '技・特性',
                   [
                     'ミラクル',
+                    'けもミラ',
                     'とくいわざ',
                     'たいきスキル',
                     'とくせい/キセキとくせい/なないろとくせい',
@@ -211,7 +212,16 @@
                 v-for="(i, index) of [
                   ['Beat補正', 'Try補正', 'Action補正'],
                   ['flag1', 'flag2', 'flag3', 'flag4', 'flag5'],
-                  ['ミラクル名', 'MP', 'ミラクル+', 'ミラクルlv5'],
+                  [
+                    'ミラクル名',
+                    'MP',
+                    'ミラクル+',
+                    'ミラクルlv5',
+                    'けもミラ名',
+                    'けもミラMP',
+                    'けもミラ+',
+                    'けもミラlv5',
+                  ],
                   ['とくいわざ名', 'とくいわざ詳細', 'たいきスキル名', 'たいきスキル詳細'],
                   [
                     'とくせい名',
@@ -502,6 +512,47 @@
               </text-highlight>
             </p>
           </template>
+          <template v-else-if="props.column.label == 'けもミラ'">
+            <template v-if="props.row.けもミラ名">
+              <p class="font-weight-bold m-0">
+                <text-highlight
+                  :queries="getGlobalSearchTermArray.highlight"
+                  :caseSensitive="false"
+                >
+                  {{ props.row.けもミラ名 }}
+                </text-highlight>
+              </p>
+              <p class="m-0 pl-2">
+                MP:
+                <text-highlight
+                  :queries="getGlobalSearchTermArray.highlight"
+                  :caseSensitive="false"
+                >
+                  {{ props.row.けもミラMP }}
+                </text-highlight>
+                <span
+                  :class="getFlagCorrectionColumnClass('pr-3', props.row['けもミラ+'])"
+                  style="padding-left:0.5rem;"
+                >
+                  <text-highlight
+                    :queries="getGlobalSearchTermArray.highlight"
+                    :caseSensitive="false"
+                  >
+                    {{ props.row['けもミラ+'] }}
+                  </text-highlight>
+                </span>
+                Lv.5
+              </p>
+              <p class="preText m-0 pl-2">
+                <text-highlight
+                  :queries="getGlobalSearchTermArray.highlight"
+                  :caseSensitive="false"
+                >
+                  {{ props.row.けもミラlv5 }}
+                </text-highlight>
+              </p>
+            </template>
+          </template>
           <template v-else-if="props.column.label == 'とくいわざ'">
             <p class="font-weight-bold m-0">
               <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
@@ -572,12 +623,18 @@
           </template>
           <template
             v-else-if="
-              ['フラッグ1', 'フラッグ2', 'フラッグ3', 'フラッグ4', 'フラッグ5', 'ミラクル+'].some(
-                i => i == props.column.label
-              )
+              [
+                'フラッグ1',
+                'フラッグ2',
+                'フラッグ3',
+                'フラッグ4',
+                'フラッグ5',
+                'ミラクル+',
+                'けもミラ+',
+              ].some(i => i == props.column.label)
             "
           >
-            <!-- フラッグ1-5のfield名は"flag"なので表示にはprops.column.fieldを利用する。ミラクル+は同一だが処理は共通なのでここに置く。 -->
+            <!-- フラッグ1-5のfield名は"flag"なので表示にはprops.column.fieldを利用する。ミラクル+等は同一だが処理は共通なのでここに置く。 -->
             <p :class="getFlagCorrectionColumnClass('m-0', props.row[props.column.field])">
               <text-highlight :queries="getGlobalSearchTermArray.highlight" :caseSensitive="false">
                 {{ props.row[props.column.field] }}
@@ -588,6 +645,7 @@
             v-else-if="
               [
                 'ミラクル (Lv.5)',
+                'けもミラ (Lv.5)',
                 'とくいわざ詳細',
                 'たいきスキル詳細',
                 'とくせい詳細',
@@ -635,6 +693,7 @@ let masterJson = null;
 //カラムのうち改行を含み複数行になりうるもの。検索等で利用
 const multiLineColumns = [
   'ミラクルlv5',
+  'けもミラlv5',
   'とくいわざ詳細',
   'たいきスキル詳細',
   'とくせい詳細',
@@ -1025,6 +1084,57 @@ export default {
           hidden_default: true,
         },
         {
+          field: 'けもミラ',
+          label: 'けもミラ',
+          sortable: false,
+          hidden: true,
+          hidden_default: true,
+        },
+        {
+          field: 'けもミラ名',
+          label: 'けもミラ名',
+          sortable: false,
+          hidden: true,
+          hidden_default: true,
+        },
+        {
+          field: 'けもミラMP',
+          label: 'けもミラMP',
+          type: 'number',
+          sortable: true,
+          sortFn: this.numberColumnSortFn,
+          hidden: true,
+          hidden_default: true,
+          formatFn: this.formatFnRaw,
+        },
+        {
+          field: 'けもミラ+',
+          label: 'けもミラ+',
+          sortable: false,
+          hidden: true,
+          hidden_default: true,
+          filterOptions: {
+            enabled: true,
+            filterValue: '',
+            // placeholder: 'けもミラ+',
+            // filterDropdownItems: ['Beat', 'Action', 'Try'],
+            type: 'select', //独自
+            options: [
+              { value: '', text: 'けもミラ+' },
+              { value: 'Beat', text: 'Beat' },
+              { value: 'Action', text: 'Action' },
+              { value: 'Try', text: 'Try' },
+            ], //独自
+          },
+        },
+        {
+          field: 'けもミラlv5',
+          label: 'けもミラ (Lv.5)',
+          sortable: false,
+          hidden: true,
+          hidden_default: true,
+        },
+        {
           field: 'とくいわざ',
           label: 'とくいわざ',
           sortable: false,
@@ -1290,6 +1400,9 @@ export default {
           } else if (col.label == 'ミラクル') {
             searchTargetColumns.push(['ミラクル名', 'MP', 'ミラクル+', 'ミラクルlv5noCR']);
             searchTargetColumns_noCR_Set.add('ミラクルlv5noCR');
+          } else if (col.label == 'けもミラ') {
+            searchTargetColumns.push(['けもミラ名', 'けもミラMP', 'けもミラ+', 'けもミラlv5noCR']);
+            searchTargetColumns_noCR_Set.add('けもミラlv5noCR');
           } else if (col.label == 'とくいわざ') {
             searchTargetColumns.push(['とくいわざ名', 'とくいわざ詳細noCR']);
             searchTargetColumns_noCR_Set.add('とくいわざ詳細noCR');
@@ -1693,6 +1806,14 @@ export default {
           i['ミラクル+'] = 'Action';
         } else if (i['ミラクル+'].match(/^t/i)) {
           i['ミラクル+'] = 'Try';
+        }
+        //'けもミラ+'。単純上書き型。フラッグ関係と似ているがActionとTryに数値がない。分けたほうがスッキリするので混ぜずにここに書く。
+        if (i['けもミラ+'].match(/^b/i)) {
+          i['けもミラ+'] = 'Beat';
+        } else if (i['けもミラ+'].match(/^a/i)) {
+          i['けもミラ+'] = 'Action';
+        } else if (i['けもミラ+'].match(/^t/i)) {
+          i['けもミラ+'] = 'Try';
         }
 
         //検索用に改行有カラムの改行無しデータを用意する。

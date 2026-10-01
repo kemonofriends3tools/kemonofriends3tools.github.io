@@ -10,6 +10,7 @@
         <b-tab title="金" />
         <b-tab title="土" />
         <b-tab title="日" />
+        <b-tab title="じょーとー" />
       </b-tabs>
       <b-tabs card v-model="tabIndex" class="d-block d-sm-none">
         <b-tab title="月" title-link-class="px-2" />
@@ -19,10 +20,12 @@
         <b-tab title="金" title-link-class="px-2" />
         <b-tab title="土" title-link-class="px-2" />
         <b-tab title="日" title-link-class="px-2" />
+        <b-tab title="じょーとー" title-link-class="px-2" />
       </b-tabs>
       <b-row class="justify-content-around">
         <b-col cols="12" lg="6">
-          <h4>シーサーバル道場β</h4>
+          <h4 v-if="getDayOfTheWeek == 'じょーとー'">じょーとー獅子道場</h4>
+          <h4 v-else>シーサーバル道場β</h4>
           <template v-if="masterDojoData.has(getDayOfTheWeek)">
             <template
               v-if="
@@ -136,7 +139,7 @@ export default {
     if (this.tabIndex < 0) this.tabIndex = 6;
 
     //masterDojoDataを事前初期化する。
-    for (const i of ['月', '火', '水', '木', '金', '土', '日'])
+    for (const i of ['月', '火', '水', '木', '金', '土', '日', 'じょーとー'])
       this.masterDojoData.set(i, new Map());
     //jsonを走査してmasterDojoDataを作成する。
     for (const row of dojoJson) {
@@ -154,7 +157,7 @@ export default {
   computed: {
     getDayOfTheWeek() {
       //選択された曜日(tabIndex)を曜日文字列に変換
-      return ['月', '火', '水', '木', '金', '土', '日'][this.tabIndex];
+      return ['月', '火', '水', '木', '金', '土', '日', 'じょーとー'][this.tabIndex];
     },
     getDojoData() {
       const outArray = []; //出力配列

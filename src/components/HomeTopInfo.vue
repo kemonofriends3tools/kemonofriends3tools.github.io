@@ -10,7 +10,7 @@
         <b-tab title="金" />
         <b-tab title="土" />
         <b-tab title="日" />
-        <b-tab title="じょーとー" />
+        <!--b-tab title="じょーとー" / -->
       </b-tabs>
       <b-tabs card v-model="tabIndex" class="d-block d-sm-none">
         <b-tab title="月" title-link-class="px-2" />

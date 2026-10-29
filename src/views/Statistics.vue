@@ -58,13 +58,13 @@
             <StatisticsSimpleTable :tableData="stat.get('初期けも級')" />
           </b-card-text>
         </b-card>
-        <b-card title="パーティドレス">
+        <b-card title="フォトポケ12">
           <b-card-text>
             <p class="text-right">
-              {{ stat.get('パーティドレス') }}
+              {{ stat.get('フォトポケ12') }}
               <span class="small">
                 ({{
-                  Math.round((stat.get('パーティドレス') / stat.get('総フレンズ数')) * 10000) / 100
+                  Math.round((stat.get('フォトポケ12') / stat.get('総フレンズ数')) * 10000) / 100
                 }}%)
               </span>
               <b-link href="/friends?v=4&t4=12" target="_blank" rel="noopener">
@@ -556,7 +556,7 @@ export default {
       let tmpTypeSubCounter = 0;
       //初期けも級
       let tmpKemoKyuuCounter = [0, 0, 0, 0];
-      //パーティドレス(フォトポケ12)
+      //フォトポケ12
       let tmpPhotoPoke12 = 0;
       //野生解放5
       let tmpYaseiKaihou5 = 0;
@@ -714,7 +714,7 @@ export default {
         //初期けも級
         if (!isNaN(i.初期けも級) && 1 <= i.初期けも級 && i.初期けも級 <= 4)
           tmpKemoKyuuCounter[i.初期けも級 - 1]++;
-        //パーティドレス(フォトポケ12)
+        //フォトポケ12
         if (12 <= i.フォトポケ) tmpPhotoPoke12++;
         //野生解放5
         if (5 <= i.野生解放) tmpYaseiKaihou5++;
@@ -908,7 +908,7 @@ export default {
         tmpKemoKyuuWork.rightUrls.push('/friends?t3=' + tmpKemoKyuuName.length);
       });
       this.stat.set('初期けも級', tmpKemoKyuuWork);
-      this.stat.set('パーティドレス', tmpPhotoPoke12);
+      this.stat.set('フォトポケ12', tmpPhotoPoke12);
       this.stat.set('野生解放5', tmpYaseiKaihou5);
       //ステータス
       //登録時はそのままだとフォトと名前が被るので頭に'フレンズ'を足す

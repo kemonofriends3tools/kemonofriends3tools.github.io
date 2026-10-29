@@ -70,11 +70,6 @@
               <b-link href="/friends?v=4&t4=12" target="_blank" rel="noopener">
                 <i class="fas fa-external-link-alt" />
               </b-link>
-              <br />
-              <span class="small">
-                フォトポケ12以上<br />
-                告知なく追加される為、おそらく漏れ有
-              </span>
             </p>
           </b-card-text>
         </b-card>
